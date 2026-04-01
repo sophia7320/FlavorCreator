@@ -62,7 +62,20 @@
             <version>4.0.1</version>
             <scope>test</scope>
         </dependency>
+        <!-- MyBatis-Plus -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-boot-starter</artifactId>
+            <version>3.5.15</version>
+        </dependency>
+
+        <!-- Jackson（用于JSON序列化） -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
     </dependencies>
+
 
     <build>
         <plugins>
