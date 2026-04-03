@@ -1,4 +1,4 @@
-package flcr.backend.auth;
+package flcr.backend.auth.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -12,6 +12,8 @@ import java.time.LocalDateTime;
 public class User {
     @TableId(type = IdType.AUTO , value = "id")
     int id;
+
+    int gender;
 
     String nickname;
     String phoneNumber;

@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: backend
+  profiles:
+    active: dev
+
+wx:
+  app-id: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  secret: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+jwt:
+  secret: FlavorCreatorSecretKey2026
+  expiration: 7200000
+  refresh-expiration: 604800000
