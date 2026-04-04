@@ -12,6 +12,7 @@ import flcr.backend.auth.entity.User;
 import flcr.backend.auth.mapper.UserMapper;
 import flcr.backend.auth.service.UserService;
 import flcr.backend.common.util.JwtTokenUtil;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.chanjar.weixin.common.error.WxErrorException;
 import org.springframework.stereotype.Service;
@@ -19,17 +20,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
+@AllArgsConstructor
 @Slf4j
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
 
     private final WxMaService wxMaService;
     private final JwtTokenUtil jwtTokenUtil;
-
-    public UserServiceImpl(WxMaService wxMaService, JwtTokenUtil jwtTokenUtil) {
-        this.wxMaService = wxMaService;
-        this.jwtTokenUtil = jwtTokenUtil;
-    }
 
     @Override
     public LoginResponseDTO login(LoginDTO request) throws WxErrorException {
