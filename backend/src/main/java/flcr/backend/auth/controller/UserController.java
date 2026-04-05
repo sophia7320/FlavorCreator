@@ -2,6 +2,7 @@ package flcr.backend.auth.controller;
 
 import flcr.backend.auth.DTO.request.LoginDTO;
 import flcr.backend.auth.DTO.request.PhoneBindDTO;
+import flcr.backend.auth.DTO.request.RefreshTokenDTO;
 import flcr.backend.auth.DTO.response.LoginResponseDTO;
 import flcr.backend.auth.DTO.response.PhoneBindResponseDTO;
 import flcr.backend.auth.service.UserService;
@@ -50,7 +51,6 @@ public class UserController {
     public Response<PhoneBindResponseDTO> bindPhone(@RequestHeader("Authorization") String authorization,
                                                     @RequestBody PhoneBindDTO request) {
         try {
-            // 从 Authorization 头中提取 token 并解析 userId
             String token = authorization.replace("Bearer ", "");
             Long userId = jwtTokenUtil.getUserIdFromToken(token);
 
@@ -63,6 +63,17 @@ public class UserController {
         } catch (Exception e) {
             log.error("绑定手机号失败", e);
             return Response.error(ResultCode.PHONE_ERROR, "绑定失败：" + e.getMessage());
+        }
+    }
+
+    @PostMapping("/refresh")
+    public Response<LoginResponseDTO> refresh(@RequestBody RefreshTokenDTO request) {
+        try {
+            LoginResponseDTO result = userService.refreshToken(request.getRefreshToken());
+            return Response.success("刷新成功", result);
+        } catch (Exception e) {
+            log.error("刷新 token 失败", e);
+            return Response.error(ResultCode.USER_NOT_EXIST, "刷新失败：" + e.getMessage());
         }
     }
 

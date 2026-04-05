@@ -109,6 +109,52 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 .build();
     }
 
+    @Override
+    public LoginResponseDTO refreshToken(String refreshToken) {
+        if (refreshToken == null || refreshToken.isEmpty()) {
+            log.error("刷新 token 为空");
+            throw new RuntimeException("刷新 token 不能为空");
+        }
+
+        if (!jwtTokenUtil.validateToken(refreshToken)) {
+            log.error("刷新 token 无效或已过期");
+            throw new RuntimeException("刷新 token 无效或已过期");
+        }
+
+        Long userId = jwtTokenUtil.getUserIdFromToken(refreshToken);
+        String openid = jwtTokenUtil.getOpenidFromToken(refreshToken);
+
+        if (userId == null || openid == null) {
+            log.error("从刷新 token 中获取用户信息失败");
+            throw new RuntimeException("刷新 token 格式错误");
+        }
+
+        User user = this.getById(userId);
+        if (user == null || !openid.equals(user.getOpenid())) {
+            log.error("用户不存在或 token 与用户不匹配，userId: {}", userId);
+            throw new RuntimeException("用户不存在");
+        }
+
+        String newToken = jwtTokenUtil.generateToken(userId, user.getOpenid());
+        String newRefreshToken = jwtTokenUtil.generateRefreshToken(userId, user.getOpenid());
+
+        return LoginResponseDTO.builder()
+                .token(newToken)
+                .refreshToken(newRefreshToken)
+                .expiresIn(7200L)
+                .needBindPhone(false)
+                .user(LoginResponseDTO.UserInfoVO.builder()
+                        .id(userId)
+                        .openid(user.getOpenid())
+                        .nickname(user.getNickname())
+                        .avatar(user.getAvatar())
+                        .phone(user.getPhoneNumber())
+                        .gender(user.getGender())
+                        .isNewUser(false)
+                        .build())
+                .build();
+    }
+
     /**
      * 根据 openid 查询用户，不存在则创建
      */
