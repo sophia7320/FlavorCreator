@@ -34,6 +34,11 @@ public class LoginResponseDTO {
     private Boolean needBindPhone;
 
     /**
+     * 是否为新注册用户
+     */
+    private Boolean isNewUser;
+
+    /**
      * 用户信息
      */
     private UserInfoVO user;
@@ -50,6 +55,5 @@ public class LoginResponseDTO {
         private String avatar;
         private String phone;
         private Integer gender;
-        private Boolean isNewUser;
     }
 }

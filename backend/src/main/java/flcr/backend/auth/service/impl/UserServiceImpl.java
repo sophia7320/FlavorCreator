@@ -28,6 +28,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private final WxMaService wxMaService;
     private final JwtTokenUtil jwtTokenUtil;
 
+    /**
+     * 内部类：携带用户对象和是否新创建的标记
+     */
+    private record UserWithStatus(User user, boolean newUser) {}
+
     @Override
     public LoginResponseDTO login(LoginDTO request) throws WxErrorException {
         String code = request.getCode();
@@ -45,7 +50,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         log.info("微信登录成功，openid: {}, unionid: {}", openid, unionid);
 
         // 2. 查询或创建用户
-        User user = getOrCreateUser(openid, unionid, request);
+        UserWithStatus userWithStatus = getOrCreateUser(openid, unionid, request);
+        User user = userWithStatus.user();
+        boolean isNewUser = userWithStatus.newUser();
 
         // 3. 生成 token
         String token = jwtTokenUtil.generateToken((long) user.getId(), user.getOpenid());
@@ -60,6 +67,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 .refreshToken(refreshToken)
                 .expiresIn(7200L)
                 .needBindPhone(needBindPhone)
+                .isNewUser(isNewUser)
                 .user(LoginResponseDTO.UserInfoVO.builder()
                         .id((long) user.getId())
                         .openid(user.getOpenid())
@@ -68,8 +76,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                         .avatar(user.getAvatar())
                         .phone(user.getPhoneNumber())
                         .gender(user.getGender())
-                        .isNewUser(user.getCreatedAt() != null &&
-                            user.getCreatedAt().isAfter(LocalDateTime.now().minusMinutes(1)))
                         .build())
                 .build();
     }
@@ -78,7 +84,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Transactional(rollbackFor = Exception.class)
     public PhoneBindResponseDTO bindPhoneNumber(Long userId, String code) throws WxErrorException {
         // 1. 调用微信接口获取手机号
-        WxMaPhoneNumberInfo phoneNumberInfo = wxMaService.getUserService().getPhoneNumber( code);
+        WxMaPhoneNumberInfo phoneNumberInfo = wxMaService.getUserService().getPhoneNumber(code);
 
         if (phoneNumberInfo == null) {
             log.error("获取手机号失败");
@@ -143,6 +149,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 .refreshToken(newRefreshToken)
                 .expiresIn(7200L)
                 .needBindPhone(false)
+                .isNewUser(false)
                 .user(LoginResponseDTO.UserInfoVO.builder()
                         .id(userId)
                         .openid(user.getOpenid())
@@ -150,15 +157,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                         .avatar(user.getAvatar())
                         .phone(user.getPhoneNumber())
                         .gender(user.getGender())
-                        .isNewUser(false)
                         .build())
                 .build();
     }
 
     /**
      * 根据 openid 查询用户，不存在则创建
+     * @return UserWithStatus 包含用户对象和是否新创建的标记
      */
-    private User getOrCreateUser(String openid, String unionid, LoginDTO request) {
+    private UserWithStatus getOrCreateUser(String openid, String unionid, LoginDTO request) {
         // 1. 查询用户
         LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(User::getOpenid, openid);
@@ -166,7 +173,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         if (user != null) {
             log.info("老用户登录，userId: {}", user.getId());
-            return user;
+            return new UserWithStatus(user, false);
         }
 
         // 2. 创建新用户
@@ -192,6 +199,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         this.save(user);
         log.info("新用户注册，userId: {}", user.getId());
 
-        return user;
+        return new UserWithStatus(user, true);
     }
 }
