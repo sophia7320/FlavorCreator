@@ -1,0 +1,79 @@
+/* pages/first/first.wxss */
+/*定义页面变量*/
+.first-page {
+	--text-color: rgba(64, 32, 10, 1);
+}
+
+.first-page {
+	width: 750rpx;
+	height: 100vh;
+
+	display: flex;
+	flex-direction: column;
+	padding-top: 384rpx;
+	align-items: center;
+
+	background-size: 100% 100%;
+  background-image: url(https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/bg.png);
+}
+
+.main-container {
+	width: 355rpx;
+	height: 326rpx;
+
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.main-container .icon image {
+	width: 221rpx;
+	height: 213rpx;
+	margin-bottom: 54rpx;
+}
+
+.main-container .name {
+	font-size: 50rpx;
+	font-weight: 700;
+	color: var(--text-color);
+}
+
+.foot-description {
+	width: 377rpx;
+	height: 50rpx;
+	margin-top: 645rpx;
+
+	display: flex;
+	flex-direction: column;
+	text-align: center;
+}
+
+.foot-description text {
+	font-size: 24rpx;
+	font-weight: 350rpx;
+	color: var(--text-color);
+}
+
+.foot-description .divider-decoration {
+	width: 100%;
+
+	display: flex;
+	justify-content: center;
+}
+
+.foot-description .divider-decoration .divider {
+	width: 167rpx;
+	height: 1rpx;
+
+	margin: 20rpx;
+	border-top: 1px solid var(--text-color);
+	border-radius: 10px;
+}
+
+.foot-description .divider-decoration .divider-point {
+	width: 4rpx;
+	height: 4rpx;
+	margin-top: 20rpx;
+	border-radius: 50%;
+	background-color: var(--text-color);
+}

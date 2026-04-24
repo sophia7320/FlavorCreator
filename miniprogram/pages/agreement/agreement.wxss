@@ -1,0 +1,38 @@
+/* pages/agreement/agreement.wxss */
+.agreement-page {
+	--bg-color: rgba(255, 238, 209, 1);
+	--card-radius: 60rpx;
+	--title-font-size: 24rpx;
+	--content-font-size: 24rpx;
+	--title-font-weight: 400;
+	--content-font-weight: 400;
+}
+
+.agreement-page {
+	width: 750rpx;
+	height: 100vh;
+	background-image: url(https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/bg.png);
+	background-size: 100% 100%;
+	
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.agreement-container {
+	width: 580rpx;
+	height: 969rpx;
+	padding: 24rpx;
+
+	background-color: var(--bg-color);
+	border-radius: var(--card-radius);
+}
+
+.content {
+	white-space: pre-wrap;
+}
+
+.title, .content{
+	font-size: var(--title-font-size);
+	font-weight: var(--title-font-weight);
+}

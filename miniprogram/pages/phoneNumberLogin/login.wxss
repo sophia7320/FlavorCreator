@@ -1,0 +1,314 @@
+/* pages/login/login.wxss */
+
+/*定义登录界面变量*/
+.login-page {
+	--radius: 30rpx;
+	--card-width: 554rpx;
+	--card-height: 805rpx;
+	
+	--text-color: rgba(64, 32, 10, 1);
+	--foot-color: rgba(166, 166, 166, 1);
+	--border-color: rgba(165, 68, 23, 1);
+	--loginBtn-color: rgba(186, 91, 33, .75);
+	--card-bg-color: rgba(249, 242, 228, 0.7);
+	--diliver-color: rgba(212, 212, 212, 1);
+	--text-login-color: rgba(186, 91, 33, 1);
+	--text-scondary-color: rgba(191, 191, 191, 1);
+	--protocol-color: rgba(202, 127, 79, 1);
+}
+
+/*定义动画效果*/
+@keyframes send-msg-de {
+	0% {
+		opacity: 1;
+	}
+	100% {
+		opacity: 0;
+		width: 460rpx;
+		transform-origin: right center;
+	}
+}
+
+@keyframes agreement-shake {
+	0%, 100% {transform: translateX(0);}
+	20% {transform: translateX(-8rpx);}
+	40% {transform: translateX(8rpx);}
+	60% {transform: translateX(-8rpx);}
+	80% {transform: translateX(8rpx);}
+}
+
+/*页面样式*/
+.login-page {
+	width: 750rpx;
+	height: 100vh;
+	display: flex;
+	position: relative;
+	flex-direction: column;
+	align-items: center;
+	padding-top: 75rpx;
+
+	background-image: url(https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/bg.png);
+	background-size: 100% 100%;
+
+	/* background-image: url(../../art/login-page/bg/bg.png); wxss文件中居然不能这么写 */
+}
+
+.icon-container {
+	height: 116rpx;
+	width: 184rpx;
+
+	position: absolute;
+	top: 275rpx;
+
+	display: flex;
+	justify-content: center;
+
+	background-color: var(--card-bg-color);
+	border-radius: var(--radius) var(--radius) 0 0;
+	padding: 18rpx 14rpx 0rpx 14rpx;
+}
+
+.login-card-container {
+	height: var(--card-height);
+	width: var(--card-width);
+	
+	display: flex;
+	flex-direction: column;
+	padding-top: 14rpx;
+	margin-top: 315rpx;
+	align-items: center;
+	
+	background-color: var(--card-bg-color);
+	border-radius: var(--radius);
+}
+
+.icon-container .fc-icon {
+	width: 156rpx; 
+	height: 150rpx;
+}
+
+.login-card-container .mini-program-name {
+	font-size: 38rpx;
+	font-weight: 700;
+	font-family: Arial, Helvetica, sans-serif;
+	margin: 76rpx 0 0;
+	color: var(--text-color);
+}
+
+.login-card-container .head-divider-container {
+	display: flex;
+	align-items: center;
+	width: 460rpx;
+	height: 42rpx;
+	margin-top: 43rpx;
+}
+
+.login-card-container .head-divider-container .divider-point {
+	width: 7rpx;
+	height: 7rpx;
+	background-color:var(--border-color);
+	border-radius: 50%;
+	margin: 24rpx;
+	border-radius: 50%;
+}
+ 
+.login-card-container .head-divider-container .divider-text {
+	font-size: 28rpx;
+	font-weight: 700;
+	color: var(--text-color);
+}
+
+.login-card-container .head-divider-container .divider-line {
+	width: 148rpx;
+	border-bottom: 1px solid var(--border-color);
+}
+
+.login-card-container .login-form-container {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+}
+
+.login-form-container .telephone-number-container {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	margin: 65rpx 0 22rpx;
+}
+
+.login-form-container .telephone-number-container .divider-line, .login-form-container .verify-container .divider-line {
+	border-left: 1px solid var(--diliver-color);
+	height: 24rpx;
+	margin: 16rpx;
+}
+
+.login-form-container .verify-container .divider-line {
+	margin-left: 11rpx;
+}
+
+.login-form-container .telephone-number-container , .login-form-container .verify-container {
+	width: 460rpx;
+	height: 61rpx;
+
+	position: relative;
+	background-color: #fff;
+	border-radius: var(--radius);
+	border: 1px solid var(--border-color);
+}
+
+.login-form-container .verify-container .send-msg-container {
+	width: 110rpx;
+	height: 61rpx;
+
+	position: absolute;
+	right: 0px;
+	border-radius: 30rpx;
+	background-color: rgba(202, 127, 80, 1);
+
+	font-size: 18rpx;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	color: #fff;
+	z-index: 10;
+	box-shadow: 0 4rpx 4rpx rgba(0, 0, 0, .25);
+
+}
+
+.resend-msg {
+	width: 110rpx;
+	font-size: 18rpx;
+	position: absolute;
+	right: 0;
+	color: var(--protocol-color);
+	z-index: 0;
+	text-decoration: underline;
+}
+
+.login-form-container .verify-container .send-msg-container.active{
+	animation: send-msg-de .4s ease-out;
+	opacity: 0;
+	
+}
+
+.login-form-container .telephone-number-container image {
+	width: 27rpx;
+	height: 27rpx;
+}
+
+.login-form-container .verify-container {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.login-form-container .verify-container image {
+	width: 38rpx;
+	height: 27rpx;
+}
+
+.login-form-container checkbox-group label {
+	width: 400rpx;
+	margin-left: 33rpx;
+	display: flex;
+	margin-top: 12rpx;
+}
+
+.login-form-container checkbox-group label.shake {
+	animation: agreement-shake .4s ease;
+}
+
+.login-form-container checkbox-group .checkbox {
+	display: flex;
+	align-items: center;
+	transform: scale(0.545);
+	transform-origin: left bottom;
+}
+
+.login-form-container checkbox-group .description {
+	color: var(--text-scondary-color);
+	font-size: 18rpx;
+	font-weight: 400;
+}
+
+.login-form-container checkbox-group .description .user-agreement, .login-form-container checkbox-group .description .privacy-agreement {
+	color: var(--protocol-color);
+}
+
+.login-btn-container {
+	margin-top: 30rpx;
+}
+
+.login-btn-container .login-btn {
+	width: 460rpx;
+	height: 62rpx;
+	
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	color: #fff;
+	border-radius: var(--radius);
+	background-color: var(--loginBtn-color);
+}
+
+.login-btn-container .login-btn text {
+	font-size: 26rpx;
+	font-weight: 700;
+}
+
+.login-btn-container .login-btn text:nth-child(1) {
+	margin-right: 70rpx;
+}
+
+.login-form-container .foot-divider-container {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	margin-top: 30rpx;
+} 
+
+.login-form-container .foot-divider-container .divider-point {
+	width: 7rpx;
+	height: 7rpx;
+	background-color: var(--border-color);
+	border-radius: 50%;
+	margin: 0 17rpx;
+}
+
+.login-form-container .foot-divider-container .divider-text {
+	font-size: 17rpx;
+	font-weight: 700;
+	text-decoration: underline;
+	color: rgba(64, 32, 10, 1);
+}
+
+.login-form-container .foot-divider-container .divider-line {
+	border-bottom: 1px solid var(--border-color);
+	width: 63rpx;
+}
+
+.login-card-container .other-login-way {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	color: var(--foot-color);
+	font-size: 16rpx;
+}
+
+.other-login-way .wx-login-btn {
+	width: 53rpx;
+	height: 49rpx;
+	padding: 0;
+	display: flex; 
+	justify-content: center;
+	margin-top: 45rpx;
+	background: none;
+}
+
+.login-card-container .other-login-way image {
+	width: 100%;
+	height: 100%;
+}

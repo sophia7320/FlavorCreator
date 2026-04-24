@@ -17,6 +17,12 @@ Page({
       url: '../logs/logs'
     })
   },
+
+	goToLogin() {
+		wx.navigateTo({
+			url: '../login/login'
+		})
+	},
   onChooseAvatar(e) {
     const { avatarUrl } = e.detail
     const { nickName } = this.data.userInfo

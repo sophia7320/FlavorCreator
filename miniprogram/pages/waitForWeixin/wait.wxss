@@ -1,0 +1,45 @@
+/* pages/waitForWeixin/wait.wxss */
+.wait-page {
+	--radius: 50rpx;
+	--img-container-bg-color: rgba(7, 206, 104, 0.62);
+	--text-color: rgba(0, 156, 76, 1);
+}
+
+.wait-page {
+  height: 100vh;
+	width: 750rpx;
+
+  display: flex;
+  flex-direction: column;
+  padding-top: 367rpx;
+  align-items: center;
+
+	background-image: url(https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/bg.png);
+	background-size: 100% 100%;
+}
+
+.wait-page .img-container {
+	width: 256rpx;
+	height: 256rpx;
+
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	background-color: var(--img-container-bg-color);
+	border-radius: var(--radius);
+}
+
+.wait-page image {
+	width: 160rpx;
+	height: 129rpx;
+}
+
+.text-container {
+	margin-top: 70rpx;
+}
+
+.text-container .text {
+	color: var(--text-color);
+	font-size: 36rpx;
+}

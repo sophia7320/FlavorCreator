@@ -11,6 +11,7 @@
           <input type="nickname" class="nickname-input" placeholder="请输入昵称" bind:change="onInputChange" />
         </view>
       </block>
+			
       <block wx:elif="{{!hasUserInfo}}">
         <button wx:if="{{canIUseGetUserProfile}}" bindtap="getUserProfile"> 获取头像昵称 </button>
         <view wx:else> 请使用2.10.4及以上版本基础库 </view>
@@ -20,6 +21,8 @@
         <text class="userinfo-nickname">{{userInfo.nickName}}</text>
       </block>
     </view>
+		<button bindtap="goToLogin">点击进入登录页面</button>
+		<text>这只是暂时的，用于测试跳转页面逻辑</text>
     <view class="usermotto">
       <text class="user-motto">{{motto}}</text>
     </view>
