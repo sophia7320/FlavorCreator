@@ -35,8 +35,6 @@ public class AuthAspect {
         HttpServletRequest request = getCurrentRequest();
         String token = extractToken(request);
 
-        System.out.println(token);
-
         if (requireAuth.required() && token == null) {
             throw new BusinessException(ResultCode.USER_NOT_EXIST, "未登录，请先授权");
         }

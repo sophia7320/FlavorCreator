@@ -41,13 +41,13 @@ public class LoginResponseDTO {
     /**
      * 用户信息
      */
-    private UserInfoVO user;
+    private UserInfo user;
 
     @Data
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class UserInfoVO {
+    public static class UserInfo {
         private Long id;
         private String nickname;
         private String avatar;

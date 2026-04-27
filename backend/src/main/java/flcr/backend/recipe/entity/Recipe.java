@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
  * 菜谱实体类
  */
 @Data
-@TableName("recipe")
+@TableName(value = "`recipe`", autoResultMap = true)
 public class Recipe {
     @TableId(type = IdType.AUTO)
     private Long id;

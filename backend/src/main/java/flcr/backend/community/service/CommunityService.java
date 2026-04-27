@@ -12,68 +12,29 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
-/**
- * 社区服务接口
- */
 public interface CommunityService {
 
-    /**
-     * 发布菜谱
-     */
-    Long publishRecipe(PublishRecipeRequestDTO request, MultipartFile cover, List<MultipartFile> images, Long userId);
+    Long publishRecipe(PublishRecipeRequestDTO request, MultipartFile cover, List<MultipartFile> images);
 
-    /**
-     * 获取菜谱列表
-     */
     Page<RecipeListItemDTO> getRecipeList(RecipeListRequestDTO request);
 
-    /**
-     * 获取菜谱详情
-     */
-    RecipeDetailDTO getRecipeDetail(Long recipeId, Long userId);
+    RecipeDetailDTO getRecipeDetail(Long recipeId);
 
-    /**
-     * 点赞菜谱
-     */
-    LikeCollectResponseDTO likeRecipe(Long recipeId, Long userId);
+    LikeCollectResponseDTO likeRecipe(Long recipeId);
 
-    /**
-     * 取消点赞菜谱
-     */
-    LikeCollectResponseDTO unlikeRecipe(Long recipeId, Long userId);
+    LikeCollectResponseDTO unlikeRecipe(Long recipeId);
 
-    /**
-     * 收藏菜谱
-     */
-    LikeCollectResponseDTO collectRecipe(Long recipeId, Long userId);
+    LikeCollectResponseDTO collectRecipe(Long recipeId);
 
-    /**
-     * 取消收藏菜谱
-     */
-    LikeCollectResponseDTO uncollectRecipe(Long recipeId, Long userId);
+    LikeCollectResponseDTO uncollectRecipe(Long recipeId);
 
-    /**
-     * 获取评论列表
-     */
-    List<CommentResponseDTO> getComments(Long recipeId, Integer page, Integer size, Long userId);
+    List<CommentResponseDTO> getComments(Long recipeId, Integer page, Integer size);
 
-    /**
-     * 发表评论
-     */
-    CommentResponseDTO addComment(Long recipeId, CommentRequestDTO request, Long userId);
+    CommentResponseDTO addComment(Long recipeId, CommentRequestDTO request);
 
-    /**
-     * 删除评论
-     */
-    void deleteComment(Long commentId, Long userId);
+    void deleteComment(Long commentId);
 
-    /**
-     * 点赞评论
-     */
-    void likeComment(Long commentId, Long userId);
+    void likeComment(Long commentId);
 
-    /**
-     * 取消点赞评论
-     */
-    void unlikeComment(Long commentId, Long userId);
+    void unlikeComment(Long commentId);
 }

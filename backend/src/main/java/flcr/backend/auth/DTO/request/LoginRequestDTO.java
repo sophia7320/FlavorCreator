@@ -3,7 +3,7 @@ package flcr.backend.auth.DTO.request;
 import lombok.Data;
 
 @Data
-public class LoginDTO {
+public class LoginRequestDTO {
     private String code;
 
     private UserInfo userInfo;

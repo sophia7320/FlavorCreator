@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
  * 评论实体类
  */
 @Data
-@TableName("comment")
+@TableName("`comment`")
 public class Comment {
     @TableId(type = IdType.AUTO)
     private Long id;

@@ -3,7 +3,6 @@ package flcr.backend.auth.DTO.request;
 import lombok.Data;
 
 @Data
-public class RefreshTokenDTO {
+public class RefreshTokenRequestDTO {
     private String refreshToken;
 }
-

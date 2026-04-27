@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import flcr.backend.auth.entity.User;
 import flcr.backend.auth.mapper.UserMapper;
 import flcr.backend.common.constants.ResultCode;
+import flcr.backend.common.context.UserContext;
 import flcr.backend.common.exception.BusinessException;
 import flcr.backend.community.DTO.request.CommentRequestDTO;
 import flcr.backend.community.DTO.request.PublishRecipeRequestDTO;
@@ -35,9 +36,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * 社区服务实现类
- */
 @Service
 @RequiredArgsConstructor
 public class CommunityServiceImpl implements CommunityService {
@@ -51,8 +49,9 @@ public class CommunityServiceImpl implements CommunityService {
 
     @Override
     @Transactional
-    public Long publishRecipe(PublishRecipeRequestDTO request, MultipartFile cover, 
-                              List<MultipartFile> images, Long userId) {
+    public Long publishRecipe(PublishRecipeRequestDTO request, MultipartFile cover,
+                              List<MultipartFile> images) {
+        Long userId = UserContext.getUserId();
         // TODO: 实现文件上传逻辑，这里先使用占位符
         String coverUrl = "/uploads/cover.jpg";
         List<String> imageUrls = new ArrayList<>();
@@ -109,7 +108,6 @@ public class CommunityServiceImpl implements CommunityService {
         wrapper.orderByDesc(Recipe::getCreatedAt);
         Page<Recipe> result = recipeMapper.selectPage(recipePage, wrapper);
 
-        // 转换为DTO
         List<RecipeListItemDTO> dtoList = result.getRecords().stream()
                 .map(this::convertToListItemDTO)
                 .collect(Collectors.toList());
@@ -120,19 +118,18 @@ public class CommunityServiceImpl implements CommunityService {
     }
 
     @Override
-    public RecipeDetailDTO getRecipeDetail(Long recipeId, Long userId) {
+    public RecipeDetailDTO getRecipeDetail(Long recipeId) {
+        Long userId = UserContext.getUserId();
         Recipe recipe = recipeMapper.selectById(recipeId);
         if (recipe == null) {
             throw new BusinessException(ResultCode.RESOURCE_NOT_EXIST, "菜谱不存在");
         }
 
-        // 增加浏览量
         recipe.setViewCount(recipe.getViewCount() + 1);
         recipeMapper.updateById(recipe);
 
         RecipeDetailDTO dto = convertToDetailDTO(recipe);
 
-        // 检查是否点赞和收藏
         if (userId != null) {
             dto.setIsLiked(checkLiked(userId, recipeId, 1));
             dto.setIsCollected(checkCollected(userId, recipeId));
@@ -146,18 +143,17 @@ public class CommunityServiceImpl implements CommunityService {
 
     @Override
     @Transactional
-    public LikeCollectResponseDTO likeRecipe(Long recipeId, Long userId) {
-        // 检查是否已点赞
+    public LikeCollectResponseDTO likeRecipe(Long recipeId) {
+        Long userId = UserContext.getUserId();
         LambdaQueryWrapper<Like> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Like::getUserId, userId)
                 .eq(Like::getTargetId, recipeId)
                 .eq(Like::getTargetType, 1);
-        
+
         if (likeMapper.selectCount(wrapper) > 0) {
             throw new BusinessException(ResultCode.PARAM_ERROR, "已经点赞过");
         }
 
-        // 添加点赞记录
         Like like = new Like();
         like.setUserId(userId);
         like.setTargetId(recipeId);
@@ -165,7 +161,6 @@ public class CommunityServiceImpl implements CommunityService {
         like.setCreatedAt(LocalDateTime.now());
         likeMapper.insert(like);
 
-        // 更新点赞数
         Recipe recipe = recipeMapper.selectById(recipeId);
         recipe.setLikeCount(recipe.getLikeCount() + 1);
         recipeMapper.updateById(recipe);
@@ -175,15 +170,14 @@ public class CommunityServiceImpl implements CommunityService {
 
     @Override
     @Transactional
-    public LikeCollectResponseDTO unlikeRecipe(Long recipeId, Long userId) {
-        // 删除点赞记录
+    public LikeCollectResponseDTO unlikeRecipe(Long recipeId) {
+        Long userId = UserContext.getUserId();
         LambdaQueryWrapper<Like> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Like::getUserId, userId)
                 .eq(Like::getTargetId, recipeId)
                 .eq(Like::getTargetType, 1);
         likeMapper.delete(wrapper);
 
-        // 更新点赞数
         Recipe recipe = recipeMapper.selectById(recipeId);
         if (recipe.getLikeCount() > 0) {
             recipe.setLikeCount(recipe.getLikeCount() - 1);
@@ -195,24 +189,22 @@ public class CommunityServiceImpl implements CommunityService {
 
     @Override
     @Transactional
-    public LikeCollectResponseDTO collectRecipe(Long recipeId, Long userId) {
-        // 检查是否已收藏
+    public LikeCollectResponseDTO collectRecipe(Long recipeId) {
+        Long userId = UserContext.getUserId();
         LambdaQueryWrapper<Collection> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Collection::getUserId, userId)
                 .eq(Collection::getRecipeId, recipeId);
-        
+
         if (collectionMapper.selectCount(wrapper) > 0) {
             throw new BusinessException(ResultCode.PARAM_ERROR, "已经收藏过");
         }
 
-        // 添加收藏记录
         Collection collection = new Collection();
         collection.setUserId(userId);
         collection.setRecipeId(recipeId);
         collection.setCreatedAt(LocalDateTime.now());
         collectionMapper.insert(collection);
 
-        // 更新收藏数
         Recipe recipe = recipeMapper.selectById(recipeId);
         recipe.setCollectionCount(recipe.getCollectionCount() + 1);
         recipeMapper.updateById(recipe);
@@ -222,14 +214,13 @@ public class CommunityServiceImpl implements CommunityService {
 
     @Override
     @Transactional
-    public LikeCollectResponseDTO uncollectRecipe(Long recipeId, Long userId) {
-        // 删除收藏记录
+    public LikeCollectResponseDTO uncollectRecipe(Long recipeId) {
+        Long userId = UserContext.getUserId();
         LambdaQueryWrapper<Collection> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Collection::getUserId, userId)
                 .eq(Collection::getRecipeId, recipeId);
         collectionMapper.delete(wrapper);
 
-        // 更新收藏数
         Recipe recipe = recipeMapper.selectById(recipeId);
         if (recipe.getCollectionCount() > 0) {
             recipe.setCollectionCount(recipe.getCollectionCount() - 1);
@@ -240,17 +231,16 @@ public class CommunityServiceImpl implements CommunityService {
     }
 
     @Override
-    public List<CommentResponseDTO> getComments(Long recipeId, Integer page, Integer size, Long userId) {
-        // 获取顶级评论
+    public List<CommentResponseDTO> getComments(Long recipeId, Integer page, Integer size) {
+        Long userId = UserContext.getUserId();
         LambdaQueryWrapper<Comment> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Comment::getRecipeId, recipeId)
                 .isNull(Comment::getParentId)
                 .orderByDesc(Comment::getCreatedAt);
-        
+
         Page<Comment> commentPage = new Page<>(page, size);
         Page<Comment> result = commentMapper.selectPage(commentPage, wrapper);
 
-        // 转换为DTO并获取回复
         return result.getRecords().stream()
                 .map(comment -> convertToCommentDTO(comment, userId))
                 .collect(Collectors.toList());
@@ -258,7 +248,8 @@ public class CommunityServiceImpl implements CommunityService {
 
     @Override
     @Transactional
-    public CommentResponseDTO addComment(Long recipeId, CommentRequestDTO request, Long userId) {
+    public CommentResponseDTO addComment(Long recipeId, CommentRequestDTO request) {
+        Long userId = UserContext.getUserId();
         Comment comment = new Comment();
         comment.setUserId(userId);
         comment.setRecipeId(recipeId);
@@ -270,7 +261,6 @@ public class CommunityServiceImpl implements CommunityService {
 
         commentMapper.insert(comment);
 
-        // 更新评论数
         Recipe recipe = recipeMapper.selectById(recipeId);
         recipe.setCommentCount(recipe.getCommentCount() + 1);
         recipeMapper.updateById(recipe);
@@ -280,20 +270,19 @@ public class CommunityServiceImpl implements CommunityService {
 
     @Override
     @Transactional
-    public void deleteComment(Long commentId, Long userId) {
+    public void deleteComment(Long commentId) {
+        Long userId = UserContext.getUserId();
         Comment comment = commentMapper.selectById(commentId);
         if (comment == null) {
             throw new BusinessException(ResultCode.RESOURCE_NOT_EXIST, "评论不存在");
         }
 
-        // 只能删除自己的评论
         if (!comment.getUserId().equals(userId)) {
             throw new BusinessException(ResultCode.PERMISSION_ERROR, "无权限删除该评论");
         }
 
         commentMapper.deleteById(commentId);
 
-        // 更新评论数
         Recipe recipe = recipeMapper.selectById(comment.getRecipeId());
         if (recipe.getCommentCount() > 0) {
             recipe.setCommentCount(recipe.getCommentCount() - 1);
@@ -303,13 +292,13 @@ public class CommunityServiceImpl implements CommunityService {
 
     @Override
     @Transactional
-    public void likeComment(Long commentId, Long userId) {
+    public void likeComment(Long commentId) {
         // TODO: 实现评论点赞逻辑
     }
 
     @Override
     @Transactional
-    public void unlikeComment(Long commentId, Long userId) {
+    public void unlikeComment(Long commentId) {
         // TODO: 实现取消评论点赞逻辑
     }
 
@@ -317,14 +306,14 @@ public class CommunityServiceImpl implements CommunityService {
 
     private RecipeListItemDTO convertToListItemDTO(Recipe recipe) {
         User author = userMapper.selectById(recipe.getAuthorId());
-        
+
         String[] tags = {};
         try {
             if (recipe.getTags() != null) {
                 tags = objectMapper.readValue(recipe.getTags(), String[].class);
             }
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
+            throw new BusinessException(ResultCode.SYSTEM_ERROR, "JSON解析失败");
         }
 
         return RecipeListItemDTO.builder()
@@ -352,14 +341,14 @@ public class CommunityServiceImpl implements CommunityService {
 
     private RecipeDetailDTO convertToDetailDTO(Recipe recipe) {
         User author = userMapper.selectById(recipe.getAuthorId());
-        
+
         List<String> images = new ArrayList<>();
         try {
             if (recipe.getImages() != null) {
                 images = objectMapper.readValue(recipe.getImages(), new TypeReference<List<String>>() {});
             }
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
+            throw new BusinessException(ResultCode.SYSTEM_ERROR, "JSON解析失败");
         }
 
         List<RecipeDetailDTO.IngredientItem> ingredients = new ArrayList<>();
@@ -368,18 +357,18 @@ public class CommunityServiceImpl implements CommunityService {
 
         try {
             if (recipe.getIngredients() != null) {
-                ingredients = objectMapper.readValue(recipe.getIngredients(), 
+                ingredients = objectMapper.readValue(recipe.getIngredients(),
                     new TypeReference<List<RecipeDetailDTO.IngredientItem>>() {});
             }
             if (recipe.getSteps() != null) {
-                steps = objectMapper.readValue(recipe.getSteps(), 
+                steps = objectMapper.readValue(recipe.getSteps(),
                     new TypeReference<List<RecipeDetailDTO.StepItem>>() {});
             }
             if (recipe.getTags() != null) {
                 tags = objectMapper.readValue(recipe.getTags(), String[].class);
             }
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
+            throw new BusinessException(ResultCode.SYSTEM_ERROR, "JSON解析失败");
         }
 
         return RecipeDetailDTO.builder()
@@ -411,7 +400,6 @@ public class CommunityServiceImpl implements CommunityService {
     private CommentResponseDTO convertToCommentDTO(Comment comment, Long userId) {
         User user = userMapper.selectById(comment.getUserId());
 
-        // 获取回复
         LambdaQueryWrapper<Comment> replyWrapper = new LambdaQueryWrapper<>();
         replyWrapper.eq(Comment::getParentId, comment.getId())
                 .orderByAsc(Comment::getCreatedAt);

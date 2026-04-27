@@ -1,5 +1,6 @@
 package flcr.backend.common.exception;
 
+import flcr.backend.common.constants.ResultCode;
 import flcr.backend.common.response.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -18,6 +19,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public Response<Void> handleException(Exception e) {
         log.error("系统异常", e);
-        return Response.error(500, "服务器内部错误");
+        return Response.error(ResultCode.SYSTEM_ERROR, "服务器内部错误");
     }
 }

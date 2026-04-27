@@ -4,7 +4,7 @@ import cn.binarywang.wx.miniapp.api.WxMaService;
 import cn.binarywang.wx.miniapp.bean.WxMaJscode2SessionResult;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import flcr.backend.auth.DTO.request.LoginDTO;
+import flcr.backend.auth.DTO.request.LoginRequestDTO;
 import flcr.backend.auth.DTO.response.LoginResponseDTO;
 import flcr.backend.auth.entity.User;
 import flcr.backend.auth.mapper.UserMapper;
@@ -12,7 +12,7 @@ import flcr.backend.auth.service.UserService;
 import flcr.backend.common.constants.ResultCode;
 import flcr.backend.common.exception.BusinessException;
 import flcr.backend.common.util.JwtTokenUtil;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.chanjar.weixin.common.error.WxErrorException;
 import org.springframework.stereotype.Service;
@@ -20,28 +20,31 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
-@AllArgsConstructor
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
 
     private final WxMaService wxMaService;
     private final JwtTokenUtil jwtTokenUtil;
 
-    /**
-     * 内部类：携带用户对象和是否新创建的标记
-     */
     private record UserWithStatus(User user, boolean newUser) {}
 
     @Override
-    public LoginResponseDTO login(LoginDTO request) throws WxErrorException {
+    public LoginResponseDTO login(LoginRequestDTO request) {
         String code = request.getCode();
 
         // 1. 调用微信 code2Session 接口获取 openid 和 session_key
-        WxMaJscode2SessionResult sessionResult = wxMaService.getUserService().getSessionInfo(code);
+        WxMaJscode2SessionResult sessionResult;
+        try {
+            sessionResult = wxMaService.getUserService().getSessionInfo(code);
+        } catch (WxErrorException e) {
+            log.error("微信 code2Session 失败", e);
+            throw new BusinessException(ResultCode.WX_CODE_ERROR, "微信登录失败");
+        }
 
         if (sessionResult.getOpenid() == null) {
-            log.error("微信 code2Session 失败：{}", sessionResult);
+            log.error("微信 code2Session 返回空 openid: {}", sessionResult);
             throw new BusinessException(ResultCode.WX_CODE_ERROR, "微信登录失败，无法获取 OpenID");
         }
 
@@ -58,13 +61,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String token = jwtTokenUtil.generateToken((long) user.getId(), user.getOpenid());
         String refreshToken = jwtTokenUtil.generateRefreshToken((long) user.getId(), user.getOpenid());
 
-        // 5. 构建响应
+        // 4. 构建响应
         return LoginResponseDTO.builder()
                 .token(token)
                 .refreshToken(refreshToken)
                 .expiresIn(7200L)
                 .isNewUser(isNewUser)
-                .user(LoginResponseDTO.UserInfoVO.builder()
+                .user(LoginResponseDTO.UserInfo.builder()
                         .id((long) user.getId())
                         .nickname(user.getNickname())
                         .avatar(user.getAvatar())
@@ -109,7 +112,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 .expiresIn(7200L)
                 .needBindPhone(false)
                 .isNewUser(false)
-                .user(LoginResponseDTO.UserInfoVO.builder()
+                .user(LoginResponseDTO.UserInfo.builder()
                         .id(userId)
                         .nickname(user.getNickname())
                         .avatar(user.getAvatar())
@@ -119,12 +122,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 .build();
     }
 
-    /**
-     * 根据 openid 查询用户，不存在则创建
-     * @return UserWithStatus 包含用户对象和是否新创建的标记
-     */
-    private UserWithStatus getOrCreateUser(String openid, String unionid, LoginDTO request) {
-        // 1. 查询用户
+    private UserWithStatus getOrCreateUser(String openid, String unionid, LoginRequestDTO request) {
         LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(User::getOpenid, openid);
         User user = this.getOne(wrapper);
@@ -134,12 +132,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             return new UserWithStatus(user, false);
         }
 
-        // 2. 创建新用户
         user = new User();
         user.setOpenid(openid);
         user.setUnionid(unionid);
 
-        // 设置用户信息（如果前端传了）
         if (request.getUserInfo() != null) {
             user.setNickname(request.getUserInfo().getNickName());
             user.setAvatar(request.getUserInfo().getAvatarUrl());

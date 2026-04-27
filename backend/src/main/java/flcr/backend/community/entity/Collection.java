@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
  * 收藏实体类
  */
 @Data
-@TableName("collection")
+@TableName("`collection`")
 public class Collection {
     @TableId(type = IdType.AUTO)
     private Long id;
