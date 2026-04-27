@@ -114,4 +114,19 @@ public class JwtTokenUtil {
             return true;
         }
     }
+
+    /**
+     * 获取 token 剩余有效时间（毫秒）
+     * @param token JWT token
+     * @return 剩余毫秒数，已过期返回 0 或负数
+     */
+    public long getRemainingTime(String token) {
+        try {
+            DecodedJWT jwt = JWT.decode(token);
+            long remaining = jwt.getExpiresAt().getTime() - System.currentTimeMillis();
+            return Math.max(remaining, 0);
+        } catch (Exception e) {
+            return 0;
+        }
+    }
 }

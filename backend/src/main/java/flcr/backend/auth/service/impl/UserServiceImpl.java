@@ -11,6 +11,7 @@ import flcr.backend.auth.mapper.UserMapper;
 import flcr.backend.auth.service.UserService;
 import flcr.backend.common.constants.ResultCode;
 import flcr.backend.common.exception.BusinessException;
+import flcr.backend.common.service.TokenBlacklistService;
 import flcr.backend.common.util.JwtTokenUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +28,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     private final WxMaService wxMaService;
     private final JwtTokenUtil jwtTokenUtil;
+    private final TokenBlacklistService tokenBlacklistService;
 
     private record UserWithStatus(User user, boolean newUser) {}
 
@@ -105,6 +107,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         String newToken = jwtTokenUtil.generateToken(userId, user.getOpenid());
         String newRefreshToken = jwtTokenUtil.generateRefreshToken(userId, user.getOpenid());
+
+        tokenBlacklistService.blacklist(refreshToken);
 
         return LoginResponseDTO.builder()
                 .token(newToken)
