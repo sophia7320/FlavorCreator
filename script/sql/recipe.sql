@@ -1,0 +1,26 @@
+-- 菜谱表
+CREATE TABLE IF NOT EXISTS `recipe` (
+    `id` BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键',
+    `name` VARCHAR(128) NOT NULL COMMENT '菜谱名称',
+    `cover` VARCHAR(255) COMMENT '封面图',
+    `images` JSON COMMENT '图片列表',
+    `author_id` BIGINT NOT NULL COMMENT '作者ID',
+    `ingredients` JSON COMMENT '食材列表',
+    `steps` JSON COMMENT '步骤列表',
+    `tips` TEXT COMMENT '小贴士',
+    `cook_time` INT COMMENT '烹饪时间(分钟)',
+    `difficulty` TINYINT COMMENT '难度: 1-简单 2-中等 3-困难',
+    `calories` INT COMMENT '卡路里',
+    `tags` JSON COMMENT '标签',
+    `category` VARCHAR(32) COMMENT '分类',
+    `source` TINYINT DEFAULT 2 COMMENT '来源: 1-系统 2-用户 3-AI',
+    `like_count` INT DEFAULT 0 COMMENT '点赞数',
+    `collection_count` INT DEFAULT 0 COMMENT '收藏数',
+    `comment_count` INT DEFAULT 0 COMMENT '评论数',
+    `view_count` INT DEFAULT 0 COMMENT '浏览数',
+    `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    INDEX `idx_author_id` (`author_id`),
+    INDEX `idx_category` (`category`),
+    INDEX `idx_created_at` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='菜谱表';

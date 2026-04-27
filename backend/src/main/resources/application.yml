@@ -4,11 +4,14 @@ spring:
   profiles:
     active: dev
 
-wx:
-  app-id: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-  secret: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+server:
+  port: 8080
 
 jwt:
-  secret: FlavorCreatorSecretKey2026
   expiration: 7200000
   refresh-expiration: 604800000
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: true

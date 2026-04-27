@@ -49,8 +49,6 @@ public class LoginResponseDTO {
     @AllArgsConstructor
     public static class UserInfoVO {
         private Long id;
-        private String openid;
-        private String unionid;
         private String nickname;
         private String avatar;
         private String phone;

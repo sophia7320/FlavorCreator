@@ -1,15 +1,15 @@
 package flcr.backend.auth.controller;
 
 import flcr.backend.auth.DTO.request.LoginDTO;
-import flcr.backend.auth.DTO.request.PhoneBindDTO;
 import flcr.backend.auth.DTO.request.RefreshTokenDTO;
 import flcr.backend.auth.DTO.response.LoginResponseDTO;
-import flcr.backend.auth.DTO.response.PhoneBindResponseDTO;
 import flcr.backend.auth.service.UserService;
 import flcr.backend.common.constants.ResultCode;
+import flcr.backend.common.exception.BusinessException;
 import flcr.backend.common.response.Response;
-import flcr.backend.common.util.JwtTokenUtil;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import me.chanjar.weixin.common.error.WxErrorException;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -18,15 +18,10 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 @RestController
 @RequestMapping("/api/auth")
+@RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
-    private final JwtTokenUtil jwtTokenUtil;
-
-    public UserController(UserService userService, JwtTokenUtil jwtTokenUtil) {
-        this.userService = userService;
-        this.jwtTokenUtil = jwtTokenUtil;
-    }
 
     /**
      * 微信一键登录
@@ -37,43 +32,33 @@ public class UserController {
         try {
             LoginResponseDTO result = userService.login(request);
             return Response.success("登录成功", result);
+        } catch (WxErrorException e) {
+            log.error("微信接口调用失败", e);
+            return Response.error(ResultCode.WX_API_ERROR, "微信接口调用失败");
+        } catch (BusinessException e) {
+            log.error("登录失败: {}", e.getMessage());
+            return Response.error(e.getCode(), e.getMessage());
         } catch (Exception e) {
             log.error("登录失败", e);
-            return Response.error(ResultCode.WX_API_ERROR, "登录失败：" + e.getMessage());
+            return Response.error(ResultCode.SYSTEM_ERROR, "系统错误");
         }
     }
 
     /**
-     * 获取并绑定微信手机号
-     * POST /api/auth/phone-wx
+     * 刷新 Token
+     * POST /api/auth/refresh
      */
-    @PostMapping("/phone-wx")
-    public Response<PhoneBindResponseDTO> bindPhone(@RequestHeader("Authorization") String authorization,
-                                                    @RequestBody PhoneBindDTO request) {
-        try {
-            String token = authorization.replace("Bearer ", "");
-            Long userId = jwtTokenUtil.getUserIdFromToken(token);
-
-            if (userId == null) {
-                return Response.error(ResultCode.PARAM_ERROR, "无效的 token");
-            }
-
-            PhoneBindResponseDTO response = userService.bindPhoneNumber(userId, request.getCode());
-            return Response.success("绑定成功", response);
-        } catch (Exception e) {
-            log.error("绑定手机号失败", e);
-            return Response.error(ResultCode.PHONE_ERROR, "绑定失败：" + e.getMessage());
-        }
-    }
-
     @PostMapping("/refresh")
     public Response<LoginResponseDTO> refresh(@RequestBody RefreshTokenDTO request) {
         try {
             LoginResponseDTO result = userService.refreshToken(request.getRefreshToken());
             return Response.success("刷新成功", result);
+        } catch (BusinessException e) {
+            log.error("刷新失败: {}", e.getMessage());
+            return Response.error(e.getCode(), e.getMessage());
         } catch (Exception e) {
             log.error("刷新 token 失败", e);
-            return Response.error(ResultCode.USER_NOT_EXIST, "刷新失败：" + e.getMessage());
+            return Response.error(ResultCode.SYSTEM_ERROR, "系统错误");
         }
     }
 

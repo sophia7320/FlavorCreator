@@ -2,15 +2,15 @@ package flcr.backend.auth.service.impl;
 
 import cn.binarywang.wx.miniapp.api.WxMaService;
 import cn.binarywang.wx.miniapp.bean.WxMaJscode2SessionResult;
-import cn.binarywang.wx.miniapp.bean.WxMaPhoneNumberInfo;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import flcr.backend.auth.DTO.request.LoginDTO;
 import flcr.backend.auth.DTO.response.LoginResponseDTO;
-import flcr.backend.auth.DTO.response.PhoneBindResponseDTO;
 import flcr.backend.auth.entity.User;
 import flcr.backend.auth.mapper.UserMapper;
 import flcr.backend.auth.service.UserService;
+import flcr.backend.common.constants.ResultCode;
+import flcr.backend.common.exception.BusinessException;
 import flcr.backend.common.util.JwtTokenUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,7 +42,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         if (sessionResult.getOpenid() == null) {
             log.error("微信 code2Session 失败：{}", sessionResult);
-            throw new RuntimeException("微信登录失败，无法获取 OpenID");
+            throw new BusinessException(ResultCode.WX_CODE_ERROR, "微信登录失败，无法获取 OpenID");
         }
 
         String openid = sessionResult.getOpenid();
@@ -58,20 +58,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String token = jwtTokenUtil.generateToken((long) user.getId(), user.getOpenid());
         String refreshToken = jwtTokenUtil.generateRefreshToken((long) user.getId(), user.getOpenid());
 
-        // 4. 判断是否需要绑定手机号
-        boolean needBindPhone = user.getPhoneNumber() == null || user.getPhoneNumber().isEmpty();
-
         // 5. 构建响应
         return LoginResponseDTO.builder()
                 .token(token)
                 .refreshToken(refreshToken)
                 .expiresIn(7200L)
-                .needBindPhone(needBindPhone)
                 .isNewUser(isNewUser)
                 .user(LoginResponseDTO.UserInfoVO.builder()
                         .id((long) user.getId())
-                        .openid(user.getOpenid())
-                        .unionid(user.getUnionid())
                         .nickname(user.getNickname())
                         .avatar(user.getAvatar())
                         .phone(user.getPhoneNumber())
@@ -81,50 +75,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    @Transactional(rollbackFor = Exception.class)
-    public PhoneBindResponseDTO bindPhoneNumber(Long userId, String code) throws WxErrorException {
-        // 1. 调用微信接口获取手机号
-        WxMaPhoneNumberInfo phoneNumberInfo = wxMaService.getUserService().getPhoneNumber(code);
-
-        if (phoneNumberInfo == null) {
-            log.error("获取手机号失败");
-            throw new RuntimeException("获取手机号失败");
-        }
-
-        String phoneNumber = phoneNumberInfo.getPhoneNumber();
-        if (phoneNumber == null || phoneNumber.isEmpty()) {
-            log.error("获取到的手机号为空");
-            throw new RuntimeException("获取手机号失败");
-        }
-        log.info("获取到用户手机号：{}", phoneNumber);
-
-        // 2. 更新用户手机号
-        User user = this.getById(userId);
-        if (user == null) {
-            throw new RuntimeException("用户不存在");
-        }
-
-        user.setPhoneNumber(phoneNumber);
-        this.updateById(user);
-
-        // 3. 构建响应
-        return PhoneBindResponseDTO.builder()
-                .phoneNumber(phoneNumber)
-                .purePhoneNumber(phoneNumberInfo.getPurePhoneNumber())
-                .countryCode(phoneNumberInfo.getCountryCode())
-                .build();
-    }
-
-    @Override
     public LoginResponseDTO refreshToken(String refreshToken) {
         if (refreshToken == null || refreshToken.isEmpty()) {
             log.error("刷新 token 为空");
-            throw new RuntimeException("刷新 token 不能为空");
+            throw new BusinessException(ResultCode.PARAM_ERROR, "刷新 token 不能为空");
         }
 
         if (!jwtTokenUtil.validateToken(refreshToken)) {
             log.error("刷新 token 无效或已过期");
-            throw new RuntimeException("刷新 token 无效或已过期");
+            throw new BusinessException(ResultCode.USER_NOT_EXIST, "刷新 token 无效或已过期");
         }
 
         Long userId = jwtTokenUtil.getUserIdFromToken(refreshToken);
@@ -132,13 +91,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         if (userId == null || openid == null) {
             log.error("从刷新 token 中获取用户信息失败");
-            throw new RuntimeException("刷新 token 格式错误");
+            throw new BusinessException(ResultCode.PARAM_ERROR, "刷新 token 格式错误");
         }
 
         User user = this.getById(userId);
         if (user == null || !openid.equals(user.getOpenid())) {
             log.error("用户不存在或 token 与用户不匹配，userId: {}", userId);
-            throw new RuntimeException("用户不存在");
+            throw new BusinessException(ResultCode.USER_NOT_EXIST, "用户不存在");
         }
 
         String newToken = jwtTokenUtil.generateToken(userId, user.getOpenid());
@@ -152,7 +111,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 .isNewUser(false)
                 .user(LoginResponseDTO.UserInfoVO.builder()
                         .id(userId)
-                        .openid(user.getOpenid())
                         .nickname(user.getNickname())
                         .avatar(user.getAvatar())
                         .phone(user.getPhoneNumber())

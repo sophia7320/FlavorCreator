@@ -7,27 +7,24 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 
-@TableName(autoResultMap=true)
+@TableName(value = "`user`", autoResultMap = true)
 @Data
 public class User {
-    @TableId(type = IdType.AUTO , value = "id")
-    int id;
+    @TableId(type = IdType.AUTO)
+    private Long id;
 
-    int gender;
+    private Integer gender;
 
-    String nickname;
-    String phoneNumber;
+    private String nickname;
+    private String phoneNumber;
 
-    String openid;
-    String unionid;
+    private String openid;
+    private String unionid;
 
-    String avatar;
-    String signature;
-    String background;
+    private String avatar;
+    private String signature;
+    private String background;
 
-    LocalDateTime createdAt;
-    LocalDateTime updatedAt;
-
-
-
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

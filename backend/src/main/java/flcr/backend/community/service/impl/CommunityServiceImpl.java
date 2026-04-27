@@ -1,0 +1,499 @@
+package flcr.backend.community.service.impl;
+
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import flcr.backend.auth.entity.User;
+import flcr.backend.auth.mapper.UserMapper;
+import flcr.backend.common.constants.ResultCode;
+import flcr.backend.common.exception.BusinessException;
+import flcr.backend.community.DTO.request.CommentRequestDTO;
+import flcr.backend.community.DTO.request.PublishRecipeRequestDTO;
+import flcr.backend.community.DTO.request.RecipeListRequestDTO;
+import flcr.backend.community.DTO.response.CommentResponseDTO;
+import flcr.backend.community.DTO.response.LikeCollectResponseDTO;
+import flcr.backend.community.DTO.response.RecipeDetailDTO;
+import flcr.backend.community.DTO.response.RecipeListItemDTO;
+import flcr.backend.community.entity.Collection;
+import flcr.backend.community.entity.Comment;
+import flcr.backend.community.entity.Like;
+import flcr.backend.community.mapper.CollectionMapper;
+import flcr.backend.community.mapper.CommentMapper;
+import flcr.backend.community.mapper.LikeMapper;
+import flcr.backend.community.service.CommunityService;
+import flcr.backend.recipe.entity.Recipe;
+import flcr.backend.recipe.mapper.RecipeMapper;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.stream.Collectors;
+
+/**
+ * 社区服务实现类
+ */
+@Service
+@RequiredArgsConstructor
+public class CommunityServiceImpl implements CommunityService {
+
+    private final RecipeMapper recipeMapper;
+    private final CommentMapper commentMapper;
+    private final LikeMapper likeMapper;
+    private final CollectionMapper collectionMapper;
+    private final UserMapper userMapper;
+    private final ObjectMapper objectMapper;
+
+    @Override
+    @Transactional
+    public Long publishRecipe(PublishRecipeRequestDTO request, MultipartFile cover, 
+                              List<MultipartFile> images, Long userId) {
+        // TODO: 实现文件上传逻辑，这里先使用占位符
+        String coverUrl = "/uploads/cover.jpg";
+        List<String> imageUrls = new ArrayList<>();
+        if (images != null) {
+            for (int i = 0; i < images.size(); i++) {
+                imageUrls.add("/uploads/image" + i + ".jpg");
+            }
+        }
+
+        Recipe recipe = new Recipe();
+        recipe.setName(request.getName());
+        recipe.setCover(coverUrl);
+        try {
+            recipe.setImages(objectMapper.writeValueAsString(imageUrls));
+            recipe.setIngredients(request.getIngredients());
+            recipe.setSteps(request.getSteps());
+            recipe.setTags(request.getTags());
+        } catch (JsonProcessingException e) {
+            throw new BusinessException(ResultCode.SYSTEM_ERROR, "JSON处理失败");
+        }
+        recipe.setAuthorId(userId);
+        recipe.setCategory(request.getCategory());
+        recipe.setTips(request.getTips());
+        recipe.setCookTime(request.getCookTime());
+        recipe.setDifficulty(request.getDifficulty());
+        recipe.setCalories(request.getCalories());
+        recipe.setSource(2); // 用户发布
+        recipe.setLikeCount(0);
+        recipe.setCollectionCount(0);
+        recipe.setCommentCount(0);
+        recipe.setViewCount(0);
+        recipe.setCreatedAt(LocalDateTime.now());
+        recipe.setUpdatedAt(LocalDateTime.now());
+
+        recipeMapper.insert(recipe);
+        return recipe.getId();
+    }
+
+    @Override
+    public Page<RecipeListItemDTO> getRecipeList(RecipeListRequestDTO request) {
+        Page<Recipe> recipePage = new Page<>(request.getPage(), request.getSize());
+        LambdaQueryWrapper<Recipe> wrapper = new LambdaQueryWrapper<>();
+
+        if (request.getCategory() != null && !request.getCategory().isEmpty()) {
+            wrapper.eq(Recipe::getCategory, request.getCategory());
+        }
+        if (request.getDifficulty() != null && !request.getDifficulty().isEmpty()) {
+            wrapper.eq(Recipe::getDifficulty, convertDifficulty(request.getDifficulty()));
+        }
+        if (request.getKeyword() != null && !request.getKeyword().isEmpty()) {
+            wrapper.like(Recipe::getName, request.getKeyword());
+        }
+
+        wrapper.orderByDesc(Recipe::getCreatedAt);
+        Page<Recipe> result = recipeMapper.selectPage(recipePage, wrapper);
+
+        // 转换为DTO
+        List<RecipeListItemDTO> dtoList = result.getRecords().stream()
+                .map(this::convertToListItemDTO)
+                .collect(Collectors.toList());
+
+        Page<RecipeListItemDTO> dtoPage = new Page<>(result.getCurrent(), result.getSize(), result.getTotal());
+        dtoPage.setRecords(dtoList);
+        return dtoPage;
+    }
+
+    @Override
+    public RecipeDetailDTO getRecipeDetail(Long recipeId, Long userId) {
+        Recipe recipe = recipeMapper.selectById(recipeId);
+        if (recipe == null) {
+            throw new BusinessException(ResultCode.RESOURCE_NOT_EXIST, "菜谱不存在");
+        }
+
+        // 增加浏览量
+        recipe.setViewCount(recipe.getViewCount() + 1);
+        recipeMapper.updateById(recipe);
+
+        RecipeDetailDTO dto = convertToDetailDTO(recipe);
+
+        // 检查是否点赞和收藏
+        if (userId != null) {
+            dto.setIsLiked(checkLiked(userId, recipeId, 1));
+            dto.setIsCollected(checkCollected(userId, recipeId));
+        } else {
+            dto.setIsLiked(false);
+            dto.setIsCollected(false);
+        }
+
+        return dto;
+    }
+
+    @Override
+    @Transactional
+    public LikeCollectResponseDTO likeRecipe(Long recipeId, Long userId) {
+        // 检查是否已点赞
+        LambdaQueryWrapper<Like> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Like::getUserId, userId)
+                .eq(Like::getTargetId, recipeId)
+                .eq(Like::getTargetType, 1);
+        
+        if (likeMapper.selectCount(wrapper) > 0) {
+            throw new BusinessException(ResultCode.PARAM_ERROR, "已经点赞过");
+        }
+
+        // 添加点赞记录
+        Like like = new Like();
+        like.setUserId(userId);
+        like.setTargetId(recipeId);
+        like.setTargetType(1);
+        like.setCreatedAt(LocalDateTime.now());
+        likeMapper.insert(like);
+
+        // 更新点赞数
+        Recipe recipe = recipeMapper.selectById(recipeId);
+        recipe.setLikeCount(recipe.getLikeCount() + 1);
+        recipeMapper.updateById(recipe);
+
+        return buildLikeCollectResponse(recipeId, userId);
+    }
+
+    @Override
+    @Transactional
+    public LikeCollectResponseDTO unlikeRecipe(Long recipeId, Long userId) {
+        // 删除点赞记录
+        LambdaQueryWrapper<Like> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Like::getUserId, userId)
+                .eq(Like::getTargetId, recipeId)
+                .eq(Like::getTargetType, 1);
+        likeMapper.delete(wrapper);
+
+        // 更新点赞数
+        Recipe recipe = recipeMapper.selectById(recipeId);
+        if (recipe.getLikeCount() > 0) {
+            recipe.setLikeCount(recipe.getLikeCount() - 1);
+            recipeMapper.updateById(recipe);
+        }
+
+        return buildLikeCollectResponse(recipeId, userId);
+    }
+
+    @Override
+    @Transactional
+    public LikeCollectResponseDTO collectRecipe(Long recipeId, Long userId) {
+        // 检查是否已收藏
+        LambdaQueryWrapper<Collection> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Collection::getUserId, userId)
+                .eq(Collection::getRecipeId, recipeId);
+        
+        if (collectionMapper.selectCount(wrapper) > 0) {
+            throw new BusinessException(ResultCode.PARAM_ERROR, "已经收藏过");
+        }
+
+        // 添加收藏记录
+        Collection collection = new Collection();
+        collection.setUserId(userId);
+        collection.setRecipeId(recipeId);
+        collection.setCreatedAt(LocalDateTime.now());
+        collectionMapper.insert(collection);
+
+        // 更新收藏数
+        Recipe recipe = recipeMapper.selectById(recipeId);
+        recipe.setCollectionCount(recipe.getCollectionCount() + 1);
+        recipeMapper.updateById(recipe);
+
+        return buildLikeCollectResponse(recipeId, userId);
+    }
+
+    @Override
+    @Transactional
+    public LikeCollectResponseDTO uncollectRecipe(Long recipeId, Long userId) {
+        // 删除收藏记录
+        LambdaQueryWrapper<Collection> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Collection::getUserId, userId)
+                .eq(Collection::getRecipeId, recipeId);
+        collectionMapper.delete(wrapper);
+
+        // 更新收藏数
+        Recipe recipe = recipeMapper.selectById(recipeId);
+        if (recipe.getCollectionCount() > 0) {
+            recipe.setCollectionCount(recipe.getCollectionCount() - 1);
+            recipeMapper.updateById(recipe);
+        }
+
+        return buildLikeCollectResponse(recipeId, userId);
+    }
+
+    @Override
+    public List<CommentResponseDTO> getComments(Long recipeId, Integer page, Integer size, Long userId) {
+        // 获取顶级评论
+        LambdaQueryWrapper<Comment> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Comment::getRecipeId, recipeId)
+                .isNull(Comment::getParentId)
+                .orderByDesc(Comment::getCreatedAt);
+        
+        Page<Comment> commentPage = new Page<>(page, size);
+        Page<Comment> result = commentMapper.selectPage(commentPage, wrapper);
+
+        // 转换为DTO并获取回复
+        return result.getRecords().stream()
+                .map(comment -> convertToCommentDTO(comment, userId))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public CommentResponseDTO addComment(Long recipeId, CommentRequestDTO request, Long userId) {
+        Comment comment = new Comment();
+        comment.setUserId(userId);
+        comment.setRecipeId(recipeId);
+        comment.setParentId(request.getParentId());
+        comment.setContent(request.getContent());
+        comment.setLikeCount(0);
+        comment.setCreatedAt(LocalDateTime.now());
+        comment.setUpdatedAt(LocalDateTime.now());
+
+        commentMapper.insert(comment);
+
+        // 更新评论数
+        Recipe recipe = recipeMapper.selectById(recipeId);
+        recipe.setCommentCount(recipe.getCommentCount() + 1);
+        recipeMapper.updateById(recipe);
+
+        return convertToCommentDTO(comment, userId);
+    }
+
+    @Override
+    @Transactional
+    public void deleteComment(Long commentId, Long userId) {
+        Comment comment = commentMapper.selectById(commentId);
+        if (comment == null) {
+            throw new BusinessException(ResultCode.RESOURCE_NOT_EXIST, "评论不存在");
+        }
+
+        // 只能删除自己的评论
+        if (!comment.getUserId().equals(userId)) {
+            throw new BusinessException(ResultCode.PERMISSION_ERROR, "无权限删除该评论");
+        }
+
+        commentMapper.deleteById(commentId);
+
+        // 更新评论数
+        Recipe recipe = recipeMapper.selectById(comment.getRecipeId());
+        if (recipe.getCommentCount() > 0) {
+            recipe.setCommentCount(recipe.getCommentCount() - 1);
+            recipeMapper.updateById(recipe);
+        }
+    }
+
+    @Override
+    @Transactional
+    public void likeComment(Long commentId, Long userId) {
+        // TODO: 实现评论点赞逻辑
+    }
+
+    @Override
+    @Transactional
+    public void unlikeComment(Long commentId, Long userId) {
+        // TODO: 实现取消评论点赞逻辑
+    }
+
+    // ==================== 私有辅助方法 ====================
+
+    private RecipeListItemDTO convertToListItemDTO(Recipe recipe) {
+        User author = userMapper.selectById(recipe.getAuthorId());
+        
+        String[] tags = {};
+        try {
+            if (recipe.getTags() != null) {
+                tags = objectMapper.readValue(recipe.getTags(), String[].class);
+            }
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
+        return RecipeListItemDTO.builder()
+                .id(recipe.getId())
+                .name(recipe.getName())
+                .cover(recipe.getCover())
+                .author(RecipeListItemDTO.AuthorInfo.builder()
+                        .id(author != null ? (long) author.getId() : null)
+                        .nickname(author != null ? author.getNickname() : "未知用户")
+                        .avatar(author != null ? author.getAvatar() : "")
+                        .build())
+                .cookTime(recipe.getCookTime())
+                .difficulty(convertDifficultyToString(recipe.getDifficulty()))
+                .calories(recipe.getCalories())
+                .tags(tags)
+                .stats(RecipeListItemDTO.RecipeStats.builder()
+                        .likes(recipe.getLikeCount())
+                        .collections(recipe.getCollectionCount())
+                        .comments(recipe.getCommentCount())
+                        .views(recipe.getViewCount())
+                        .build())
+                .createdAt(recipe.getCreatedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
+                .build();
+    }
+
+    private RecipeDetailDTO convertToDetailDTO(Recipe recipe) {
+        User author = userMapper.selectById(recipe.getAuthorId());
+        
+        List<String> images = new ArrayList<>();
+        try {
+            if (recipe.getImages() != null) {
+                images = objectMapper.readValue(recipe.getImages(), new TypeReference<List<String>>() {});
+            }
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
+        List<RecipeDetailDTO.IngredientItem> ingredients = new ArrayList<>();
+        List<RecipeDetailDTO.StepItem> steps = new ArrayList<>();
+        String[] tags = {};
+
+        try {
+            if (recipe.getIngredients() != null) {
+                ingredients = objectMapper.readValue(recipe.getIngredients(), 
+                    new TypeReference<List<RecipeDetailDTO.IngredientItem>>() {});
+            }
+            if (recipe.getSteps() != null) {
+                steps = objectMapper.readValue(recipe.getSteps(), 
+                    new TypeReference<List<RecipeDetailDTO.StepItem>>() {});
+            }
+            if (recipe.getTags() != null) {
+                tags = objectMapper.readValue(recipe.getTags(), String[].class);
+            }
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
+        return RecipeDetailDTO.builder()
+                .id(recipe.getId())
+                .name(recipe.getName())
+                .cover(recipe.getCover())
+                .images(images)
+                .author(RecipeDetailDTO.AuthorInfo.builder()
+                        .id(author != null ? (long) author.getId() : null)
+                        .nickname(author != null ? author.getNickname() : "未知用户")
+                        .avatar(author != null ? author.getAvatar() : "")
+                        .build())
+                .ingredients(ingredients)
+                .steps(steps)
+                .tips(recipe.getTips())
+                .cookTime(recipe.getCookTime())
+                .difficulty(convertDifficultyToString(recipe.getDifficulty()))
+                .calories(recipe.getCalories())
+                .tags(tags)
+                .stats(RecipeDetailDTO.RecipeStats.builder()
+                        .likes(recipe.getLikeCount())
+                        .collections(recipe.getCollectionCount())
+                        .comments(recipe.getCommentCount())
+                        .views(recipe.getViewCount())
+                        .build())
+                .build();
+    }
+
+    private CommentResponseDTO convertToCommentDTO(Comment comment, Long userId) {
+        User user = userMapper.selectById(comment.getUserId());
+
+        // 获取回复
+        LambdaQueryWrapper<Comment> replyWrapper = new LambdaQueryWrapper<>();
+        replyWrapper.eq(Comment::getParentId, comment.getId())
+                .orderByAsc(Comment::getCreatedAt);
+        List<Comment> replies = commentMapper.selectList(replyWrapper);
+
+        List<CommentResponseDTO.CommentReplyDTO> replyDTOs = replies.stream()
+                .map(reply -> {
+                    User replyUser = userMapper.selectById(reply.getUserId());
+                    return CommentResponseDTO.CommentReplyDTO.builder()
+                            .id(reply.getId())
+                            .user(CommentResponseDTO.UserInfo.builder()
+                                    .id(replyUser != null ? (long) replyUser.getId() : null)
+                                    .nickname(replyUser != null ? replyUser.getNickname() : "未知用户")
+                                    .avatar(replyUser != null ? replyUser.getAvatar() : "")
+                                    .build())
+                            .content(reply.getContent())
+                            .createdAt(reply.getCreatedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
+                            .build();
+                })
+                .collect(Collectors.toList());
+
+        boolean isLiked = userId != null && checkLiked(userId, comment.getId(), 2);
+
+        return CommentResponseDTO.builder()
+                .id(comment.getId())
+                .user(CommentResponseDTO.UserInfo.builder()
+                        .id(user != null ? (long) user.getId() : null)
+                        .nickname(user != null ? user.getNickname() : "未知用户")
+                        .avatar(user != null ? user.getAvatar() : "")
+                        .build())
+                .content(comment.getContent())
+                .likeCount(comment.getLikeCount())
+                .isLiked(isLiked)
+                .createdAt(comment.getCreatedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
+                .replies(replyDTOs)
+                .build();
+    }
+
+    private LikeCollectResponseDTO buildLikeCollectResponse(Long recipeId, Long userId) {
+        Recipe recipe = recipeMapper.selectById(recipeId);
+        boolean isLiked = checkLiked(userId, recipeId, 1);
+        boolean isCollected = checkCollected(userId, recipeId);
+
+        return LikeCollectResponseDTO.builder()
+                .isLiked(isLiked)
+                .likeCount(recipe.getLikeCount())
+                .isCollected(isCollected)
+                .collectionCount(recipe.getCollectionCount())
+                .build();
+    }
+
+    private boolean checkLiked(Long userId, Long targetId, Integer targetType) {
+        LambdaQueryWrapper<Like> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Like::getUserId, userId)
+                .eq(Like::getTargetId, targetId)
+                .eq(Like::getTargetType, targetType);
+        return likeMapper.selectCount(wrapper) > 0;
+    }
+
+    private boolean checkCollected(Long userId, Long recipeId) {
+        LambdaQueryWrapper<Collection> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Collection::getUserId, userId)
+                .eq(Collection::getRecipeId, recipeId);
+        return collectionMapper.selectCount(wrapper) > 0;
+    }
+
+    private Integer convertDifficulty(String difficulty) {
+        switch (difficulty) {
+            case "simple": return 1;
+            case "medium": return 2;
+            case "hard": return 3;
+            default: return null;
+        }
+    }
+
+    private String convertDifficultyToString(Integer difficulty) {
+        if (difficulty == null) return "";
+        switch (difficulty) {
+            case 1: return "简单";
+            case 2: return "中等";
+            case 3: return "困难";
+            default: return "未知";
+        }
+    }
+}
