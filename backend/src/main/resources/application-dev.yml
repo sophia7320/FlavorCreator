@@ -8,6 +8,8 @@ spring:
     redis:
       host: localhost
       port: 6379
+      timeout: 3000ms
+      connect-timeout: 3000ms
 
 wx:
   app-id: wx50af4e183b6a52cd
