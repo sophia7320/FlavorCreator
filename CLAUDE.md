@@ -132,18 +132,16 @@ flcr.backend/
 
 **AuthAspect** (`common.aop`, @Order(1)):
 - 拦截 `@RequireAuth` 标记的方法，从 `Authorization: Bearer <token>` 中提取 JWT
-- 验证 Token 有效后将 userId 写入 `UserContext`（ThreadLocal）
+- Token 校验后查 Redis 黑名单（`TokenBlacklistService.isBlacklisted()`）
+- 验证通过后将 userId 和 token 写入 `UserContext`（ThreadLocal）
 - `@RequireAuth(required = false)` 时 Token 可选，有则解析，无则放行
 
 **RequireAuth** (`common.aop`):
 - 标记需要 Token 认证的 Controller 方法
-- `required = true`（默认）：无有效 Token 抛 BusinessException(401)
-- `required = false`：游客可访问，有 Token 则解析 userId
 
 **UserContext** (`common.context`):
-- ThreadLocal 持有当前请求的 userId
-- Controller 通过 `UserContext.getUserId()` 获取
-- AuthAspect 在请求结束后自动 clean
+- ThreadLocal 持有当前请求的 userId 和 token
+- AuthAspect 在请求结束后自动 clear
 
 **BusinessException** (`common.exception`):
 - 业务异常类，携带 `code` 状态码
@@ -169,6 +167,11 @@ flcr.backend/
 - 统一响应格式：`{code, message, data}`
 - 静态工厂方法：`success()`, `success(T)`, `success(String, T)`, `error(code, msg)`
 
+**TokenBlacklistService** (`common.service`):
+- Redis 黑名单管理 logout 后的 Token 失效
+- `blacklist(token)` — 将 Token 加入黑名单，TTL = 剩余有效时长
+- `isBlacklisted(token)` — 检查 Token 是否在黑名单中，Redis 不可用时自动放行
+
 ### API 接口
 
 **Auth 模块** (`/api/auth`):
@@ -181,7 +184,7 @@ flcr.backend/
    - 入参：`RefreshTokenRequestDTO` (refreshToken)
    - 出参：`Response<LoginResponseDTO>`
 
-3. `POST /api/auth/logout` - 退出登录
+3. `POST /api/auth/logout` - 退出登录（需认证，将 token 加入 Redis 黑名单）
 
 **Community 模块** (`/api/community`):
 
@@ -261,7 +264,7 @@ flcr.backend/
 ## 注意事项
 
 - 数据库 `flcr` 需要手动创建，建表脚本在 `script/sql/` 目录
-- Ingredient 模块已完整实现，含 7 个接口 + 4 个调味品复用接口
+- Ingredient 模块已完整实现，logout 已支持 Redis 黑名单 Token 失效
 - Community 模块中点赞评论（`likeComment`/`unlikeComment`）为 TODO 状态，待完善
 - 菜谱的图片上传逻辑为占位符，实际文件存储（OSS）待实现
 - Admin 和 Ingredient 模块尚未实现

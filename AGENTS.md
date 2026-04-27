@@ -150,7 +150,6 @@ Response.error("服务器错误");  // 默认 code=500
 - `CommunityServiceImpl.likeComment()` / `unlikeComment()` 为 TODO 空实现
 - 点赞/收藏计数使用 read-modify-write，存在并发竞态风险
 - `RecipeListRequestDTO.taste` 字段已定义但在 Service 中未使用
-- `logout` 无服务端 Token 失效机制
 - `recipe` 模块仅有 Entity + Mapper，Controller/Service 待开发
 - `admin` 模块待实现
 - `JacksonConfig` 手动创建 `ObjectMapper` Bean 作为 Spring Boot 4 `tools.jackson` 命名空间的桥接，若迁移到 Jackson 3 后可移除
