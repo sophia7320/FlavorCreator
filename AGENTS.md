@@ -20,7 +20,13 @@ Controller → Service(接口) → Service/impl → Mapper
 ### 错误处理
 - Service 层只能抛 `BusinessException(code, message)`，禁止 `throw new RuntimeException()`
 - 错误码使用 `ResultCode` 常量，不硬编码数字
-- `GlobalExceptionHandler` 统一捕获并转换为 `Response<T>`
+- `GlobalExceptionHandler` 统一捕获并转换为 `Response<T>`，现处理：
+  - `BusinessException` → 返回对应 code + message
+  - `MethodArgumentNotValidException` → 400（`@Valid` 校验失败）
+  - `ConstraintViolationException` → 400（方法级校验失败）
+  - `HttpMessageNotReadableException` → 400（JSON 格式错误）
+  - `BindException` → 400（表单绑定失败）
+  - `Exception` → 500（兜底）
 
 ## 编码契约
 
@@ -47,9 +53,10 @@ public interface XxxMapper extends BaseMapper<Xxx> {
 ```
 
 ### DTO 层
-- **请求 DTO**：`@Data`，放在 `DTO/request/`
-- **响应 DTO**：`@Builder` + `@NoArgsConstructor` + `@AllArgsConstructor`，放在 `DTO/response/`
-- 嵌套结构使用内部静态类，同样加 `@Builder`
+- **请求 DTO**：`@Data`，放在 `DTO/request/`，命名后缀 `XxxRequestDTO`
+  - 内部静态类只用 `@Data` + `@NoArgsConstructor`（Jackson 反序列化需要）
+- **响应 DTO**：`@Data` + `@Builder` + `@NoArgsConstructor` + `@AllArgsConstructor`（四合一），放在 `DTO/response/`
+  - 内部静态类同样四合一注解
 
 ### Service 层
 ```java
@@ -78,7 +85,7 @@ public class XxxController {
 
     @PostMapping("/action")
     @RequireAuth                  // 需要认证
-    public Response<XxxDTO> action(@RequestBody XxxRequestDTO request) {
+    public Response<XxxDTO> action(@Valid @RequestBody XxxRequestDTO request) {
         return Response.success(xxxService.action(request));
     }
 
@@ -90,6 +97,8 @@ public class XxxController {
     }
 }
 ```
+- 请求参数加 `@Valid` / `@Validated` 启用 DTO 字段校验
+- 校验失败由 `GlobalExceptionHandler` 统一返回 400 错误
 
 ### 统一响应
 ```java
@@ -110,14 +119,18 @@ Response.error("服务器错误");  // 默认 code=500
 | `source` | 1 / 2 / 3 | 系统 / 用户 / AI |
 | `targetType` | 1 / 2 | 菜谱 / 评论 |
 | `gender` | 0 / 1 / 2 | 未知 / 男 / 女 |
+| `status` | normal / expiring / expired | 食材状态（动态计算，不入库） |
 
 | 配置 | 值 |
 |------|-----|
 | API 前缀 | `/api/{模块名}` |
+| CORS | 允许 `/api/**` 所有来源跨域 |
 | 时间格式 | `DateTimeFormatter.ISO_LOCAL_DATE_TIME` |
 | 分页默认 | page=1, size=20 |
+| 文件上传限制 | 单文件 10MB / 总请求 20MB |
 | Token 过期 | 访问 2h / 刷新 7d |
 | JWT Claim | userId(L), openid(S) |
+| Actuator 端点 | health, info |
 
 ## 新模块开发清单
 
@@ -128,7 +141,8 @@ Response.error("服务器错误");  // 默认 code=500
 5. 创建 `DTO/request/` + `DTO/response/` → 请求/响应 DTO
 6. 创建 `controller/` → `@RestController` + `@RequestMapping("/api/模块名")`
 7. 需要认证的方法加 `@RequireAuth`
-8. 在 `src/test/` 对应包下写测试（集成测试用 `@SpringBootTest` + `@Transactional` 回滚）
+8. 需要参数校验的 Controller 入参加 `@Valid` + 在 DTO 字段上加校验注解
+9. 在 `src/test/` 对应包下写测试（集成测试用 `@SpringBootTest` + `@Transactional` 回滚）
 
 ## 已知待办
 
@@ -137,4 +151,6 @@ Response.error("服务器错误");  // 默认 code=500
 - 点赞/收藏计数使用 read-modify-write，存在并发竞态风险
 - `RecipeListRequestDTO.taste` 字段已定义但在 Service 中未使用
 - `logout` 无服务端 Token 失效机制
-- `UserServiceImpl.login()` 方法注释编号从 3 跳到 5（缺少步骤 4）
+- `recipe` 模块仅有 Entity + Mapper，Controller/Service 待开发
+- `admin` 模块待实现
+- `JacksonConfig` 手动创建 `ObjectMapper` Bean 作为 Spring Boot 4 `tools.jackson` 命名空间的桥接，若迁移到 Jackson 3 后可移除
