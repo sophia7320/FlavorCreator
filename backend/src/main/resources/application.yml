@@ -30,3 +30,9 @@ flcr:
   storage:
     local-path: ./uploads
     url-prefix: /uploads
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+  default-produces-media-type: application/json

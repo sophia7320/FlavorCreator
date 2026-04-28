@@ -36,3 +36,7 @@ logging:
 flcr:
   storage:
     type: oss
+
+springdoc:
+  api-docs:
+    enabled: false
