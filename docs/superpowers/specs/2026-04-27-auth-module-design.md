@@ -18,6 +18,8 @@
 | avatar | VARCHAR(255) | 头像 |
 | background | VARCHAR(255) | 背景图 |
 | signature | VARCHAR(128) | 签名 |
+| background | VARCHAR(255) | 背景图 |
+| preferences | JSON | 偏好设置（taste/dietary/cookTime/difficulty） |
 | gender | TINYINT | 0-未知 1-男 2-女 |
 | phone_number | VARCHAR(20) | 手机号 |
 | created_at | DATETIME | 创建时间 |

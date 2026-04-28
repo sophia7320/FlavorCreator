@@ -45,6 +45,7 @@ flcr.backend/
 ├── community/  # 社区模块（菜谱发布、点赞收藏、评论）- 已实现
 ├── recipe/     # 食谱模块（AI生成、食材匹配、推荐搜索）- 实体+Mapper 就绪，Controller/Service 待开发
 ├── ingredient/ # 食材管理模块（食材/调味品 CRUD、临期提醒、常用食材库）- 已实现
+├── user/       # 用户信息模块（个人资料、偏好设置、头像/背景上传）- 已实现
 ├── common/     # 公共组件
 │   ├── aop/         # AOP 切面（AuthAspect 认证、LoggingAspect 日志）
 │   ├── config/      # 配置类（WxMa、Jackson、MyBatis）
@@ -222,6 +223,13 @@ flcr.backend/
 
 **Condiment 复用** (`/api/condiment`):
 - POST/GET/PUT/DELETE 调味品接口，复用 IngredientService，category 固定为"调味品"
+
+**User 模块** (`/api/user`):
+
+1. `GET /api/user/info` - 获取个人资料（需认证，含偏好+统计+手机脱敏）
+2. `POST /api/user/info` - 更新个人资料（需认证，昵称/签名/背景/性别/偏好）
+3. `POST /api/user/avatar` - 上传头像（需认证，multipart）
+4. `POST /api/user/background` - 上传背景图（需认证，multipart）
 
 ### 错误码定义 (`common.constants.ResultCode`)
 
