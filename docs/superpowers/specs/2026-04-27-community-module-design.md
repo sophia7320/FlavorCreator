@@ -75,4 +75,5 @@ flcr.backend.community/
 - **用户获取**：Service 层通过 `UserContext.getUserId()` 获取（已修正，不再从 Controller 传参）
 - **跨模块引用**：注入 `UserMapper`（auth 模块）和 `RecipeMapper`（recipe 模块）
 - **JSON 读写**：使用 `objectMapper.writeValueAsString()` / `readValue()`
-- **待办**：文件上传为占位符、评论点赞逻辑、点赞/收藏并发竞态
+- **并发安全**：点赞/收藏/评论/浏览计数使用数据库原子操作 `SET count = count ± 1`，消除 lost-update 竞态
+- **待办**：文件上传为占位符、评论点赞逻辑

@@ -1,6 +1,7 @@
 package flcr.backend.community.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -125,10 +126,12 @@ public class CommunityServiceImpl implements CommunityService {
             throw new BusinessException(ResultCode.RESOURCE_NOT_EXIST, "菜谱不存在");
         }
 
-        recipe.setViewCount(recipe.getViewCount() + 1);
-        recipeMapper.updateById(recipe);
-
         RecipeDetailDTO dto = convertToDetailDTO(recipe);
+
+        LambdaUpdateWrapper<Recipe> viewWrapper = new LambdaUpdateWrapper<>();
+        viewWrapper.eq(Recipe::getId, recipeId)
+                .setSql("view_count = view_count + 1");
+        recipeMapper.update(null, viewWrapper);
 
         if (userId != null) {
             dto.setIsLiked(checkLiked(userId, recipeId, 1));
@@ -161,9 +164,10 @@ public class CommunityServiceImpl implements CommunityService {
         like.setCreatedAt(LocalDateTime.now());
         likeMapper.insert(like);
 
-        Recipe recipe = recipeMapper.selectById(recipeId);
-        recipe.setLikeCount(recipe.getLikeCount() + 1);
-        recipeMapper.updateById(recipe);
+        LambdaUpdateWrapper<Recipe> likeWrapper = new LambdaUpdateWrapper<>();
+        likeWrapper.eq(Recipe::getId, recipeId)
+                .setSql("like_count = like_count + 1");
+        recipeMapper.update(null, likeWrapper);
 
         return buildLikeCollectResponse(recipeId, userId);
     }
@@ -178,11 +182,10 @@ public class CommunityServiceImpl implements CommunityService {
                 .eq(Like::getTargetType, 1);
         likeMapper.delete(wrapper);
 
-        Recipe recipe = recipeMapper.selectById(recipeId);
-        if (recipe.getLikeCount() > 0) {
-            recipe.setLikeCount(recipe.getLikeCount() - 1);
-            recipeMapper.updateById(recipe);
-        }
+        LambdaUpdateWrapper<Recipe> unlikeWrapper = new LambdaUpdateWrapper<>();
+        unlikeWrapper.eq(Recipe::getId, recipeId)
+                .setSql("like_count = CASE WHEN like_count > 0 THEN like_count - 1 ELSE 0 END");
+        recipeMapper.update(null, unlikeWrapper);
 
         return buildLikeCollectResponse(recipeId, userId);
     }
@@ -205,9 +208,10 @@ public class CommunityServiceImpl implements CommunityService {
         collection.setCreatedAt(LocalDateTime.now());
         collectionMapper.insert(collection);
 
-        Recipe recipe = recipeMapper.selectById(recipeId);
-        recipe.setCollectionCount(recipe.getCollectionCount() + 1);
-        recipeMapper.updateById(recipe);
+        LambdaUpdateWrapper<Recipe> collectWrapper = new LambdaUpdateWrapper<>();
+        collectWrapper.eq(Recipe::getId, recipeId)
+                .setSql("collection_count = collection_count + 1");
+        recipeMapper.update(null, collectWrapper);
 
         return buildLikeCollectResponse(recipeId, userId);
     }
@@ -221,11 +225,10 @@ public class CommunityServiceImpl implements CommunityService {
                 .eq(Collection::getRecipeId, recipeId);
         collectionMapper.delete(wrapper);
 
-        Recipe recipe = recipeMapper.selectById(recipeId);
-        if (recipe.getCollectionCount() > 0) {
-            recipe.setCollectionCount(recipe.getCollectionCount() - 1);
-            recipeMapper.updateById(recipe);
-        }
+        LambdaUpdateWrapper<Recipe> uncollectWrapper = new LambdaUpdateWrapper<>();
+        uncollectWrapper.eq(Recipe::getId, recipeId)
+                .setSql("collection_count = CASE WHEN collection_count > 0 THEN collection_count - 1 ELSE 0 END");
+        recipeMapper.update(null, uncollectWrapper);
 
         return buildLikeCollectResponse(recipeId, userId);
     }
@@ -261,9 +264,10 @@ public class CommunityServiceImpl implements CommunityService {
 
         commentMapper.insert(comment);
 
-        Recipe recipe = recipeMapper.selectById(recipeId);
-        recipe.setCommentCount(recipe.getCommentCount() + 1);
-        recipeMapper.updateById(recipe);
+        LambdaUpdateWrapper<Recipe> commentWrapper = new LambdaUpdateWrapper<>();
+        commentWrapper.eq(Recipe::getId, recipeId)
+                .setSql("comment_count = comment_count + 1");
+        recipeMapper.update(null, commentWrapper);
 
         return convertToCommentDTO(comment, userId);
     }
@@ -283,11 +287,10 @@ public class CommunityServiceImpl implements CommunityService {
 
         commentMapper.deleteById(commentId);
 
-        Recipe recipe = recipeMapper.selectById(comment.getRecipeId());
-        if (recipe.getCommentCount() > 0) {
-            recipe.setCommentCount(recipe.getCommentCount() - 1);
-            recipeMapper.updateById(recipe);
-        }
+        LambdaUpdateWrapper<Recipe> delCommentWrapper = new LambdaUpdateWrapper<>();
+        delCommentWrapper.eq(Recipe::getId, comment.getRecipeId())
+                .setSql("comment_count = CASE WHEN comment_count > 0 THEN comment_count - 1 ELSE 0 END");
+        recipeMapper.update(null, delCommentWrapper);
     }
 
     @Override
