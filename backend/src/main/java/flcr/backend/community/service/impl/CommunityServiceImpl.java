@@ -11,6 +11,7 @@ import flcr.backend.auth.mapper.UserMapper;
 import flcr.backend.common.constants.ResultCode;
 import flcr.backend.common.context.UserContext;
 import flcr.backend.common.exception.BusinessException;
+import flcr.backend.common.service.FileStorageService;
 import flcr.backend.community.DTO.request.CommentRequestDTO;
 import flcr.backend.community.DTO.request.PublishRecipeRequestDTO;
 import flcr.backend.community.DTO.request.RecipeListRequestDTO;
@@ -47,18 +48,18 @@ public class CommunityServiceImpl implements CommunityService {
     private final CollectionMapper collectionMapper;
     private final UserMapper userMapper;
     private final ObjectMapper objectMapper;
+    private final FileStorageService fileStorageService;
 
     @Override
     @Transactional
     public Long publishRecipe(PublishRecipeRequestDTO request, MultipartFile cover,
                               List<MultipartFile> images) {
         Long userId = UserContext.getUserId();
-        // TODO: 实现文件上传逻辑，这里先使用占位符
-        String coverUrl = "/uploads/cover.jpg";
+        String coverUrl = cover != null ? fileStorageService.store(cover, "recipe-cover") : "";
         List<String> imageUrls = new ArrayList<>();
         if (images != null) {
-            for (int i = 0; i < images.size(); i++) {
-                imageUrls.add("/uploads/image" + i + ".jpg");
+            for (MultipartFile image : images) {
+                imageUrls.add(fileStorageService.store(image, "recipe-image"));
             }
         }
 

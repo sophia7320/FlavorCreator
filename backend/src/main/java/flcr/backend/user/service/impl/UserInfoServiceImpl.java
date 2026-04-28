@@ -9,6 +9,7 @@ import flcr.backend.auth.mapper.UserMapper;
 import flcr.backend.common.constants.ResultCode;
 import flcr.backend.common.context.UserContext;
 import flcr.backend.common.exception.BusinessException;
+import flcr.backend.common.service.FileStorageService;
 import flcr.backend.community.entity.Collection;
 import flcr.backend.community.entity.Like;
 import flcr.backend.community.mapper.CollectionMapper;
@@ -35,6 +36,7 @@ public class UserInfoServiceImpl implements UserInfoService {
     private final LikeMapper likeMapper;
     private final CollectionMapper collectionMapper;
     private final ObjectMapper objectMapper;
+    private final FileStorageService fileStorageService;
 
     @Override
     public UserInfoResponseDTO getInfo() {
@@ -84,8 +86,7 @@ public class UserInfoServiceImpl implements UserInfoService {
     @Override
     public String uploadAvatar(MultipartFile file) {
         Long userId = UserContext.getUserId();
-        // TODO: 对接 OSS，当前使用占位符
-        String avatarUrl = "/uploads/avatar.jpg";
+        String avatarUrl = fileStorageService.store(file, "avatar");
 
         User user = userMapper.selectById(userId);
         if (user != null) {
@@ -100,8 +101,7 @@ public class UserInfoServiceImpl implements UserInfoService {
     @Override
     public String uploadBackground(MultipartFile file) {
         Long userId = UserContext.getUserId();
-        // TODO: 对接 OSS，当前使用占位符
-        String backgroundUrl = "/uploads/background.jpg";
+        String backgroundUrl = fileStorageService.store(file, "background");
 
         User user = userMapper.selectById(userId);
         if (user != null) {

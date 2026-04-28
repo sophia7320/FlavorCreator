@@ -4,6 +4,12 @@ spring:
     username: root
     password: yiming070320
     driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
   data:
     redis:
       host: localhost
@@ -21,3 +27,11 @@ jwt:
 mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+logging:
+  level:
+    flcr.backend: DEBUG
+
+flcr:
+  storage:
+    type: local
