@@ -129,7 +129,7 @@ Response.error("服务器错误");  // 默认 code=500
 | 分页默认 | page=1, size=20 |
 | 文件上传限制 | 单文件 10MB / 总请求 20MB |
 | Token 过期 | 访问 2h / 刷新 7d |
-| JWT Claim | userId(L), openid(S) |
+| JWT Claim | userId(L), openid(S), jti(S) |
 | Actuator 端点 | health, info |
 
 ## 新模块开发清单

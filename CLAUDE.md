@@ -133,14 +133,14 @@ flcr.backend/
 **AuthAspect** (`common.aop`, @Order(1)):
 - 拦截 `@RequireAuth` 标记的方法，从 `Authorization: Bearer <token>` 中提取 JWT
 - Token 校验后查 Redis 黑名单（`TokenBlacklistService.isBlacklisted()`）
-- 验证通过后将 userId 和 token 写入 `UserContext`（ThreadLocal）
+- 验证通过后将 userId 和 jti 写入 `UserContext`（ThreadLocal）
 - `@RequireAuth(required = false)` 时 Token 可选，有则解析，无则放行
 
 **RequireAuth** (`common.aop`):
 - 标记需要 Token 认证的 Controller 方法
 
 **UserContext** (`common.context`):
-- ThreadLocal 持有当前请求的 userId 和 token
+- ThreadLocal 持有当前请求的 userId 和 jti（Token 唯一标识，用于黑名单查询）
 - AuthAspect 在请求结束后自动 clear
 
 **BusinessException** (`common.exception`):
@@ -157,20 +157,22 @@ flcr.backend/
 - 捕获 `Exception` 返回 500 通用错误
 
 **JwtTokenUtil** (`common.util`):
-- `generateToken(userId, openid)` - 生成访问令牌（2 小时）
-- `generateRefreshToken(userId, openid)` - 生成刷新令牌（7 天）
+- `generateToken(userId, openid)` - 生成访问令牌（2h，含 jti UUID）
+- `generateRefreshToken(userId, openid)` - 生成刷新令牌（7d，含 jti UUID）
 - `validateToken(token)` - 验证令牌
 - `getUserIdFromToken(token)` - 解析用户 ID
 - `getOpenidFromToken(token)` - 解析 OpenID
+- `getJtiFromToken(token)` - 解析 jti（JWT ID）
+- `getRemainingTime(token)` - 获取 Token 剩余有效毫秒数
 
 **Response** (`common.response`):
 - 统一响应格式：`{code, message, data}`
 - 静态工厂方法：`success()`, `success(T)`, `success(String, T)`, `error(code, msg)`
 
 **TokenBlacklistService** (`common.service`):
-- Redis 黑名单管理 logout 后的 Token 失效
-- `blacklist(token)` — 将 Token 加入黑名单，TTL = 剩余有效时长
-- `isBlacklisted(token)` — 检查 Token 是否在黑名单中，Redis 不可用时自动放行
+- Redis 黑名单管理 logout/refresh 后的 Token 失效
+- `blacklist(jti)` — 将 jti 加入黑名单，TTL = Token 剩余有效时长
+- `isBlacklisted(jti)` — 检查 jti 是否在黑名单中，Redis 不可用时自动放行
 
 ### API 接口
 
