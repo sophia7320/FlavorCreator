@@ -258,23 +258,25 @@ flcr.backend/
 ## 测试
 
 ```bash
-# 所有测试（UserMapper 9 + IngredientMapper 9 + CommonIngredientMapper 4 + ResultCode 3 + BusinessException 4 + Response 7 + JwtTokenUtil 13 + Application 1 = 50 个）
+# 所有测试（152 个用例）
 ./mvnw test
 
-# 单个测试类
-./mvnw test -Dtest=JwtTokenUtilTest
-./mvnw test -Dtest=ResponseTest
-./mvnw test -Dtest=BusinessExceptionTest
-./mvnw test -Dtest=ResultCodeTest
+# 分类展示
 ./mvnw test -Dtest=UserMapperTest
-./mvnw test -Dtest=IngredientMapperTest
-./mvnw test -Dtest=CommonIngredientMapperTest
+./mvnw test -Dtest=UserServiceImplTest
+./mvnw test -Dtest=CommunityServiceImplTest
+./mvnw test -Dtest=IngredientServiceImplTest
+./mvnw test -Dtest=UserInfoServiceImplTest
+./mvnw test -Dtest=TokenBlacklistServiceImplTest
+./mvnw test -Dtest=AuthAspectTest
+./mvnw test -Dtest=JwtTokenUtilTest
 ```
 
 ## 注意事项
 
 - 数据库 `flcr` 需要手动创建，建表脚本在 `script/sql/` 目录
-- Ingredient 模块已完整实现，logout 已支持 Redis 黑名单 Token 失效
+- 全量 152 个测试用例，覆盖 Mapper/Service/Controller/AOP/异常处理
+- Ingredient / User / Auth 模块已完整实现
 - Community 模块中点赞评论（`likeComment`/`unlikeComment`）为 TODO 状态，待完善
 - 菜谱的图片上传逻辑为占位符，实际文件存储（OSS）待实现
 - Admin 和 Ingredient 模块尚未实现
