@@ -261,23 +261,32 @@ flcr.backend/
 # 所有测试（152 个用例）
 ./mvnw test
 
-# 分类展示
-./mvnw test -Dtest=UserMapperTest
+# 单个测试类
 ./mvnw test -Dtest=UserServiceImplTest
-./mvnw test -Dtest=CommunityServiceImplTest
-./mvnw test -Dtest=IngredientServiceImplTest
-./mvnw test -Dtest=UserInfoServiceImplTest
-./mvnw test -Dtest=TokenBlacklistServiceImplTest
-./mvnw test -Dtest=AuthAspectTest
-./mvnw test -Dtest=JwtTokenUtilTest
 ```
+
+### 测试分类
+
+| 类型 | 注解 | 依赖 | 示例 |
+|------|------|------|------|
+| Mapper 集成 | `@SpringBootTest` + `@Transactional` | 真实 DB（自动回滚） | `UserMapperTest` |
+| Service 单元 | `@ExtendWith(MockitoExtension.class)` | `@Mock` Mapper | `UserServiceImplTest` |
+| Controller 单元 | `@ExtendWith(MockitoExtension.class)` | `@Mock` Service | `UserControllerTest` |
+| 工具类纯单元 | 无注解 | 手动 new | `JwtTokenUtilTest` |
+
+### 测试命名约定
+
+- 类名：`{被测类}Test`
+- 方法：`test{方法名}_{场景}` 如 `testLogin_ExistingUser`
+- `@DisplayName("中文描述")`
 
 ## 注意事项
 
-- 数据库 `flcr` 需要手动创建，建表脚本在 `script/sql/` 目录
-- 全量 152 个测试用例，覆盖 Mapper/Service/Controller/AOP/异常处理
+- 数据库 `flcr` 需要手动创建，所有建表脚本在 `script/sql/`
+- 全量 152 测试用例，覆盖 Mapper/Service/Controller/AOP/工具类
+- Service 单测用纯 Mockito，不依赖数据库/Redis
 - Ingredient / User / Auth 模块已完整实现
-- Community 模块中点赞评论（`likeComment`/`unlikeComment`）为 TODO 状态，待完善
+- Community 点赞评论 TODO、taste 字段未使用待处理
 - 菜谱的图片上传逻辑为占位符，实际文件存储（OSS）待实现
 - Admin 和 Ingredient 模块尚未实现
 - 认证通过 `@RequireAuth` + `AuthAspect` 实现，前端需传 `Authorization: Bearer <token>`

@@ -19,7 +19,7 @@
 ## 2. Redis 设计
 
 ```
-Key:   token:blacklist:{jwt_token}
+Key:   token:blacklist:{jti}   (JWT 的 jti claim，UUID 36 字节)
 Value: "1"
 TTL:   token 剩余有效毫秒数（过期 ≤0 则不入库）
 ```
@@ -52,9 +52,9 @@ TTL:   token 剩余有效毫秒数（过期 ≤0 则不入库）
 
 | 文件 | 改动 |
 |------|------|
-| `UserContext.java` | 新增 `token` ThreadLocal + `getToken()/setToken()/clear()` |
-| `JwtTokenUtil.java` | 新增 `getRemainingTime(String token)` 返回剩余毫秒 |
-| `AuthAspect.java` | ① `UserContext.setToken(token)` ② 黑名单检查 |
+| `UserContext.java` | 新增 `jti` ThreadLocal + `getJti()/setJti()/clear()` |
+| `JwtTokenUtil.java` | ①`generateToken` 内嵌 `jti`(UUID) ②新增 `getJtiFromToken()` ③新增 `getRemainingTime()` |
+| `AuthAspect.java` | ① `UserContext.setJti(jti)` ② 黑名单检查用 jti |
 | `UserController.java` | `logout()` 从 UserContext 取 token → blacklist |
 | `UserServiceImpl.java` | `refreshToken()` 校验通过后 blacklist 旧 refresh_token |
 

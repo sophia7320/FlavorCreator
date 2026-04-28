@@ -76,3 +76,20 @@ UserContext.clear();      // 在 AuthAspect finally 中调用
 - Controller 层不手动 catch 异常，由 `GlobalExceptionHandler` 统一处理
 - 错误码使用 `ResultCode` 常量，不硬编码数字
 - 跨模块数据访问注入目标 Mapper，不注入 Service
+
+## 4. Token 黑名单
+
+- Token 生成时内嵌 `jti`（UUID），用于黑名单存储
+- Redis key：`token:blacklist:{jti}`，TTL 等于 Token 剩余时长
+- `AuthAspect` 校验前查黑名单，`UserController.logout()` 和 `refreshToken()` 将失效 token 加入黑名单
+- Redis 不可用时自动放行，保证可用性
+
+## 5. 测试覆盖
+
+- `TokenBlacklistServiceImplTest`：5 用例（黑名单读写/过期/异常）
+- `AuthAspectTest`：7 用例（JWT 校验/黑名单/可选认证/Token 提取）
+- `UserContextTest`：5 用例（ThreadLocal 读写/清除）
+- `GlobalExceptionHandlerTest`：3 用例（业务异常/系统异常）
+- `JwtTokenUtilTest`：13 用例（生成/验证/解析/过期）
+- `SmsServiceImplTest`：4 用例
+- `FileStorageServiceImplTest`：4 用例（本地/OSS）

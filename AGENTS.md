@@ -132,6 +132,21 @@ Response.error("服务器错误");  // 默认 code=500
 | JWT Claim | userId(L), openid(S), jti(S) |
 | Actuator 端点 | health, info |
 
+## 测试约定
+
+### 分类
+| 测试类型 | 注解 | 特点 |
+|---------|------|------|
+| Mapper 集成 | `@SpringBootTest` `@Transactional` `@ActiveProfiles("dev")` | 真实数据库，自动回滚 |
+| Service 单元 | `@ExtendWith(MockitoExtension.class)` | `@Mock` Mapper，`@InjectMocks` Service |
+| Controller 单元 | `@ExtendWith(MockitoExtension.class)` | `@Mock` Service，`@InjectMocks` Controller |
+| 工具类纯单元 | 无 Spring 注解 | `new` 被测对象，`ReflectionTestUtils` 注入配置 |
+
+### 命名
+- 类名：`{被测类}Test`，方法：`test{方法}_{场景}`
+- `@DisplayName("中文描述")`
+- lambda 内抛异常用 `assertThrows`，mock 空调用用 `assertDoesNotThrow`
+
 ## 新模块开发清单
 
 1. 创建 `flcr.backend.{模块名}` 包
