@@ -24,6 +24,7 @@ public class User {
     private String avatar;
     private String signature;
     private String background;
+    private String preferences;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
