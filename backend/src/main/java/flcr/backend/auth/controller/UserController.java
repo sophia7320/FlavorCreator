@@ -36,9 +36,9 @@ public class UserController {
     @RequireAuth
     @PostMapping("/logout")
     public Response<Void> logout() {
-        String token = UserContext.getToken();
-        if (token != null) {
-            tokenBlacklistService.blacklist(token);
+        String jti = UserContext.getJti();
+        if (jti != null) {
+            tokenBlacklistService.blacklist(jti);
         }
         return Response.success("退出成功", null);
     }

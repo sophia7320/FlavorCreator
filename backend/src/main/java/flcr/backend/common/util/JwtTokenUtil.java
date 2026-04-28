@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
+import java.util.UUID;
 
 /**
  * JWT 令牌工具类
@@ -35,6 +36,7 @@ public class JwtTokenUtil {
      */
     public String generateToken(Long userId, String openid) {
         return JWT.create()
+                .withJWTId(UUID.randomUUID().toString())
                 .withClaim("userId", userId)
                 .withClaim("openid", openid)
                 .withExpiresAt(new Date(System.currentTimeMillis() + expiration))
@@ -49,6 +51,7 @@ public class JwtTokenUtil {
      */
     public String generateRefreshToken(Long userId, String openid) {
         return JWT.create()
+                .withJWTId(UUID.randomUUID().toString())
                 .withClaim("userId", userId)
                 .withClaim("openid", openid)
                 .withExpiresAt(new Date(System.currentTimeMillis() + refreshExpiration))
@@ -127,6 +130,19 @@ public class JwtTokenUtil {
             return Math.max(remaining, 0);
         } catch (Exception e) {
             return 0;
+        }
+    }
+
+    /**
+     * 从令牌中获取 jti（JWT ID）
+     * @param token JWT token
+     * @return jti
+     */
+    public String getJtiFromToken(String token) {
+        try {
+            return JWT.decode(token).getId();
+        } catch (Exception e) {
+            return null;
         }
     }
 }

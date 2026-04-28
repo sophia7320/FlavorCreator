@@ -40,7 +40,8 @@ public class AuthAspect {
             if (!jwtTokenUtil.validateToken(token)) {
                 throw new BusinessException(ResultCode.USER_NOT_EXIST, "登录已过期，请重新登录");
             }
-            if (tokenBlacklistService.isBlacklisted(token)) {
+            String jti = jwtTokenUtil.getJtiFromToken(token);
+            if (tokenBlacklistService.isBlacklisted(jti)) {
                 throw new BusinessException(ResultCode.USER_NOT_EXIST, "Token 已失效，请重新登录");
             }
             Long userId = jwtTokenUtil.getUserIdFromToken(token);
@@ -48,7 +49,7 @@ public class AuthAspect {
                 throw new BusinessException(ResultCode.USER_NOT_EXIST, "Token 无效");
             }
             UserContext.setUserId(userId);
-            UserContext.setToken(token);
+            UserContext.setJti(jti);
         }
 
         try {

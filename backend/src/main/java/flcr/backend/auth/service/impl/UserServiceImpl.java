@@ -108,7 +108,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String newToken = jwtTokenUtil.generateToken(userId, user.getOpenid());
         String newRefreshToken = jwtTokenUtil.generateRefreshToken(userId, user.getOpenid());
 
-        tokenBlacklistService.blacklist(refreshToken);
+        String jti = jwtTokenUtil.getJtiFromToken(refreshToken);
+        if (jti != null) {
+            tokenBlacklistService.blacklist(jti);
+        }
 
         return LoginResponseDTO.builder()
                 .token(newToken)
