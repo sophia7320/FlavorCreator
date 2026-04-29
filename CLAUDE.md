@@ -52,7 +52,7 @@ flcr.backend/
 │   ├── constants/   # 常量定义（ResultCode）
 │   ├── context/     # 上下文（UserContext ThreadLocal）
 │   ├── exception/   # 异常类（BusinessException、GlobalExceptionHandler）
-│   ├── service/      # 通用服务（SmsService 短信验证码）
+│   ├── service/      # 通用服务（RefreshTokenService Redis RT 管理）
 │   ├── response/    # 统一响应类（Response<T>）
 │   └── util/        # 工具类（JwtTokenUtil）
 └── Test/       # 测试控制器
@@ -133,15 +133,15 @@ flcr.backend/
 
 **AuthAspect** (`common.aop`, @Order(1)):
 - 拦截 `@RequireAuth` 标记的方法，从 `Authorization: Bearer <token>` 中提取 JWT
-- Token 校验后查 Redis 黑名单（`TokenBlacklistService.isBlacklisted()`）
-- 验证通过后将 userId 和 jti 写入 `UserContext`（ThreadLocal）
+- Token 校验（签名+过期），通过后将 userId 写入 `UserContext`（ThreadLocal）
 - `@RequireAuth(required = false)` 时 Token 可选，有则解析，无则放行
+- 不再查 Redis，零 IO 高性能
 
 **RequireAuth** (`common.aop`):
 - 标记需要 Token 认证的 Controller 方法
 
 **UserContext** (`common.context`):
-- ThreadLocal 持有当前请求的 userId 和 jti（Token 唯一标识，用于黑名单查询）
+- ThreadLocal 持有当前请求的 userId
 - AuthAspect 在请求结束后自动 clear
 
 **BusinessException** (`common.exception`):
@@ -158,22 +158,21 @@ flcr.backend/
 - 捕获 `Exception` 返回 500 通用错误
 
 **JwtTokenUtil** (`common.util`):
-- `generateToken(userId, openid)` - 生成访问令牌（2h，含 jti UUID）
-- `generateRefreshToken(userId, openid)` - 生成刷新令牌（7d，含 jti UUID）
-- `validateToken(token)` - 验证令牌
+- `generateToken(userId, openid)` - 生成访问令牌（5min，含 jti UUID，实际未使用）
+- `validateToken(token)` - 验证令牌（签名+过期）
 - `getUserIdFromToken(token)` - 解析用户 ID
 - `getOpenidFromToken(token)` - 解析 OpenID
-- `getJtiFromToken(token)` - 解析 jti（JWT ID）
-- `getRemainingTime(token)` - 获取 Token 剩余有效毫秒数
 
 **Response** (`common.response`):
 - 统一响应格式：`{code, message, data}`
 - 静态工厂方法：`success()`, `success(T)`, `success(String, T)`, `error(code, msg)`
 
-**TokenBlacklistService** (`common.service`):
-- Redis 黑名单管理 logout/refresh 后的 Token 失效
-- `blacklist(jti)` — 将 jti 加入黑名单，TTL = Token 剩余有效时长
-- `isBlacklisted(jti)` — 检查 jti 是否在黑名单中，Redis 不可用时自动放行
+**RefreshTokenService** (`common.service`):
+- Redis 管理 Refresh Token，Key: `rt:{uuid}` → `{userId, openid}`
+- `store(userId, openid, refreshToken)` — 存储 RT，TTL 30 天
+- `get(refreshToken)` — 按 UUID 查询 RT 数据，返回 `RefreshTokenData{userId, openid}` 或 null
+- `delete(refreshToken)` — 删除指定 RT
+- Access Token 无状态（5min JWT），不需黑名单
 
 ### API 接口
 
@@ -187,7 +186,7 @@ flcr.backend/
    - 入参：`RefreshTokenRequestDTO` (refreshToken)
    - 出参：`Response<LoginResponseDTO>`
 
-3. `POST /api/auth/logout` - 退出登录（需认证，将 token 加入 Redis 黑名单）
+3. `POST /api/auth/logout` - 退出登录（需认证，传入 refreshToken 校验归属后删除）
 
 **Community 模块** (`/api/community`):
 
@@ -250,7 +249,7 @@ flcr.backend/
 
 三个配置文件按环境分离：
 
-- **`application.yml`** — 共用配置（应用名、端口、JWT 过期时长、文件上传大小限制、Actuator 端点、MyBatis 驼峰映射）
+- **`application.yml`** — 共用配置（应用名、端口、JWT 过期时长 5min/30d、文件上传大小限制、Actuator 端点、MyBatis 驼峰映射）
 - **`application-dev.yml`** — 开发环境（本地 MySQL + HikariCP 连接池、Redis 超时、SQL 日志打印、项目包 DEBUG 日志）
 - **`application-prod.yml`** — 生产环境（数据库/微信/JWT 均通过 `${ENV_VAR}` 注入、HikariCP 连接池(20)、日志文件写入 `/var/log/flavor-creator`）
 - **`logback-spring.xml`** — 日志配置（控制台输出 + 按日滚动文件 + ERROR 单独文件，保留 30 天）
@@ -258,7 +257,7 @@ flcr.backend/
 ## 测试
 
 ```bash
-# 所有测试（152 个用例）
+# 所有测试（146 个用例）
 ./mvnw test
 
 # 单个测试类
@@ -283,15 +282,14 @@ flcr.backend/
 ## 注意事项
 
 - 数据库 `flcr` 需要手动创建，所有建表脚本在 `script/sql/`
-- 全量 152 测试用例，覆盖 Mapper/Service/Controller/AOP/工具类
+- 全量 146 测试用例，覆盖 Mapper/Service/Controller/AOP/工具类
 - Service 单测用纯 Mockito，不依赖数据库/Redis
 - Ingredient / User / Auth 模块已完整实现
 - Community 点赞评论 TODO、taste 字段未使用待处理
 - 菜谱的图片上传逻辑为占位符，实际文件存储（OSS）待实现
 - Admin 和 Ingredient 模块尚未实现
-- 认证通过 `@RequireAuth` + `AuthAspect` 实现，前端需传 `Authorization: Bearer <token>`
+- 认证通过 `@RequireAuth` + `AuthAspect` 实现（JWT 5min 无状态），前端需传 `Authorization: Bearer <token>`
 - `@MapperScan` 仅在 `BackendApplication` 上定义（`"flcr.backend.*.mapper"`），Mapper 接口无需 `@Mapper` 注解
-- `JacksonConfig` 手动创建 `ObjectMapper` Bean 作为 Spring Boot 4 `tools.jackson` 的桥接
 - Controller 入参应加 `@Valid` 注解启用 DTO 字段校验，失败由 `GlobalExceptionHandler` 统一返回 400
 - Controller 不手动 try-catch，依赖 `GlobalExceptionHandler` 统一处理
 - Service 层通过 `UserContext.getUserId()` 获取当前用户，不在方法签名中传 userId
