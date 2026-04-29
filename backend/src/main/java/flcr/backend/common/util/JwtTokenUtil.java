@@ -103,46 +103,4 @@ public class JwtTokenUtil {
             return null;
         }
     }
-
-    /**
-     * 检查令牌是否过期
-     * @param token JWT token
-     * @return 是否过期
-     */
-    public boolean isTokenExpired(String token) {
-        try {
-            DecodedJWT jwt = JWT.decode(token);
-            return jwt.getExpiresAt().before(new Date());
-        } catch (Exception e) {
-            return true;
-        }
-    }
-
-    /**
-     * 获取 token 剩余有效时间（毫秒）
-     * @param token JWT token
-     * @return 剩余毫秒数，已过期返回 0 或负数
-     */
-    public long getRemainingTime(String token) {
-        try {
-            DecodedJWT jwt = JWT.decode(token);
-            long remaining = jwt.getExpiresAt().getTime() - System.currentTimeMillis();
-            return Math.max(remaining, 0);
-        } catch (Exception e) {
-            return 0;
-        }
-    }
-
-    /**
-     * 从令牌中获取 jti（JWT ID）
-     * @param token JWT token
-     * @return jti
-     */
-    public String getJtiFromToken(String token) {
-        try {
-            return JWT.decode(token).getId();
-        } catch (Exception e) {
-            return null;
-        }
-    }
 }

@@ -6,7 +6,6 @@ package flcr.backend.common.context;
 public class UserContext {
 
     private static final ThreadLocal<Long> USER_ID = new ThreadLocal<>();
-    private static final ThreadLocal<String> JTI = new ThreadLocal<>();
 
     private UserContext() {}
 
@@ -18,16 +17,7 @@ public class UserContext {
         return USER_ID.get();
     }
 
-    public static void setJti(String jti) {
-        JTI.set(jti);
-    }
-
-    public static String getJti() {
-        return JTI.get();
-    }
-
     public static void clear() {
         USER_ID.remove();
-        JTI.remove();
     }
 }

@@ -4,13 +4,14 @@ import cn.binarywang.wx.miniapp.api.WxMaService;
 import cn.binarywang.wx.miniapp.api.WxMaUserService;
 import cn.binarywang.wx.miniapp.bean.WxMaJscode2SessionResult;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import flcr.backend.auth.DTO.request.LoginRequestDTO;
 import flcr.backend.auth.DTO.response.LoginResponseDTO;
 import flcr.backend.auth.entity.User;
 import flcr.backend.auth.mapper.UserMapper;
 import flcr.backend.common.constants.ResultCode;
 import flcr.backend.common.exception.BusinessException;
-import flcr.backend.common.service.TokenBlacklistService;
+import flcr.backend.common.service.RefreshTokenService;
 import flcr.backend.common.util.JwtTokenUtil;
 import me.chanjar.weixin.common.error.WxErrorException;
 import org.junit.jupiter.api.*;
@@ -28,23 +29,24 @@ class UserServiceImplTest {
     @Mock private WxMaService wxMaService;
     @Mock private WxMaUserService wxMaUserService;
     @Mock private JwtTokenUtil jwtTokenUtil;
-    @Mock private TokenBlacklistService tokenBlacklistService;
+    @Mock private RefreshTokenService refreshTokenService;
     @Mock private UserMapper userMapper;
+    private final ObjectMapper objectMapper = new ObjectMapper();
     @InjectMocks private UserServiceImpl userService;
 
     private static final Long USER_ID = 1001L;
     private static final String TEST_OPENID = "test_openid";
     private static final String TEST_TOKEN = "test_jwt_token";
-    private static final String TEST_REFRESH_TOKEN = "test_refresh_token";
 
     @BeforeEach
     void setUp() {
         lenient().when(wxMaService.getUserService()).thenReturn(wxMaUserService);
         ReflectionTestUtils.setField(userService, "baseMapper", userMapper);
+        ReflectionTestUtils.setField(userService, "objectMapper", objectMapper);
     }
 
     @Test
-    @DisplayName("老用户登录返回token")
+    @DisplayName("老用户登录返回token并存储refreshToken")
     void testLogin_ExistingUser() throws Exception {
         WxMaJscode2SessionResult sessionResult = new WxMaJscode2SessionResult();
         sessionResult.setOpenid(TEST_OPENID);
@@ -59,15 +61,16 @@ class UserServiceImplTest {
             return u;
         });
         when(jwtTokenUtil.generateToken(eq(USER_ID), eq(TEST_OPENID))).thenReturn(TEST_TOKEN);
-        when(jwtTokenUtil.generateRefreshToken(eq(USER_ID), eq(TEST_OPENID))).thenReturn(TEST_REFRESH_TOKEN);
 
         LoginRequestDTO request = new LoginRequestDTO();
         request.setCode("wx_code_123");
 
         LoginResponseDTO result = userService.login(request);
+
         assertEquals(TEST_TOKEN, result.getToken());
-        assertEquals(TEST_REFRESH_TOKEN, result.getRefreshToken());
+        assertNotNull(result.getRefreshToken());
         assertFalse(result.getIsNewUser());
+        verify(refreshTokenService).store(eq(USER_ID), eq(TEST_OPENID), anyString());
     }
 
     @Test
@@ -84,13 +87,14 @@ class UserServiceImplTest {
             return 1;
         });
         when(jwtTokenUtil.generateToken(anyLong(), anyString())).thenReturn(TEST_TOKEN);
-        when(jwtTokenUtil.generateRefreshToken(anyLong(), anyString())).thenReturn(TEST_REFRESH_TOKEN);
 
         LoginRequestDTO request = new LoginRequestDTO();
         request.setCode("wx_code_new");
 
         LoginResponseDTO result = userService.login(request);
+
         assertTrue(result.getIsNewUser());
+        verify(refreshTokenService).store(eq(999L), eq("new_openid"), anyString());
     }
 
     @Test
@@ -121,11 +125,10 @@ class UserServiceImplTest {
     }
 
     @Test
-    @DisplayName("refreshToken有效返回新token")
+    @DisplayName("refreshToken有效返回新token并删除旧的")
     void testRefreshToken_Success() {
-        when(jwtTokenUtil.validateToken(TEST_REFRESH_TOKEN)).thenReturn(true);
-        when(jwtTokenUtil.getUserIdFromToken(TEST_REFRESH_TOKEN)).thenReturn(USER_ID);
-        when(jwtTokenUtil.getOpenidFromToken(TEST_REFRESH_TOKEN)).thenReturn(TEST_OPENID);
+        RefreshTokenService.RefreshTokenData data = new RefreshTokenService.RefreshTokenData(USER_ID, TEST_OPENID);
+        when(refreshTokenService.get("old_refresh")).thenReturn(data);
 
         User user = new User();
         user.setId(USER_ID);
@@ -134,12 +137,14 @@ class UserServiceImplTest {
 
         when(userMapper.selectById(USER_ID)).thenReturn(user);
         when(jwtTokenUtil.generateToken(USER_ID, TEST_OPENID)).thenReturn("new_token");
-        when(jwtTokenUtil.generateRefreshToken(USER_ID, TEST_OPENID)).thenReturn("new_refresh");
-        when(jwtTokenUtil.getJtiFromToken(TEST_REFRESH_TOKEN)).thenReturn("old_jti");
 
-        LoginResponseDTO result = userService.refreshToken(TEST_REFRESH_TOKEN);
+        LoginResponseDTO result = userService.refreshToken("old_refresh");
+
         assertEquals("new_token", result.getToken());
-        assertEquals("new_refresh", result.getRefreshToken());
+        assertNotNull(result.getRefreshToken());
+        assertEquals(300L, result.getExpiresIn());
+        verify(refreshTokenService).delete("old_refresh");
+        verify(refreshTokenService).store(eq(USER_ID), eq(TEST_OPENID), anyString());
     }
 
     @Test
@@ -152,7 +157,8 @@ class UserServiceImplTest {
     @Test
     @DisplayName("refreshToken无效抛异常")
     void testRefreshToken_Invalid() {
-        when(jwtTokenUtil.validateToken("bad_token")).thenReturn(false);
+        when(refreshTokenService.get("bad_token")).thenReturn(null);
+
         BusinessException ex = assertThrows(BusinessException.class, () -> userService.refreshToken("bad_token"));
         assertEquals(ResultCode.USER_NOT_EXIST, ex.getCode());
     }
@@ -160,16 +166,15 @@ class UserServiceImplTest {
     @Test
     @DisplayName("refreshToken用户不匹配抛异常")
     void testRefreshToken_UserMismatch() {
-        when(jwtTokenUtil.validateToken(TEST_REFRESH_TOKEN)).thenReturn(true);
-        when(jwtTokenUtil.getUserIdFromToken(TEST_REFRESH_TOKEN)).thenReturn(USER_ID);
-        when(jwtTokenUtil.getOpenidFromToken(TEST_REFRESH_TOKEN)).thenReturn(TEST_OPENID);
+        RefreshTokenService.RefreshTokenData data = new RefreshTokenService.RefreshTokenData(USER_ID, TEST_OPENID);
+        when(refreshTokenService.get("old_refresh")).thenReturn(data);
 
         User user = new User();
         user.setId(USER_ID);
         user.setOpenid("different_openid");
         when(userMapper.selectById(USER_ID)).thenReturn(user);
 
-        BusinessException ex = assertThrows(BusinessException.class, () -> userService.refreshToken(TEST_REFRESH_TOKEN));
+        BusinessException ex = assertThrows(BusinessException.class, () -> userService.refreshToken("old_refresh"));
         assertEquals(ResultCode.USER_NOT_EXIST, ex.getCode());
     }
 }

@@ -11,8 +11,9 @@ import flcr.backend.auth.mapper.UserMapper;
 import flcr.backend.auth.service.UserService;
 import flcr.backend.common.constants.ResultCode;
 import flcr.backend.common.exception.BusinessException;
-import flcr.backend.common.service.TokenBlacklistService;
+import flcr.backend.common.service.RefreshTokenService;
 import flcr.backend.common.util.JwtTokenUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.chanjar.weixin.common.error.WxErrorException;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -28,7 +30,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     private final WxMaService wxMaService;
     private final JwtTokenUtil jwtTokenUtil;
-    private final TokenBlacklistService tokenBlacklistService;
+    private final RefreshTokenService refreshTokenService;
+    private final ObjectMapper objectMapper;
 
     private record UserWithStatus(User user, boolean newUser) {}
 
@@ -61,13 +64,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         // 3. 生成 token
         String token = jwtTokenUtil.generateToken((long) user.getId(), user.getOpenid());
-        String refreshToken = jwtTokenUtil.generateRefreshToken((long) user.getId(), user.getOpenid());
+        String refreshToken = UUID.randomUUID().toString();
+
+        refreshTokenService.store((long) user.getId(), user.getOpenid(), refreshToken);
 
         // 4. 构建响应
         return LoginResponseDTO.builder()
                 .token(token)
                 .refreshToken(refreshToken)
-                .expiresIn(7200L)
+                .expiresIn(300L)
                 .isNewUser(isNewUser)
                 .user(LoginResponseDTO.UserInfo.builder()
                         .id((long) user.getId())
@@ -80,47 +85,38 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public LoginResponseDTO refreshToken(String refreshToken) {
-        if (refreshToken == null || refreshToken.isEmpty()) {
+    public LoginResponseDTO refreshToken(String refreshTokenStr) {
+        if (refreshTokenStr == null || refreshTokenStr.isEmpty()) {
             log.error("刷新 token 为空");
             throw new BusinessException(ResultCode.PARAM_ERROR, "刷新 token 不能为空");
         }
 
-        if (!jwtTokenUtil.validateToken(refreshToken)) {
+        RefreshTokenService.RefreshTokenData data = refreshTokenService.get(refreshTokenStr);
+        if (data == null) {
             log.error("刷新 token 无效或已过期");
             throw new BusinessException(ResultCode.USER_NOT_EXIST, "刷新 token 无效或已过期");
         }
 
-        Long userId = jwtTokenUtil.getUserIdFromToken(refreshToken);
-        String openid = jwtTokenUtil.getOpenidFromToken(refreshToken);
-
-        if (userId == null || openid == null) {
-            log.error("从刷新 token 中获取用户信息失败");
-            throw new BusinessException(ResultCode.PARAM_ERROR, "刷新 token 格式错误");
-        }
-
-        User user = this.getById(userId);
-        if (user == null || !openid.equals(user.getOpenid())) {
-            log.error("用户不存在或 token 与用户不匹配，userId: {}", userId);
+        User user = this.getById(data.userId());
+        if (user == null || !data.openid().equals(user.getOpenid())) {
+            log.error("用户不存在或 openid 不匹配，userId: {}", data.userId());
             throw new BusinessException(ResultCode.USER_NOT_EXIST, "用户不存在");
         }
 
-        String newToken = jwtTokenUtil.generateToken(userId, user.getOpenid());
-        String newRefreshToken = jwtTokenUtil.generateRefreshToken(userId, user.getOpenid());
+        refreshTokenService.delete(refreshTokenStr);
 
-        String jti = jwtTokenUtil.getJtiFromToken(refreshToken);
-        if (jti != null) {
-            tokenBlacklistService.blacklist(jti);
-        }
+        String newToken = jwtTokenUtil.generateToken(data.userId(), user.getOpenid());
+        String newRefreshToken = UUID.randomUUID().toString();
+        refreshTokenService.store(data.userId(), user.getOpenid(), newRefreshToken);
 
         return LoginResponseDTO.builder()
                 .token(newToken)
                 .refreshToken(newRefreshToken)
-                .expiresIn(7200L)
+                .expiresIn(300L)
                 .needBindPhone(false)
                 .isNewUser(false)
                 .user(LoginResponseDTO.UserInfo.builder()
-                        .id(userId)
+                        .id(data.userId())
                         .nickname(user.getNickname())
                         .avatar(user.getAvatar())
                         .phone(user.getPhoneNumber())

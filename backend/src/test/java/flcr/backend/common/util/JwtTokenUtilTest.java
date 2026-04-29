@@ -7,9 +7,6 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * JwtTokenUtil 单元测试
- */
 class JwtTokenUtilTest {
 
     private JwtTokenUtil jwtTokenUtil;
@@ -30,14 +27,6 @@ class JwtTokenUtilTest {
     @DisplayName("生成访问令牌不应为空")
     void testGenerateToken() {
         String token = jwtTokenUtil.generateToken(TEST_USER_ID, TEST_OPENID);
-        assertNotNull(token);
-        assertFalse(token.isEmpty());
-    }
-
-    @Test
-    @DisplayName("生成刷新令牌不应为空")
-    void testGenerateRefreshToken() {
-        String token = jwtTokenUtil.generateRefreshToken(TEST_USER_ID, TEST_OPENID);
         assertNotNull(token);
         assertFalse(token.isEmpty());
     }
@@ -91,19 +80,6 @@ class JwtTokenUtilTest {
     }
 
     @Test
-    @DisplayName("检查未过期令牌返回 false")
-    void testIsTokenExpired_NotExpired() {
-        String token = jwtTokenUtil.generateToken(TEST_USER_ID, TEST_OPENID);
-        assertFalse(jwtTokenUtil.isTokenExpired(token));
-    }
-
-    @Test
-    @DisplayName("检查无效令牌返回 true")
-    void testIsTokenExpired_Invalid() {
-        assertTrue(jwtTokenUtil.isTokenExpired("invalid"));
-    }
-
-    @Test
     @DisplayName("使用不同密钥生成的令牌验证失败")
     void testValidateToken_WrongSecret() {
         JwtTokenUtil otherUtil = new JwtTokenUtil();
@@ -113,18 +89,5 @@ class JwtTokenUtilTest {
 
         String token = otherUtil.generateToken(TEST_USER_ID, TEST_OPENID);
         assertFalse(jwtTokenUtil.validateToken(token));
-    }
-
-    @Test
-    @DisplayName("访问令牌和刷新令牌内容相同但过期时间不同")
-    void testAccessAndRefreshTokenContent() {
-        String accessToken = jwtTokenUtil.generateToken(TEST_USER_ID, TEST_OPENID);
-        String refreshToken = jwtTokenUtil.generateRefreshToken(TEST_USER_ID, TEST_OPENID);
-
-        // 两个 token 都能解析出相同的 userId 和 openid
-        assertEquals(TEST_USER_ID, jwtTokenUtil.getUserIdFromToken(accessToken));
-        assertEquals(TEST_USER_ID, jwtTokenUtil.getUserIdFromToken(refreshToken));
-        assertEquals(TEST_OPENID, jwtTokenUtil.getOpenidFromToken(accessToken));
-        assertEquals(TEST_OPENID, jwtTokenUtil.getOpenidFromToken(refreshToken));
     }
 }

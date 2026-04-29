@@ -3,7 +3,6 @@ package flcr.backend.common.aop;
 import flcr.backend.common.constants.ResultCode;
 import flcr.backend.common.context.UserContext;
 import flcr.backend.common.exception.BusinessException;
-import flcr.backend.common.service.TokenBlacklistService;
 import flcr.backend.common.util.JwtTokenUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -21,7 +20,6 @@ import static org.mockito.Mockito.*;
 class AuthAspectTest {
 
     @Mock private JwtTokenUtil jwtTokenUtil;
-    @Mock private TokenBlacklistService tokenBlacklistService;
     @InjectMocks private AuthAspect authAspect;
 
     @Mock private HttpServletRequest mockRequest;
@@ -29,7 +27,6 @@ class AuthAspectTest {
     @Mock private RequireAuth mockRequireAuth;
 
     private static final String VALID_JWT = "eyJhbGci.valid.jwt";
-    private static final String BLACKLISTED_JTI = "blacklisted-jti";
 
     @BeforeEach
     void setUp() {
@@ -57,9 +54,7 @@ class AuthAspectTest {
     void testAuthenticate_Success() throws Throwable {
         when(mockRequest.getHeader("Authorization")).thenReturn("Bearer " + VALID_JWT);
         when(jwtTokenUtil.validateToken(VALID_JWT)).thenReturn(true);
-        when(tokenBlacklistService.isBlacklisted(BLACKLISTED_JTI)).thenReturn(false);
         when(jwtTokenUtil.getUserIdFromToken(VALID_JWT)).thenReturn(1001L);
-        when(jwtTokenUtil.getJtiFromToken(VALID_JWT)).thenReturn(BLACKLISTED_JTI);
         when(mockJoinPoint.proceed()).thenReturn("result");
 
         assertEquals("result", callAuthAspect());
@@ -70,28 +65,12 @@ class AuthAspectTest {
     void testAuthenticate_UserContextCleared() throws Throwable {
         when(mockRequest.getHeader("Authorization")).thenReturn("Bearer " + VALID_JWT);
         when(jwtTokenUtil.validateToken(VALID_JWT)).thenReturn(true);
-        when(tokenBlacklistService.isBlacklisted(anyString())).thenReturn(false);
         when(jwtTokenUtil.getUserIdFromToken(VALID_JWT)).thenReturn(1001L);
-        when(jwtTokenUtil.getJtiFromToken(VALID_JWT)).thenReturn(BLACKLISTED_JTI);
         when(mockJoinPoint.proceed()).thenReturn("ok");
 
         callAuthAspect();
 
         assertNull(UserContext.getUserId());
-        assertNull(UserContext.getJti());
-    }
-
-    @Test
-    @DisplayName("token在黑名单中抛异常")
-    void testAuthenticate_Blacklisted() {
-        when(mockRequest.getHeader("Authorization")).thenReturn("Bearer " + VALID_JWT);
-        when(jwtTokenUtil.validateToken(VALID_JWT)).thenReturn(true);
-        when(jwtTokenUtil.getJtiFromToken(VALID_JWT)).thenReturn(BLACKLISTED_JTI);
-        when(tokenBlacklistService.isBlacklisted(BLACKLISTED_JTI)).thenReturn(true);
-
-        BusinessException ex = assertThrows(BusinessException.class,
-                () -> callAuthAspect());
-        assertEquals(ResultCode.USER_NOT_EXIST, ex.getCode());
     }
 
     @Test
