@@ -1,7 +1,7 @@
 package flcr.backend.community.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import flcr.backend.common.aop.RequireAuth;
+import flcr.backend.common.aop.Public;
 import flcr.backend.common.response.Response;
 import flcr.backend.community.DTO.request.CommentRequestDTO;
 import flcr.backend.community.DTO.request.PublishRecipeRequestDTO;
@@ -26,7 +26,6 @@ public class CommunityController {
 
     private final CommunityService communityService;
 
-    @RequireAuth
     @PostMapping("/recipe")
     public Response<Long> publishRecipe(
             @RequestPart("request") PublishRecipeRequestDTO request,
@@ -36,48 +35,45 @@ public class CommunityController {
         return Response.success(recipeId);
     }
 
+    @Public
     @GetMapping("/recipe/list")
     public Response<Page<RecipeListItemDTO>> getRecipeList(RecipeListRequestDTO request) {
         Page<RecipeListItemDTO> result = communityService.getRecipeList(request);
         return Response.success(result);
     }
 
-    @RequireAuth(required = false)
+    @Public
     @GetMapping("/recipe/{id}")
     public Response<RecipeDetailDTO> getRecipeDetail(@PathVariable Long id) {
         RecipeDetailDTO detail = communityService.getRecipeDetail(id);
         return Response.success(detail);
     }
 
-    @RequireAuth
     @PostMapping("/recipe/{id}/like")
     public Response<LikeCollectResponseDTO> likeRecipe(@PathVariable Long id) {
         LikeCollectResponseDTO result = communityService.likeRecipe(id);
         return Response.success(result);
     }
 
-    @RequireAuth
     @DeleteMapping("/recipe/{id}/like")
     public Response<LikeCollectResponseDTO> unlikeRecipe(@PathVariable Long id) {
         LikeCollectResponseDTO result = communityService.unlikeRecipe(id);
         return Response.success(result);
     }
 
-    @RequireAuth
     @PostMapping("/recipe/{id}/collect")
     public Response<LikeCollectResponseDTO> collectRecipe(@PathVariable Long id) {
         LikeCollectResponseDTO result = communityService.collectRecipe(id);
         return Response.success(result);
     }
 
-    @RequireAuth
     @DeleteMapping("/recipe/{id}/collect")
     public Response<LikeCollectResponseDTO> uncollectRecipe(@PathVariable Long id) {
         LikeCollectResponseDTO result = communityService.uncollectRecipe(id);
         return Response.success(result);
     }
 
-    @RequireAuth(required = false)
+    @Public
     @GetMapping("/recipe/{id}/comment")
     public Response<List<CommentResponseDTO>> getComments(
             @PathVariable Long id,
@@ -87,7 +83,6 @@ public class CommunityController {
         return Response.success(comments);
     }
 
-    @RequireAuth
     @PostMapping("/recipe/{id}/comment")
     public Response<CommentResponseDTO> addComment(
             @PathVariable Long id,
@@ -96,21 +91,18 @@ public class CommunityController {
         return Response.success(comment);
     }
 
-    @RequireAuth
     @DeleteMapping("/comment/{id}")
     public Response<Void> deleteComment(@PathVariable Long id) {
         communityService.deleteComment(id);
         return Response.success();
     }
 
-    @RequireAuth
     @PostMapping("/comment/{id}/like")
     public Response<Void> likeComment(@PathVariable Long id) {
         communityService.likeComment(id);
         return Response.success();
     }
 
-    @RequireAuth
     @DeleteMapping("/comment/{id}/like")
     public Response<Void> unlikeComment(@PathVariable Long id) {
         communityService.unlikeComment(id);

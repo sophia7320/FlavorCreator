@@ -75,11 +75,12 @@ public class JwtTokenUtil {
     }
 
     /**
-     * 从令牌中获取用户 ID
+     * 从令牌中获取用户 ID（内部先验签）
      * @param token JWT token
-     * @return 用户 ID
+     * @return 用户 ID，签名无效或已过期返回 null
      */
     public Long getUserIdFromToken(String token) {
+        if (!validateToken(token)) return null;
         try {
             DecodedJWT jwt = JWT.decode(token);
             return jwt.getClaim("userId").asLong();
@@ -90,11 +91,12 @@ public class JwtTokenUtil {
     }
 
     /**
-     * 从令牌中获取 OpenID
+     * 从令牌中获取 OpenID（内部先验签）
      * @param token JWT token
-     * @return OpenID
+     * @return OpenID，签名无效或已过期返回 null
      */
     public String getOpenidFromToken(String token) {
+        if (!validateToken(token)) return null;
         try {
             DecodedJWT jwt = JWT.decode(token);
             return jwt.getClaim("openid").asString();
