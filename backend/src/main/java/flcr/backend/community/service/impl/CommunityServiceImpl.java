@@ -20,6 +20,7 @@ import flcr.backend.community.service.CommunityService;
 import flcr.backend.recipe.entity.Recipe;
 import flcr.backend.recipe.mapper.RecipeMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -57,7 +58,11 @@ public class CommunityServiceImpl implements CommunityService {
         like.setTargetId(recipeId);
         like.setTargetType(1);
         like.setCreatedAt(LocalDateTime.now());
-        likeMapper.insert(like);
+        try {
+            likeMapper.insert(like);
+        } catch (DuplicateKeyException e) {
+            throw new BusinessException(ResultCode.PARAM_ERROR, "已经点赞过");
+        }
 
         LambdaUpdateWrapper<Recipe> likeWrapper = new LambdaUpdateWrapper<>();
         likeWrapper.eq(Recipe::getId, recipeId)
@@ -101,7 +106,11 @@ public class CommunityServiceImpl implements CommunityService {
         collection.setUserId(userId);
         collection.setRecipeId(recipeId);
         collection.setCreatedAt(LocalDateTime.now());
-        collectionMapper.insert(collection);
+        try {
+            collectionMapper.insert(collection);
+        } catch (DuplicateKeyException e) {
+            throw new BusinessException(ResultCode.PARAM_ERROR, "已经收藏过");
+        }
 
         LambdaUpdateWrapper<Recipe> collectWrapper = new LambdaUpdateWrapper<>();
         collectWrapper.eq(Recipe::getId, recipeId)

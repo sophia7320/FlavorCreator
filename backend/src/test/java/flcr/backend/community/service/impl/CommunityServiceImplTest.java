@@ -15,6 +15,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DuplicateKeyException;
 
 import java.time.LocalDateTime;
 
@@ -65,6 +66,17 @@ class CommunityServiceImplTest {
     }
 
     @Test
+    @DisplayName("likeRecipe并发竞态返回业务异常而非500")
+    void testLikeRecipe_RaceCondition() {
+        when(likeMapper.selectCount(any(LambdaQueryWrapper.class))).thenReturn(0L);
+        when(likeMapper.insert(any(Like.class))).thenThrow(new DuplicateKeyException("Duplicate entry"));
+
+        BusinessException ex = assertThrows(BusinessException.class,
+                () -> communityService.likeRecipe(1L));
+        assertEquals(ResultCode.PARAM_ERROR, ex.getCode());
+    }
+
+    @Test
     @DisplayName("unlikeRecipe成功")
     void testUnlikeRecipe_Success() {
         when(likeMapper.delete(any(LambdaQueryWrapper.class))).thenReturn(1);
@@ -87,6 +99,18 @@ class CommunityServiceImplTest {
 
         LikeCollectResponseDTO result = communityService.collectRecipe(1L);
         assertTrue(result.getIsCollected());
+    }
+
+    @Test
+    @DisplayName("collectRecipe并发竞态返回业务异常而非500")
+    void testCollectRecipe_RaceCondition() {
+        when(collectionMapper.selectCount(any(LambdaQueryWrapper.class))).thenReturn(0L);
+        when(collectionMapper.insert(any(flcr.backend.community.entity.Collection.class)))
+                .thenThrow(new DuplicateKeyException("Duplicate entry"));
+
+        BusinessException ex = assertThrows(BusinessException.class,
+                () -> communityService.collectRecipe(1L));
+        assertEquals(ResultCode.PARAM_ERROR, ex.getCode());
     }
 
     @Test
