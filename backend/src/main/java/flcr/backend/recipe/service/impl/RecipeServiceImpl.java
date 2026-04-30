@@ -252,9 +252,12 @@ public class RecipeServiceImpl implements RecipeService {
 
     private Integer convertDifficulty(String difficulty) {
         switch (difficulty) {
-            case "simple": return 1;
-            case "medium": return 2;
-            case "hard": return 3;
+            case "simple":
+            case "简单": return 1;
+            case "medium":
+            case "中等": return 2;
+            case "hard":
+            case "困难": return 3;
             default: return null;
         }
     }

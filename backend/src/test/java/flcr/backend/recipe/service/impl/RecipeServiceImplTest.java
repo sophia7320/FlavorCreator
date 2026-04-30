@@ -108,6 +108,66 @@ class RecipeServiceImplTest {
     }
 
     @Test
+    @DisplayName("getRecipeList按中文难度'简单'筛选 -> wrapper含difficulty=1")
+    void testGetRecipeList_DifficultySimple() throws Exception {
+        Recipe recipe = buildRecipe(1L);
+        Page<Recipe> page = new Page<>(1, 20);
+        page.setRecords(List.of(recipe));
+        page.setTotal(1);
+        when(recipeMapper.selectPage(any(Page.class), any(LambdaQueryWrapper.class))).thenReturn(page);
+        when(userMapper.selectById(anyLong())).thenReturn(buildUser());
+
+        RecipeListRequestDTO request = new RecipeListRequestDTO();
+        request.setDifficulty("简单");
+        recipeService.getRecipeList(request);
+
+        ArgumentCaptor<LambdaQueryWrapper<Recipe>> captor = ArgumentCaptor.forClass((Class) LambdaQueryWrapper.class);
+        verify(recipeMapper).selectPage(any(Page.class), captor.capture());
+        assertTrue(captor.getValue().getCustomSqlSegment().contains("difficulty"),
+                "中文'简单'应生成 difficulty 条件");
+    }
+
+    @Test
+    @DisplayName("getRecipeList按中文难度'中等'筛选 -> wrapper含difficulty=2")
+    void testGetRecipeList_DifficultyMedium() throws Exception {
+        Recipe recipe = buildRecipe(1L);
+        Page<Recipe> page = new Page<>(1, 20);
+        page.setRecords(List.of(recipe));
+        page.setTotal(1);
+        when(recipeMapper.selectPage(any(Page.class), any(LambdaQueryWrapper.class))).thenReturn(page);
+        when(userMapper.selectById(anyLong())).thenReturn(buildUser());
+
+        RecipeListRequestDTO request = new RecipeListRequestDTO();
+        request.setDifficulty("中等");
+        recipeService.getRecipeList(request);
+
+        ArgumentCaptor<LambdaQueryWrapper<Recipe>> captor = ArgumentCaptor.forClass((Class) LambdaQueryWrapper.class);
+        verify(recipeMapper).selectPage(any(Page.class), captor.capture());
+        assertTrue(captor.getValue().getCustomSqlSegment().contains("difficulty"),
+                "中文'中等'应生成 difficulty 条件");
+    }
+
+    @Test
+    @DisplayName("getRecipeList按中文难度'困难'筛选 -> wrapper含difficulty=3")
+    void testGetRecipeList_DifficultyHard() throws Exception {
+        Recipe recipe = buildRecipe(1L);
+        Page<Recipe> page = new Page<>(1, 20);
+        page.setRecords(List.of(recipe));
+        page.setTotal(1);
+        when(recipeMapper.selectPage(any(Page.class), any(LambdaQueryWrapper.class))).thenReturn(page);
+        when(userMapper.selectById(anyLong())).thenReturn(buildUser());
+
+        RecipeListRequestDTO request = new RecipeListRequestDTO();
+        request.setDifficulty("困难");
+        recipeService.getRecipeList(request);
+
+        ArgumentCaptor<LambdaQueryWrapper<Recipe>> captor = ArgumentCaptor.forClass((Class) LambdaQueryWrapper.class);
+        verify(recipeMapper).selectPage(any(Page.class), captor.capture());
+        assertTrue(captor.getValue().getCustomSqlSegment().contains("difficulty"),
+                "中文'困难'应生成 difficulty 条件");
+    }
+
+    @Test
     @DisplayName("getRecipeDetail存在返回详情")
     void testGetRecipeDetail_Found() {
         Recipe recipe = buildRecipe(1L);
