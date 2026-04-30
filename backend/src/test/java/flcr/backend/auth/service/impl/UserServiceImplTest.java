@@ -4,7 +4,6 @@ import cn.binarywang.wx.miniapp.api.WxMaService;
 import cn.binarywang.wx.miniapp.api.WxMaUserService;
 import cn.binarywang.wx.miniapp.bean.WxMaJscode2SessionResult;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import flcr.backend.auth.DTO.request.LoginRequestDTO;
 import flcr.backend.auth.DTO.response.LoginResponseDTO;
 import flcr.backend.auth.entity.User;
@@ -31,7 +30,6 @@ class UserServiceImplTest {
     @Mock private JwtTokenUtil jwtTokenUtil;
     @Mock private RefreshTokenService refreshTokenService;
     @Mock private UserMapper userMapper;
-    private final ObjectMapper objectMapper = new ObjectMapper();
     @InjectMocks private UserServiceImpl userService;
 
     private static final Long USER_ID = 1001L;
@@ -42,7 +40,6 @@ class UserServiceImplTest {
     void setUp() {
         lenient().when(wxMaService.getUserService()).thenReturn(wxMaUserService);
         ReflectionTestUtils.setField(userService, "baseMapper", userMapper);
-        ReflectionTestUtils.setField(userService, "objectMapper", objectMapper);
     }
 
     @Test

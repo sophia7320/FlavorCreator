@@ -13,7 +13,6 @@ import flcr.backend.common.constants.ResultCode;
 import flcr.backend.common.exception.BusinessException;
 import flcr.backend.common.service.RefreshTokenService;
 import flcr.backend.common.util.JwtTokenUtil;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.chanjar.weixin.common.error.WxErrorException;
@@ -31,7 +30,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private final WxMaService wxMaService;
     private final JwtTokenUtil jwtTokenUtil;
     private final RefreshTokenService refreshTokenService;
-    private final ObjectMapper objectMapper;
 
     private record UserWithStatus(User user, boolean newUser) {}
 
