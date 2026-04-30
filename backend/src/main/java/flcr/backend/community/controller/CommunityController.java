@@ -1,20 +1,14 @@
 package flcr.backend.community.controller;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import flcr.backend.common.aop.Public;
 import flcr.backend.common.response.Response;
 import flcr.backend.community.DTO.request.CommentRequestDTO;
-import flcr.backend.community.DTO.request.PublishRecipeRequestDTO;
-import flcr.backend.community.DTO.request.RecipeListRequestDTO;
 import flcr.backend.community.DTO.response.CommentResponseDTO;
 import flcr.backend.community.DTO.response.LikeCollectResponseDTO;
-import flcr.backend.community.DTO.response.RecipeDetailDTO;
-import flcr.backend.community.DTO.response.RecipeListItemDTO;
 import flcr.backend.community.service.CommunityService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -25,29 +19,6 @@ import java.util.List;
 public class CommunityController {
 
     private final CommunityService communityService;
-
-    @PostMapping("/recipe")
-    public Response<Long> publishRecipe(
-            @RequestPart("request") PublishRecipeRequestDTO request,
-            @RequestParam("cover") MultipartFile cover,
-            @RequestParam(value = "images", required = false) List<MultipartFile> images) {
-        Long recipeId = communityService.publishRecipe(request, cover, images);
-        return Response.success(recipeId);
-    }
-
-    @Public
-    @GetMapping("/recipe/list")
-    public Response<Page<RecipeListItemDTO>> getRecipeList(RecipeListRequestDTO request) {
-        Page<RecipeListItemDTO> result = communityService.getRecipeList(request);
-        return Response.success(result);
-    }
-
-    @Public
-    @GetMapping("/recipe/{id}")
-    public Response<RecipeDetailDTO> getRecipeDetail(@PathVariable Long id) {
-        RecipeDetailDTO detail = communityService.getRecipeDetail(id);
-        return Response.success(detail);
-    }
 
     @PostMapping("/recipe/{id}/like")
     public Response<LikeCollectResponseDTO> likeRecipe(@PathVariable Long id) {

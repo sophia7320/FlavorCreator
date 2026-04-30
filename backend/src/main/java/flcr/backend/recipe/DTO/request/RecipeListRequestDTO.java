@@ -1,4 +1,4 @@
-package flcr.backend.community.DTO.request;
+package flcr.backend.recipe.DTO.request;
 
 import lombok.Data;
 
