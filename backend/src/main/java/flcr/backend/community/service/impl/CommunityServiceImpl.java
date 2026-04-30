@@ -191,13 +191,43 @@ public class CommunityServiceImpl implements CommunityService {
     @Override
     @Transactional
     public void likeComment(Long commentId) {
-        // TODO: 实现评论点赞逻辑
+        Long userId = UserContext.getUserId();
+        LambdaQueryWrapper<Like> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Like::getUserId, userId)
+                .eq(Like::getTargetId, commentId)
+                .eq(Like::getTargetType, 2);
+
+        if (likeMapper.selectCount(wrapper) > 0) {
+            throw new BusinessException(ResultCode.PARAM_ERROR, "已经点赞过");
+        }
+
+        Like like = new Like();
+        like.setUserId(userId);
+        like.setTargetId(commentId);
+        like.setTargetType(2);
+        like.setCreatedAt(LocalDateTime.now());
+        likeMapper.insert(like);
+
+        LambdaUpdateWrapper<Comment> likeWrapper = new LambdaUpdateWrapper<>();
+        likeWrapper.eq(Comment::getId, commentId)
+                .setSql("like_count = like_count + 1");
+        commentMapper.update(null, likeWrapper);
     }
 
     @Override
     @Transactional
     public void unlikeComment(Long commentId) {
-        // TODO: 实现取消评论点赞逻辑
+        Long userId = UserContext.getUserId();
+        LambdaQueryWrapper<Like> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Like::getUserId, userId)
+                .eq(Like::getTargetId, commentId)
+                .eq(Like::getTargetType, 2);
+        likeMapper.delete(wrapper);
+
+        LambdaUpdateWrapper<Comment> unlikeWrapper = new LambdaUpdateWrapper<>();
+        unlikeWrapper.eq(Comment::getId, commentId)
+                .setSql("like_count = CASE WHEN like_count > 0 THEN like_count - 1 ELSE 0 END");
+        commentMapper.update(null, unlikeWrapper);
     }
 
     // ==================== 私有辅助方法 ====================

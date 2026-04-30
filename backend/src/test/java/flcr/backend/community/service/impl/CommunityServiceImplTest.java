@@ -109,6 +109,38 @@ class CommunityServiceImplTest {
         assertEquals(ResultCode.RESOURCE_NOT_EXIST, ex.getCode());
     }
 
+    @Test
+    @DisplayName("likeComment成功")
+    void testLikeComment_Success() {
+        when(likeMapper.selectCount(any(LambdaQueryWrapper.class))).thenReturn(0L);
+        when(likeMapper.insert(any(Like.class))).thenReturn(1);
+        when(commentMapper.update(any(), any())).thenReturn(1);
+
+        assertDoesNotThrow(() -> communityService.likeComment(1L));
+        verify(likeMapper).insert(any(Like.class));
+        verify(commentMapper).update(any(), any());
+    }
+
+    @Test
+    @DisplayName("likeComment重复点赞抛异常")
+    void testLikeComment_Duplicate() {
+        when(likeMapper.selectCount(any(LambdaQueryWrapper.class))).thenReturn(1L);
+
+        BusinessException ex = assertThrows(BusinessException.class,
+                () -> communityService.likeComment(1L));
+        assertEquals(ResultCode.PARAM_ERROR, ex.getCode());
+    }
+
+    @Test
+    @DisplayName("unlikeComment成功")
+    void testUnlikeComment_Success() {
+        when(likeMapper.delete(any(LambdaQueryWrapper.class))).thenReturn(1);
+        when(commentMapper.update(any(), any())).thenReturn(1);
+
+        assertDoesNotThrow(() -> communityService.unlikeComment(1L));
+        verify(commentMapper).update(any(), any());
+    }
+
     private Recipe buildRecipe(Long id) {
         Recipe recipe = new Recipe();
         recipe.setId(id);
