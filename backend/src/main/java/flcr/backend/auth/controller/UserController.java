@@ -1,13 +1,12 @@
 package flcr.backend.auth.controller;
 
 import flcr.backend.auth.DTO.request.LoginRequestDTO;
+import flcr.backend.auth.DTO.request.LogoutRequestDTO;
 import flcr.backend.auth.DTO.request.RefreshTokenRequestDTO;
 import flcr.backend.auth.DTO.response.LoginResponseDTO;
 import flcr.backend.auth.service.UserService;
 import flcr.backend.common.aop.Public;
-import flcr.backend.common.context.UserContext;
 import flcr.backend.common.response.Response;
-import flcr.backend.common.service.RefreshTokenService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
-    private final RefreshTokenService refreshTokenService;
 
     @Public
     @PostMapping("/login-wx")
@@ -37,15 +35,7 @@ public class UserController {
 
     @PostMapping("/logout")
     public Response<Void> logout(@RequestBody LogoutRequestDTO logoutRequest) {
-        String refreshToken = logoutRequest.refreshToken();
-        if (refreshToken != null && !refreshToken.isEmpty()) {
-            RefreshTokenService.RefreshTokenData data = refreshTokenService.get(refreshToken);
-            if (data != null && data.userId().equals(UserContext.getUserId())) {
-                refreshTokenService.delete(refreshToken);
-            }
-        }
+        userService.logout(logoutRequest.getRefreshToken());
         return Response.success("退出成功", null);
     }
-
-    public record LogoutRequestDTO(String refreshToken) {}
 }

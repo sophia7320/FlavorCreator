@@ -7,4 +7,6 @@ public interface UserService {
     LoginResponseDTO login(LoginRequestDTO request);
 
     LoginResponseDTO refreshToken(String refreshToken);
+
+    void logout(String refreshToken);
 }

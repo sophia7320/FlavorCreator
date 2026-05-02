@@ -1,12 +1,11 @@
 package flcr.backend.auth.controller;
 
 import flcr.backend.auth.DTO.request.LoginRequestDTO;
+import flcr.backend.auth.DTO.request.LogoutRequestDTO;
 import flcr.backend.auth.DTO.request.RefreshTokenRequestDTO;
 import flcr.backend.auth.DTO.response.LoginResponseDTO;
 import flcr.backend.auth.service.UserService;
-import flcr.backend.common.context.UserContext;
 import flcr.backend.common.response.Response;
-import flcr.backend.common.service.RefreshTokenService;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
@@ -19,13 +18,7 @@ import static org.mockito.Mockito.*;
 class UserControllerTest {
 
     @Mock private UserService userService;
-    @Mock private RefreshTokenService refreshTokenService;
     @InjectMocks private UserController userController;
-
-    @AfterEach
-    void tearDown() {
-        UserContext.clear();
-    }
 
     @Test
     @DisplayName("登录成功返回token")
@@ -58,57 +51,14 @@ class UserControllerTest {
     }
 
     @Test
-    @DisplayName("退出登录校验归属删除RT")
+    @DisplayName("退出登录调用Service")
     void testLogout_Success() {
-        UserContext.setUserId(1001L);
-        UserController.LogoutRequestDTO logoutRequest = new UserController.LogoutRequestDTO("rt_123");
+        LogoutRequestDTO request = new LogoutRequestDTO();
+        request.setRefreshToken("rt_123");
 
-        RefreshTokenService.RefreshTokenData data = new RefreshTokenService.RefreshTokenData(1001L, "openid");
-        when(refreshTokenService.get("rt_123")).thenReturn(data);
-
-        Response<Void> result = userController.logout(logoutRequest);
+        Response<Void> result = userController.logout(request);
 
         assertEquals(200, result.getCode());
-        verify(refreshTokenService).delete("rt_123");
-    }
-
-    @Test
-    @DisplayName("退出登录RT不属于当前用户不删除")
-    void testLogout_WrongUser() {
-        UserContext.setUserId(1001L);
-        UserController.LogoutRequestDTO logoutRequest = new UserController.LogoutRequestDTO("rt_other");
-
-        RefreshTokenService.RefreshTokenData data = new RefreshTokenService.RefreshTokenData(1002L, "other");
-        when(refreshTokenService.get("rt_other")).thenReturn(data);
-
-        Response<Void> result = userController.logout(logoutRequest);
-
-        assertEquals(200, result.getCode());
-        verify(refreshTokenService, never()).delete(anyString());
-    }
-
-    @Test
-    @DisplayName("退出登录RT不存在不抛异常")
-    void testLogout_RtNotFound() {
-        UserContext.setUserId(1001L);
-        UserController.LogoutRequestDTO logoutRequest = new UserController.LogoutRequestDTO("rt_nonexistent");
-
-        when(refreshTokenService.get("rt_nonexistent")).thenReturn(null);
-
-        Response<Void> result = userController.logout(logoutRequest);
-
-        assertEquals(200, result.getCode());
-        verify(refreshTokenService, never()).delete(anyString());
-    }
-
-    @Test
-    @DisplayName("退出登录refreshToken为空不抛异常")
-    void testLogout_NullRefreshToken() {
-        UserController.LogoutRequestDTO logoutRequest = new UserController.LogoutRequestDTO(null);
-
-        Response<Void> result = userController.logout(logoutRequest);
-
-        assertEquals(200, result.getCode());
-        verify(refreshTokenService, never()).delete(anyString());
+        verify(userService).logout("rt_123");
     }
 }

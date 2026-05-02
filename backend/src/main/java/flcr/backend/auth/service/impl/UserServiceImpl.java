@@ -10,6 +10,7 @@ import flcr.backend.auth.entity.User;
 import flcr.backend.auth.mapper.UserMapper;
 import flcr.backend.auth.service.UserService;
 import flcr.backend.common.constants.ResultCode;
+import flcr.backend.common.context.UserContext;
 import flcr.backend.common.exception.BusinessException;
 import flcr.backend.common.service.RefreshTokenService;
 import flcr.backend.common.util.JwtTokenUtil;
@@ -33,6 +34,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     private record UserWithStatus(User user, boolean newUser) {}
 
+    @Transactional
     @Override
     public LoginResponseDTO login(LoginRequestDTO request) {
         String code = request.getCode();
@@ -121,6 +123,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                         .gender(user.getGender())
                         .build())
                 .build();
+    }
+
+    @Override
+    public void logout(String refreshToken) {
+        if (refreshToken == null || refreshToken.isEmpty()) {
+            return;
+        }
+        RefreshTokenService.RefreshTokenData data = refreshTokenService.get(refreshToken);
+        if (data != null && data.userId().equals(UserContext.getUserId())) {
+            refreshTokenService.delete(refreshToken);
+        }
     }
 
     private UserWithStatus getOrCreateUser(String openid, String unionid, LoginRequestDTO request) {
