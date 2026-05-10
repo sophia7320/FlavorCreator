@@ -12,6 +12,7 @@ import flcr.backend.common.constants.ResultCode;
 import flcr.backend.common.context.UserContext;
 import flcr.backend.common.exception.BusinessException;
 import flcr.backend.common.service.FileStorageService;
+import flcr.backend.common.service.ImageModerationService;
 import flcr.backend.community.entity.Collection;
 import flcr.backend.community.entity.Like;
 import flcr.backend.community.mapper.CollectionMapper;
@@ -44,17 +45,28 @@ public class RecipeServiceImpl implements RecipeService {
     private final UserMapper userMapper;
     private final ObjectMapper objectMapper;
     private final FileStorageService fileStorageService;
+    private final ImageModerationService imageModerationService;
 
     @Override
     @Transactional
     public Long publishRecipe(PublishRecipeRequestDTO request, MultipartFile cover,
                               List<MultipartFile> images) {
         Long userId = UserContext.getUserId();
-        String coverUrl = cover != null ? fileStorageService.store(cover, "recipe-cover") : "";
+        String coverUrl;
+        if (cover != null) {
+            imageModerationService.validate(cover, "recipe-cover");
+            coverUrl = fileStorageService.store(cover, "recipe-cover");
+            imageModerationService.moderate(coverUrl, "recipe-cover");
+        } else {
+            coverUrl = "";
+        }
         List<String> imageUrls = new ArrayList<>();
         if (images != null) {
             for (MultipartFile image : images) {
-                imageUrls.add(fileStorageService.store(image, "recipe-image"));
+                imageModerationService.validate(image, "recipe-image");
+                String imageUrl = fileStorageService.store(image, "recipe-image");
+                imageModerationService.moderate(imageUrl, "recipe-image");
+                imageUrls.add(imageUrl);
             }
         }
 

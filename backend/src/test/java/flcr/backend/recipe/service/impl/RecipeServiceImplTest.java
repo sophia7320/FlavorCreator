@@ -7,6 +7,7 @@ import flcr.backend.auth.entity.User;
 import flcr.backend.auth.mapper.UserMapper;
 import flcr.backend.common.context.UserContext;
 import flcr.backend.common.service.FileStorageService;
+import flcr.backend.common.service.ImageModerationService;
 import flcr.backend.community.mapper.CollectionMapper;
 import flcr.backend.community.mapper.LikeMapper;
 import flcr.backend.recipe.DTO.request.PublishRecipeRequestDTO;
@@ -37,6 +38,7 @@ class RecipeServiceImplTest {
     @Mock private UserMapper userMapper;
     @Mock private ObjectMapper objectMapper;
     @Mock private FileStorageService fileStorageService;
+    @Mock private ImageModerationService imageModerationService;
     @InjectMocks private RecipeServiceImpl recipeService;
 
     private static final Long USER_ID = 1001L;

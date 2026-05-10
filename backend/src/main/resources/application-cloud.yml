@@ -45,6 +45,14 @@ flcr:
       secret-key: ${COS_SECRET_KEY}
       region: ${COS_REGION:ap-shanghai}
       bucket: ${COS_BUCKET}
+  moderation:
+    enabled: true
+    allowed-types: jpg, jpeg, png, gif, webp, bmp
+    max-size:
+      avatar: 2MB
+      background: 5MB
+      recipe-cover: 5MB
+      recipe-image: 5MB
 
 springdoc:
   api-docs:

@@ -35,3 +35,11 @@ logging:
 flcr:
   storage:
     type: local
+  moderation:
+    enabled: false
+    allowed-types: jpg, jpeg, png, gif, webp, bmp
+    max-size:
+      avatar: 2MB
+      background: 5MB
+      recipe-cover: 5MB
+      recipe-image: 5MB
