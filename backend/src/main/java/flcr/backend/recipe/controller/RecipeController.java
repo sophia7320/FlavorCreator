@@ -8,6 +8,7 @@ import flcr.backend.recipe.DTO.request.RecipeListRequestDTO;
 import flcr.backend.recipe.DTO.response.RecipeDetailDTO;
 import flcr.backend.recipe.DTO.response.RecipeListItemDTO;
 import flcr.backend.recipe.service.RecipeService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +26,7 @@ public class RecipeController {
 
     @PostMapping
     public Response<Long> publishRecipe(
-            @RequestPart("request") PublishRecipeRequestDTO request,
+            @Valid @RequestPart("request") PublishRecipeRequestDTO request,
             @RequestParam("cover") MultipartFile cover,
             @RequestParam(value = "images", required = false) List<MultipartFile> images) {
         Long recipeId = recipeService.publishRecipe(request, cover, images);
