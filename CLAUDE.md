@@ -43,16 +43,16 @@ flcr.backend/
 ├── auth/       # 用户认证模块（微信登录、token 刷新，手机号绑定已移除）- 已实现
 ├── admin/      # 管理员模块 - 待实现
 ├── community/  # 社区模块（菜谱发布、点赞收藏、评论）- 已实现
-├── recipe/     # 食谱模块（AI生成、食材匹配、推荐搜索）- 实体+Mapper 就绪，Controller/Service 待开发
+├── recipe/     # 食谱模块（菜谱发布/列表/详情）- 已实现
 ├── ingredient/ # 食材管理模块（食材/调味品 CRUD、临期提醒、常用食材库）- 已实现
 ├── user/       # 用户信息模块（个人资料、偏好设置、头像/背景上传）- 已实现
 ├── common/     # 公共组件
-│   ├── aop/         # AOP 切面（AuthAspect 认证、LoggingAspect 日志）
-│   ├── config/      # 配置类（WxMa、Jackson、MyBatis）
+│   ├── aop/         # AuthInterceptor 认证拦截器、LoggingAspect 日志、@Public 注解
+│   ├── config/      # 配置类（WebMvcConfig 拦截器注册、WxMa、Jackson、StorageProperties、ModerationProperties）
 │   ├── constants/   # 常量定义（ResultCode）
 │   ├── context/     # 上下文（UserContext ThreadLocal）
 │   ├── exception/   # 异常类（BusinessException、GlobalExceptionHandler）
-│   ├── service/      # 通用服务（RefreshTokenService Redis RT 管理）
+│   ├── service/     # 通用服务（FileStorageService、ImageModerationService、RefreshTokenService）
 │   ├── response/    # 统一响应类（Response<T>）
 │   └── util/        # 工具类（JwtTokenUtil）
 └── Test/       # 测试控制器
@@ -64,7 +64,9 @@ flcr.backend/
 - 使用 `@Slf4j` + `@RestController` + `@RequestMapping("/api/模块")`
 - 统一返回 `Response<T>` 泛型类（位于 `common.response` 包）
 - 构造器注入依赖（Lombok `@RequiredArgsConstructor`）
-- 需要认证的方法标记 `@RequireAuth`，Service 层通过 `UserContext.getUserId()` 获取当前用户 ID
+- 需要认证的方法不加 `@Public` 注解（默认拦截）
+- 公开方法标记 `@Public`（游客可访问，有 Token 则解析写入 UserContext）
+- Service 层通过 `UserContext.getUserId()` 获取当前用户 ID
 - 请求体通过 `@RequestBody` DTO 接收，multipart 用 `@RequestPart` 绑定 JSON 部分
 
 **Service 层**:
@@ -106,43 +108,36 @@ flcr.backend/
   - `common_ingredient` — 常用食材表（系统预设，category, name, default_unit）
 - `menu.sql` — [废弃] 旧版菜谱设计，保留供参考
 
-### 核心组件
+### 认证拦截器
+**AuthInterceptor** (`common.aop`):
+- 拦截所有 `/api/**` 请求，`WebMvcConfig` 注册
+- 无 `@Public` 注解的方法 → 必须携带 `Authorization: Bearer <token>`，无则返回 401
+- `@Public` 注解的方法 → Token 可选，有则解析写入 UserContext
+- `afterCompletion()` 中自动 `UserContext.clear()`
 
-**WxMaConfiguration** (`common.config`):
-- 配置微信小程序 SDK
-- 支持微信云托管环境（从文件路径读取 access_token）
-- 提供 `WxMaService` Bean
-
-**JacksonConfig** (`common.config`):
-- 手动创建 `@Bean ObjectMapper`，禁用 `WRITE_DATES_AS_TIMESTAMPS`
-- 用于 Entity 中 JSON 字段的序列化/反序列化
-- 注：Spring Boot 4 默认使用 `tools.jackson` 命名空间，此 Bean 为 `com.fasterxml.jackson` 桥接
-
-**MyBatisConfig** (`common.config`):
-- MyBatis 配置类（预留分页插件等配置入口）
-- Mapper 扫描由 `BackendApplication` 上的 `@MapperScan` 负责
-
-**CorsConfig** (`common.config`):
-- 实现 `WebMvcConfigurer`，允许 `/api/**` 所有来源跨域
-- 支持 GET/POST/PUT/DELETE/OPTIONS，允许携带 Cookie
+**@Public** (`common.aop`):
+- 标记无需强制认证的 Controller 方法（公开接口）
 
 **LoggingAspect** (`common.aop`):
 - AOP 环绕通知，记录所有 Controller 和 Service 方法调用
 - 输出：类名、方法名、入参、返回值、执行耗时
-- 异常时输出错误信息和耗时
 
-**AuthAspect** (`common.aop`, @Order(1)):
-- 拦截 `@RequireAuth` 标记的方法，从 `Authorization: Bearer <token>` 中提取 JWT
-- Token 校验（签名+过期），通过后将 userId 写入 `UserContext`（ThreadLocal）
-- `@RequireAuth(required = false)` 时 Token 可选，有则解析，无则放行
-- 不再查 Redis，零 IO 高性能
+**WxMaConfiguration** (`common.config`):
+- 配置微信小程序 SDK
+- 提供 `WxMaService` Bean
 
-**RequireAuth** (`common.aop`):
-- 标记需要 Token 认证的 Controller 方法
+**JacksonConfig** (`common.config`):
+- 手动创建 `@Bean ObjectMapper`，禁用 `WRITE_DATES_AS_TIMESTAMPS`
+
+**WebMvcConfig** (`common.config`):
+- 注册 `AuthInterceptor` 拦截所有 `/api/**` 请求
+
+**CorsConfig** (`common.config`):
+- 实现 `WebMvcConfigurer`，允许 `/api/**` 所有来源跨域
 
 **UserContext** (`common.context`):
 - ThreadLocal 持有当前请求的 userId
-- AuthAspect 在请求结束后自动 clear
+- AuthInterceptor 在请求结束后自动 clear
 
 **BusinessException** (`common.exception`):
 - 业务异常类，携带 `code` 状态码
@@ -188,27 +183,28 @@ flcr.backend/
 
 3. `POST /api/auth/logout` - 退出登录（需认证，传入 refreshToken 校验归属后删除）
 
+**Recipe 模块** (`/api/recipe`):
+菜谱 CRUD 从 Community 模块拆分独立：
+
+1. `POST /api/recipe` - 发布菜谱（multipart/form-data，需认证）
+   - 表单字段：`@RequestPart("request")` PublishRecipeRequestDTO + `@RequestParam("cover")` 封面 + `@RequestParam("images")` 图片列表
+2. `GET /api/recipe/list` - 菜谱列表（@Public，分页 + 筛选）
+   - 参数：category, difficulty, taste, keyword, page, size
+3. `GET /api/recipe/{id}` - 菜谱详情（@Public，登录则回传点赞/收藏状态）
+
 **Community 模块** (`/api/community`):
 
 所有写操作和互动接口需要 `Authorization: Bearer <token>` 请求头。
 
-1. `POST /api/community/recipe` - 发布菜谱（multipart/form-data，需认证）
-   - 表单字段：`@RequestPart("request")` DTO + `@RequestParam` 文件
-
-2. `GET /api/community/recipe/list` - 菜谱列表（公开，分页 + 筛选）
-   - 参数：category, difficulty, taste, keyword, page, size
-
-3. `GET /api/community/recipe/{id}` - 菜谱详情（游客可访问，登录则回传点赞/收藏状态）
-
-4. `POST /api/community/recipe/{id}/like` - 点赞菜谱（需认证）
-5. `DELETE /api/community/recipe/{id}/like` - 取消点赞（需认证）
-6. `POST /api/community/recipe/{id}/collect` - 收藏菜谱（需认证）
-7. `DELETE /api/community/recipe/{id}/collect` - 取消收藏（需认证）
-8. `GET /api/community/recipe/{id}/comment` - 评论列表（游客可访问）
-9. `POST /api/community/recipe/{id}/comment` - 发表评论（需认证）
-10. `DELETE /api/community/comment/{id}` - 删除评论（需认证，仅本人）
-11. `POST /api/community/comment/{id}/like` - 点赞评论（需认证）
-12. `DELETE /api/community/comment/{id}/like` - 取消点赞评论（需认证）
+1. `POST /api/community/recipe/{id}/like` - 点赞菜谱（需认证）
+2. `DELETE /api/community/recipe/{id}/like` - 取消点赞（需认证）
+3. `POST /api/community/recipe/{id}/collect` - 收藏菜谱（需认证）
+4. `DELETE /api/community/recipe/{id}/collect` - 取消收藏（需认证）
+5. `GET /api/community/recipe/{id}/comment` - 评论列表（@Public）
+6. `POST /api/community/recipe/{id}/comment` - 发表评论（需认证）
+7. `DELETE /api/community/comment/{id}` - 删除评论（需认证，仅本人）
+8. `POST /api/community/comment/{id}/like` - 点赞评论（需认证）
+9. `DELETE /api/community/comment/{id}/like` - 取消点赞评论（需认证）
 
 **Ingredient 模块** (`/api/ingredient`):
 
@@ -244,6 +240,10 @@ flcr.backend/
 | 1001 | 微信 code 无效 |
 | 1002 | 微信接口调用失败 |
 | 1003 | 手机号获取失败 |
+| 2001 | 图片格式不支持 |
+| 2002 | 图片大小超出限制 |
+| 2003 | 图片包含违规内容 |
+| 2004 | 图片审核服务异常 |
 
 ## 配置说明
 
@@ -282,13 +282,10 @@ flcr.backend/
 ## 注意事项
 
 - 数据库 `flcr` 需要手动创建，所有建表脚本在 `script/sql/`
-- 全量 146 测试用例，覆盖 Mapper/Service/Controller/AOP/工具类
 - Service 单测用纯 Mockito，不依赖数据库/Redis
-- Ingredient / User / Auth 模块已完整实现
-- Community 点赞评论 TODO、taste 字段未使用待处理
-- 菜谱的图片上传逻辑为占位符，实际文件存储（OSS）待实现
-- Admin 和 Ingredient 模块尚未实现
-- 认证通过 `@RequireAuth` + `AuthAspect` 实现（JWT 5min 无状态），前端需传 `Authorization: Bearer <token>`
+- 图片上传经三步校验：`validate(type+size)` → `store(上传)` → `moderate(内容审核)`
+- 图片审核 dev 环境跳过（`NoOpModerationServiceImpl`），cloud/prod 启用 COS CI（`CosModerationServiceImpl`）
+- 认证通过 `AuthInterceptor` + `@Public` 注解实现，前端需传 `Authorization: Bearer <token>`
 - `@MapperScan` 仅在 `BackendApplication` 上定义（`"flcr.backend.*.mapper"`），Mapper 接口无需 `@Mapper` 注解
 - Controller 入参应加 `@Valid` 注解启用 DTO 字段校验，失败由 `GlobalExceptionHandler` 统一返回 400
 - Controller 不手动 try-catch，依赖 `GlobalExceptionHandler` 统一处理

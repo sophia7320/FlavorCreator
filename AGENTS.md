@@ -13,9 +13,11 @@ Controller → Service(接口) → Service/impl → Mapper
 - 跨模块引用时直接注入目标模块的 **Mapper**，不注入 Service（避免循环依赖）
 
 ### 认证模型
-- 需要认证的 Controller 方法标注 `@RequireAuth`（默认 required=true）
+- `WebMvcConfig` 注册 `AuthInterceptor` 拦截所有 `/api/**` 请求
+- **无需认证**的 Controller 方法标注 `@Public`（游客可访问，有 Token 则解析写入 UserContext）
+- **无 `@Public` 注解** = 需要认证，无 Token 则返回 401
 - Service 层通过 `UserContext.getUserId()` 获取当前用户，**不在方法签名中传 userId**
-- `AuthAspect` 在请求结束后自动 `UserContext.clear()`
+- `AuthInterceptor.afterCompletion()` 自动 `UserContext.clear()`
 
 ### 错误处理
 - Service 层只能抛 `BusinessException(code, message)`，禁止 `throw new RuntimeException()`
@@ -84,13 +86,13 @@ public class XxxController {
     private final XxxService xxxService;
 
     @PostMapping("/action")
-    @RequireAuth                  // 需要认证
+    // 无 @Public 注解 = 需要认证
     public Response<XxxDTO> action(@Valid @RequestBody XxxRequestDTO request) {
         return Response.success(xxxService.action(request));
     }
 
     @GetMapping("/public")
-    @RequireAuth(required = false) // 可选认证（游客可访问）
+    @Public                        // 游客可访问（有 Token 则解析写入 UserContext）
     public Response<XxxDTO> publicEndpoint() {
         Long userId = UserContext.getUserId(); // 可能为 null
         return Response.success(xxxService.query(userId));
@@ -155,13 +157,29 @@ Response.error("服务器错误");  // 默认 code=500
 4. 创建 `service/` → 接口 + `impl/` 实现类
 5. 创建 `DTO/request/` + `DTO/response/` → 请求/响应 DTO
 6. 创建 `controller/` → `@RestController` + `@RequestMapping("/api/模块名")`
-7. 需要认证的方法加 `@RequireAuth`
+7. 无需认证的公开方法加 `@Public`，其他方法默认需要认证
 8. 需要参数校验的 Controller 入参加 `@Valid` + 在 DTO 字段上加校验注解
 9. 在 `src/test/` 对应包下写测试（集成测试用 `@SpringBootTest` + `@Transactional` 回滚）
 
 ## 已知待办
 
-- `CommunityServiceImpl.likeComment()` / `unlikeComment()` 为 TODO 空实现
 - `RecipeListRequestDTO.taste` 字段已定义但在 Service 中未使用
-- `recipe` 模块仅有 Entity + Mapper，Controller/Service 待开发
 - `admin` 模块待实现
+- 手机号绑定 (`/api/auth/phone-wx`) 待实现
+- 个人中心 (收藏/发布/历史/点赞) 的专用 API 端点待实现
+- 图片审核启用后需在云环境配置 COS CI 相关环境变量（`COS_SECRET_ID` 等）
+
+## 已知限制
+
+- 菜谱批量图片上传时，若第 N 张审核失败，前 N-1 张已上传的 COS 文件会成为孤儿（DB事务回滚但文件无法回滚）。当前可接受，长期应将 upload 延后到全部图片审核通过后统一执行。
+- `CosModerationServiceImpl.moderate()` 的 COSClient 每次新建，与 `CosFileStorageServiceImpl.store()` 各自独立创建，存在重复连接开销。
+
+## 图片上传与审核
+
+- 所有图片上传入口（`/api/user/avatar`、`/api/user/background`、`/api/recipe`）均调用 `ImageModerationService` 三步校验
+- 三步流程：`validate(file, scene)` → `FileStorageService.store()` → `moderate(url, scene)`
+- dev 环境：`NoOpModerationServiceImpl`（仅类型+大小校验，跳过内容审核）
+- cloud/prod 环境：`CosModerationServiceImpl`（类型+大小校验 + 腾讯云 COS CI 内容审核）
+- 审核不通过自动删除 COS 对象后抛 `BusinessException`
+- 错误码：2001(格式) / 2002(大小) / 2003(内容违规) / 2004(审核异常)
+- 配置前缀：`flcr.moderation`（`enabled`、`allowed-types`、`max-size.{scene}`）

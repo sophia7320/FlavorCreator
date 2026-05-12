@@ -1,19 +1,12 @@
 package flcr.backend.community.DTO.request;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
-/**
- * 发表评论请求DTO
- */
 @Data
 public class CommentRequestDTO {
-    /**
-     * 评论内容
-     */
+    @NotBlank(message = "评论内容不能为空")
     private String content;
 
-    /**
-     * 父评论ID（回复时为必填）
-     */
     private Long parentId;
 }

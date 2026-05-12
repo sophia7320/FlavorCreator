@@ -6,6 +6,7 @@ import flcr.backend.community.DTO.request.CommentRequestDTO;
 import flcr.backend.community.DTO.response.CommentResponseDTO;
 import flcr.backend.community.DTO.response.LikeCollectResponseDTO;
 import flcr.backend.community.service.CommunityService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -57,7 +58,7 @@ public class CommunityController {
     @PostMapping("/recipe/{id}/comment")
     public Response<CommentResponseDTO> addComment(
             @PathVariable Long id,
-            @RequestBody CommentRequestDTO request) {
+            @Valid @RequestBody CommentRequestDTO request) {
         CommentResponseDTO comment = communityService.addComment(id, request);
         return Response.success(comment);
     }

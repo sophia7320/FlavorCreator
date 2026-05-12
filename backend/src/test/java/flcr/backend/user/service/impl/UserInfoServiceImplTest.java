@@ -7,6 +7,7 @@ import flcr.backend.common.constants.ResultCode;
 import flcr.backend.common.context.UserContext;
 import flcr.backend.common.exception.BusinessException;
 import flcr.backend.common.service.FileStorageService;
+import flcr.backend.common.service.ImageModerationService;
 import flcr.backend.community.mapper.CollectionMapper;
 import flcr.backend.community.mapper.LikeMapper;
 import flcr.backend.recipe.mapper.RecipeMapper;
@@ -33,6 +34,7 @@ class UserInfoServiceImplTest {
     @Mock private CollectionMapper collectionMapper;
     @Mock private ObjectMapper objectMapper;
     @Mock private FileStorageService fileStorageService;
+    @Mock private ImageModerationService imageModerationService;
     @InjectMocks private UserInfoServiceImpl userInfoService;
 
     private static final Long USER_ID = 1001L;

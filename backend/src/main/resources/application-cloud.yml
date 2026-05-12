@@ -1,3 +1,7 @@
+# ============================================
+# 微信云托管环境配置 (SPRING_PROFILES_ACTIVE=cloud)
+# ============================================
+
 spring:
   datasource:
     url: ${DB_URL}
@@ -12,7 +16,7 @@ spring:
       max-lifetime: 1800000
   data:
     redis:
-      host: ${REDIS_HOST:localhost}
+      host: ${REDIS_HOST}
       port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD:}
 
@@ -32,6 +36,23 @@ logging:
     path: /var/log/flavor-creator
   level:
     flcr.backend: INFO
+
+flcr:
+  storage:
+    type: cos
+    cos:
+      secret-id: ${COS_SECRET_ID}
+      secret-key: ${COS_SECRET_KEY}
+      region: ${COS_REGION:ap-shanghai}
+      bucket: ${COS_BUCKET}
+  moderation:
+    enabled: true
+    allowed-types: jpg, jpeg, png, gif, webp, bmp
+    max-size:
+      avatar: 2MB
+      background: 5MB
+      recipe-cover: 5MB
+      recipe-image: 5MB
 
 springdoc:
   api-docs:
