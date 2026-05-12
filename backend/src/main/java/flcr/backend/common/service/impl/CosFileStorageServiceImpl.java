@@ -4,6 +4,7 @@ import com.qcloud.cos.COSClient;
 import com.qcloud.cos.ClientConfig;
 import com.qcloud.cos.auth.BasicCOSCredentials;
 import com.qcloud.cos.auth.COSCredentials;
+import com.qcloud.cos.model.CannedAccessControlList;
 import com.qcloud.cos.model.ObjectMetadata;
 import com.qcloud.cos.model.PutObjectRequest;
 import com.qcloud.cos.region.Region;
@@ -61,6 +62,7 @@ public class CosFileStorageServiceImpl implements FileStorageService {
                     file.getInputStream(), metadata
             );
 
+            putRequest.setCannedAcl(CannedAccessControlList.PublicRead);
             cosClient.putObject(putRequest);
 
             String url = String.format("https://%s.cos.%s.myqcloud.com/%s",

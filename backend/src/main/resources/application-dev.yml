@@ -39,7 +39,7 @@ flcr:
     enabled: false
     allowed-types: jpg, jpeg, png, gif, webp, bmp
     max-size:
-      avatar: 2MB
-      background: 5MB
-      recipe-cover: 5MB
-      recipe-image: 5MB
+      avatar: 2097152
+      background: 5242880
+      recipe-cover: 5242880
+      recipe-image: 5242880
