@@ -19,6 +19,8 @@ spring:
       host: ${REDIS_HOST}
       port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD:}
+      timeout: 5000ms          # ← 加
+      connect-timeout: 5000ms
 
 wx:
   app-id: ${WX_APP_ID}
@@ -46,13 +48,13 @@ flcr:
       region: ${COS_REGION:ap-shanghai}
       bucket: ${COS_BUCKET}
   moderation:
-    enabled: true
+    enabled: false
     allowed-types: jpg, jpeg, png, gif, webp, bmp
     max-size:
-      avatar: 2MB
-      background: 5MB
-      recipe-cover: 5MB
-      recipe-image: 5MB
+      avatar: 2097152
+      background: 5242880
+      recipe-cover: 5242880
+      recipe-image: 5242880
 
 springdoc:
   api-docs:
