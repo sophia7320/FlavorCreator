@@ -1,3 +1,6 @@
 {
-  "usingComponents": {}
+  "usingComponents": {
+    "agreement-checkbox": "/components/agreement-checkbox/agreement-checkbox",
+    "agreement-popup": "/components/agreement-popup/agreement-popup"
+  }
 }

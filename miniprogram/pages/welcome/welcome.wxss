@@ -1,7 +1,7 @@
 /* pages/first/first.wxss */
-/*定义页面变量*/
+/*定义页面变量 - 引用全局变量*/
 .first-page {
-	--text-color: rgba(64, 32, 10, 1);
+	--text-color: var(--text-primary);
 }
 
 .first-page {
@@ -33,8 +33,8 @@
 }
 
 .main-container .name {
-	font-size: 50rpx;
-	font-weight: 700;
+	font-size: var(--font-size-6xl);
+	font-weight: var(--font-weight-bold);
 	color: var(--text-color);
 }
 
@@ -49,8 +49,8 @@
 }
 
 .foot-description text {
-	font-size: 24rpx;
-	font-weight: 350rpx;
+	font-size: var(--font-size-lg);
+	font-weight: var(--font-weight-light);
 	color: var(--text-color);
 }
 

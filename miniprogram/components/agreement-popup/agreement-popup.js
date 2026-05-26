@@ -1,0 +1,215 @@
+const AGREEMENT_CONTENT = `生效日期：2026年4月19日
+
+1. 协议主体与适用范围
+
+1.1 本协议由创味机团队（下称"我们"）与【创味机】APP（下称"本APP"）用户（下称"你"）签署。
+1.2 你下载、安装、注册、登录、使用本APP即视为同意本协议全部条款。
+1.3 本APP面向年满18周岁用户；未成年人需监护人同意使用。
+
+2. 服务内容
+
+2.1 智能菜谱服务：按食材、口味、份量、时长搜索菜谱；无匹配时AI生成菜谱。
+2.2 食材管理：录入食材、按入库/过期时间排序、临期提醒。
+2.3 社区服务：浏览、发布菜谱；仅支持点赞、收藏，不开放评论。
+2.4 服务为"现状提供"，AI生成内容仅供参考，不保证绝对准确。
+
+3. 账号与使用规则
+
+3.1 注册信息需真实有效，妥善保管账号密码，不得转借、转让、售卖账号。
+3.2 你对发布的菜谱内容负责，保证原创或已获授权，不侵犯第三方知识产权。
+3.3 禁止发布违法、色情、暴力、虚假、广告及侵犯他人权益的内容。
+3.4 禁止干扰APP正常运行、破解、反向工程、抓取数据等违规行为。
+
+4. 知识产权
+
+4.1 本APP内官方菜谱、AI生成内容、界面、软件著作权归我们所有。
+4.2 你发布的原创菜谱版权归你；你授予本APP全球、非独家、免费、永久使用、展示、传播权利。
+
+5. 用户权利与义务
+
+5.1 有权使用本APP免费功能；有权收藏、点赞社区内容。
+5.2 有权申请注销账号，我们在15个工作日内完成处理。
+5.3 遵守法律法规及本协议，违规内容我们可删除、限制账号。
+
+6. 免责与责任限制
+
+6.1 AI生成菜谱、用户发布内容仅供参考，不构成烹饪、饮食医疗建议。
+6.2 因网络、设备、第三方原因导致服务中断，我们不承担责任。
+6.3 除故意或重大过失外，我们对间接损失不承担赔偿责任。
+
+7. 协议变更与终止
+
+7.1 我们可更新协议，更新后继续使用视为接受新协议。
+7.2 你违规时，我们可警告、封禁、终止账号。
+
+8. 争议解决
+
+适用中华人民共和国法律；争议向被告住所地法院提起诉讼。
+
+9. 联系方式
+
+客服邮箱：2196779552@qq.com
+客服电话：183-2007-7108`;
+
+const PRIVACY_CONTENT = `生效日期：2026年4月19日
+
+1. 我们收集的信息
+
+1.1 你主动提供的信息
+
+• 账号信息：昵称、手机号、头像（注册时）
+
+• 食材数据：食材名称、数量、入库/过期时间（食材管理）
+
+• 搜索信息：食材、口味、份量、时长（菜谱搜索）
+
+• 发布内容：社区菜谱文字、图片
+
+1.2 自动收集的信息（最小必要）
+
+• 设备信息：型号、系统、唯一设备ID、IP
+
+• 使用日志：功能使用、搜索记录、浏览、点赞、收藏
+
+• 崩溃与性能数据（优化服务）
+
+1.3 敏感信息
+
+• 不收集人脸、指纹、通讯录、通话、短信、精确位置
+
+• 不强制授权非必要权限
+
+2. 信息使用目的
+
+• 提供菜谱搜索、AI生成、食材管理、社区服务
+
+• 食材临期提醒、个性化推荐
+
+• 安全验证、防作弊、防攻击
+
+• 服务优化、故障分析、用户体验改进
+
+• 合规义务履行
+
+3. 信息存储与保护
+
+• 存储期限：账号存续期+注销后30天内删除/匿名化
+
+• 加密传输、存储、权限控制、安全审计
+
+• 不向第三方出售个人信息
+
+4. 信息共享与披露
+
+• 仅以下情形共享：
+
+◦ 法律法规、司法/行政要求
+
+◦ 授权服务商（云存储、数据分析），签署保密协议
+
+◦ 并购重组等情形，延续保护
+
+5. 你的权利
+
+• 访问、更正、删除个人信息
+
+• 撤回授权（不影响核心功能）
+
+• 注销账号（我的→设置→账号安全）
+
+• 投诉、申诉：上述联系方式
+
+6. 第三方服务
+
+• 可能含第三方SDK（统计、推送），遵守其隐私政策
+
+7. 未成年人保护
+
+• 未满14周岁需监护人同意；不主动收集未成年人信息
+
+8. 政策更新
+
+• 重大变更将APP内通知；继续使用视为同意
+
+9. 联系我们
+
+同用户协议联系方式`;
+
+const BG_URLS = {
+	firstLogin: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/agreement/first-popup-card.png',
+  login: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/agreement/login-popup-card.png'
+}
+
+Component({
+  properties: {
+    visible: {
+      type: Boolean,
+      value: false
+    },
+    type: {
+      type: String,
+      value: 'agreement'
+    },
+    pageSource: {
+      type: String,
+      value: 'login'
+    }
+  },
+
+  data: {
+    title: '',
+    content: '',
+    bgImageUrl: ''
+  },
+
+	lifetimes: {
+		attached() {
+			//获取前面定义的对象值，然后遍历
+			Object.values(BG_URLS).forEach(url => {
+				//调用官方接口，完成预加载
+				wx.getImageInfo({
+					src: url,
+					success: () => console.log('[预加载成功]', url),
+					fail: (err) => console.warn('[预加载失败]', url, err)
+				})
+			})
+		}
+	},
+
+  observers: {
+    'visible, type, pageSource': function(visible, type, pageSource) {
+      if (visible) {
+        this._loadContent(type, pageSource);
+      }
+    }
+  },
+
+  methods: {
+    _loadContent(type, pageSource) {
+      const firstBg = 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/agreement/first-popup-card.png';
+      const loginBg = 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/agreement/login-popup-card.png';
+      // 根据页面来源决定背景图
+      const bgUrl = pageSource === 'firstLogin' ? firstBg : loginBg;
+      if (type === 'privacy') {
+        this.setData({
+          title: '隐私协议',
+          content: PRIVACY_CONTENT,
+          bgImageUrl: bgUrl
+        });
+      } else {
+        this.setData({
+          title: '【创味机】用户服务协议',
+          content: AGREEMENT_CONTENT,
+          bgImageUrl: bgUrl
+        });
+      }
+    },
+
+    closePopup() {
+      this.triggerEvent('close');
+    },
+
+    stopPropagation() {},
+
+  }
+});

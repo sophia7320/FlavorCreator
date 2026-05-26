@@ -1,15 +1,15 @@
 /* pages/fistLogin/firstLogin.wxss */
 .first-login-page {
-	--name-font-size: 50rpx;
-	--name-font-weight: 700;
-	--name-font-color: rgba(64, 32, 10, 1);
+	--name-font-size: var(--font-size-6xl);
+	--name-font-weight: var(--font-weight-bold);
+	--name-font-color: var(--text-primary);
 
-	--phone-btn-bg-color: rgba(201, 128, 79, 0.83);
-	--wx-btn-bg-color: rgba(2, 216, 107, 0.83);
-	--btn-color: #fff;
-	--btn-text-font-size: 20rpx;
+	--phone-btn-bg-color: var(--btn-phone-login);
+	--wx-btn-bg-color: var(--wechat-primary);
+	--btn-color: var(--text-white);
+	--btn-text-font-size: var(--font-size-md);
 
-	--radius: 24rpx;
+	--radius: var(--radius-medium);
 }
 
 .first-login-page {
@@ -27,12 +27,13 @@
 
 .title-container {
 	display: flex;
-
+	padding-top: 150rpx;
 }
 
 .title-container .icon {
 	width: 156rpx;
 	height: 150rpx;
+	
 }
 
 .title-container .Name {
@@ -65,6 +66,8 @@
 	border-radius: var(--radius);
 	color: var(--btn-color);
 	font-size: var(--btn-text-font-size);
+
+	box-shadow: 0 3rpx 6rpx 0 rgba(0, 0, 0, 0.16);
 }
 
 .phone-login {
@@ -80,39 +83,47 @@
 .login-way .phone-icon {
 	width: 18rpx;
 	height: 24rpx;
-
+	margin-right: 20rpx;
 }
 
 .login-way .wx-icon {
 	width: 27rpx;
 	height: 23rpx;
-
+	margin-right: 20rpx;
 }
 
-.login-form-container checkbox-group label {
-	width: 400rpx;
-	margin-left: 33rpx;
+.foot-decoration {
+	margin-top: 463rpx;
 	display: flex;
-	margin-top: 12rpx;
-}
-
-.login-form-container checkbox-group label.shake {
-	animation: agreement-shake .4s ease;
-}
-
-.login-form-container checkbox-group .checkbox {
-	display: flex;
+	flex-direction: column;
 	align-items: center;
-	transform: scale(0.545);
-	transform-origin: left bottom;
 }
 
-.login-form-container checkbox-group .description {
-	color: var(--text-scondary-color);
-	font-size: 18rpx;
-	font-weight: 400;
+.foot-decoration .description {
+  font-size: var(--font-size-lg);
+	font-weight: var(--font-weight-light);
+	color: var(--name-font-color);
 }
 
-.login-form-container checkbox-group .description .user-agreement, .login-form-container checkbox-group .description .privacy-agreement {
-	color: var(--protocol-color);
+.divider-container {
+	width: 400rpx;
+
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	margin-top: 19rpx;
+}
+
+.divider-container .divider-line {
+	width: 190rpx;
+	height: 1px;
+	border-top: 1px solid var(--name-font-color);
+}
+
+.divider-container .divider-point {
+	width: 3rpx;
+	height: 3rpx;
+	background-color: var(--name-font-color);
+	margin: 0 20rpx;
 }

@@ -1,0 +1,63 @@
+/* components/index-swiper-contianer/swiper-ingredients/ingredients-choose.wxss */
+.ingredients-component {
+  width: 100%;
+  height: 100%;
+  
+}
+
+.tab-bar {
+	width: 100%;
+
+	display: flex;
+	gap: 40rpx;
+
+	color: var(--color-primary-light);
+	font-size: var(--font-size-lg);
+
+	margin-bottom: 23rpx;
+}
+
+.tab-bar .ingredients-item.active {
+	color: var(--color-primary);
+}
+
+.ingredient-container {
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	row-gap: 20rpx;
+
+	overflow-y: auto;
+}
+
+.ingredient-container .item {
+	width: 120rpx;
+	height: 57rpx;
+
+	background-color: var(--bg-light-pink);
+	border-radius: 41rpx;
+
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	font-size: var(--font-size-md);
+	color: var(--text-secondary);
+	padding: 0 20rpx;
+
+	
+}
+
+.ingredient-container .item.selected {
+	background-color: var(--bg-light-green);
+	color: var(--color-primary);
+	border: 2rpx solid var(--color-primary);
+}
+
+.ingredient-container .item text {
+	margin: 0 auto;
+}
+
+.ingredient-container .item .add {
+	width: 16rpx;
+	height: 16rpx;
+}

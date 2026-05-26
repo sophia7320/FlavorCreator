@@ -1,30 +1,146 @@
 <!--index.wxml-->
-<scroll-view class="scrollarea" scroll-y type="list">
-  <view class="container">
-    <view class="userinfo">
-      <block wx:if="{{canIUseNicknameComp && !hasUserInfo}}">
-        <button class="avatar-wrapper" open-type="chooseAvatar" bind:chooseavatar="onChooseAvatar">
-          <image class="avatar" src="{{userInfo.avatarUrl}}"></image>
-        </button>
-        <view class="nickname-wrapper">
-          <text class="nickname-label">昵称</text>
-          <input type="nickname" class="nickname-input" placeholder="请输入昵称" bind:change="onInputChange" />
-        </view>
-      </block>
+<view class="index-page">
+  <!-- 顶部遮罩 -->
+  <view class="top-mask"></view>
+
+	<view class="top-recommand-container">
+		<view class="top-title">每日推荐</view>
+		<view class="name-date-container">
+			<view class="dish-name">{{ dishName }}</view>
+			<view class="date-container">
+				<view class="week-day" style="font-size: 26rpx; text-align: center;">{{ weekDay }}</view>
+				<view class="solar-date">{{ solarDate }}</view>
+			</view>
+		</view>
+		
+		<view class="description">{{ description }}</view>
+	</view>
+
+	<view class="tool-bar-container">
+		<view class="setting">
+			<image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/setting-icon.png" mode="aspectFit" class="setting-icon"/>
+		</view>
+		<view class="title">Cooking!</view>
+		<view class="ingredients-storage">
+			<image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/storage-icon.png" mode="aspectFit" class="ingredients-storage-icon"/>
+		</view>
+	</view>
+
+	<view class="main-container">
+		<view class="search-container">
+			<view class="listener">
+				<image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/linstener.png" mode="aspectFit" class="listener-icon"/>
+			</view>
+			<view class="input-wrapper">
+				<view class="input-container">
+					<input type="text" class="text-input" placeholder="找不到食材？试试语音手动输入" placeholder-style="color: rgba(191, 191, 191, 1); font-size: 18rpx;" value="{{searchText}}" bindinput="onSearchInput" bindfocus="onInputFocus" bindblur="onInputBlur" />
+				</view>
+				<!-- 自动补全下拉框 -->
+				<view class="autocomplete-dropdown" wx:if="{{showDropdown && autocompleteList.length > 0}}">
+					<view class="autocomplete-item" wx:for="{{autocompleteList}}" wx:key="id" bindtap="onSelectAutocomplete" data-item="{{item}}">
+						<view class="item-name">{{item.name}}</view>
+						<view class="item-unit">{{item.unit}}</view>
+					</view>
+				</view>
+			</view>
+			<view class="add-Btn" bindtap="onAddIngredient">
+				<image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/add.png" mode="aspectFit" class="add-icon"/>
+			</view>
+		</view>
+
+		<view class="create-process-container">
+			<view class="steps-bar">
+				<block wx:for="{{ steps }}" wx:key="stepId">
+					<view class="item {{currentTab === index ? 'active' : ''}}" id="step-{{index}}" bindtap='onSwitchTab' data-index='{{index}}'>{{ item.name }}</view>
+				</block>
+
+				<view class="default-mode">
+					<view class="rectangle {{isDefaultMode ? 'active' : ''}}"  bind:tap="onDefaultModeTap">
+						<view class="circle" ></view>
+					</view>
+					<view class="default-mode-text">默认模式</view>
+				</view>
+				<view class="selected-line" style="left: {{ indicatorLeft }}rpx"></view>
+			</view>
+			<view class="divider-line"></view>
+		</view>
+
+		<swiper current='{{ currentTab }}' bindchange="onSlipSwitchTab">
+			<swiper-item >
+				<!-- 通过自定义组件完成 -->
+				<ingredients-choose 
+					bind:ingredientsChange="onIngredientsChange"
+					selectedIngredientsList="{{selectedIngredients}}"
+				></ingredients-choose>
+			</swiper-item>
+
+
+			<!-- 口味 tab -->
+			<swiper-item>
+				<view class="preferences-container">
+					<view class="preferences-grid">
+						<view 
+							class="preference-item {{item.selected ? 'selected' : ''}}" 
+							wx:for="{{tasteOptions}}" 
+							wx:key="id"
+							data-index="{{index}}"
+							bindtap="onSelectTaste"
+						>
+							<text class="preference-text">{{item.name}}</text>
+							<image 
+								src="{{item.selected ? 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/green-check.png' : 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/pink-add.png'}}" 
+								mode="aspectFit" 
+								class="preference-icon"
+							/>
+						</view>
+					</view>
+				</view>
+			</swiper-item>
+
+			<!-- 时长 tab -->
+			<swiper-item>
+				<view class="preferences-container">
+					<view class="preferences-list">
+						<view 
+							class="preference-item {{item.selected ? 'selected' : ''}}" 
+							wx:for="{{cookTimeOptions}}" 
+							wx:key="id"
+							data-index="{{index}}"
+							bindtap="onSelectCookTime"
+						>
+							<text class="preference-text">{{item.name}}</text>
+							<image 
+								src="{{item.selected ? 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/green-check.png' : 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/pink-add.png'}}" 
+								mode="aspectFit" 
+								class="preference-icon"
+							/>
+						</view>
+					</view>
+				</view>
+			</swiper-item>
+
+			<!-- 份量 tab -->
+			<swiper-item>
+				<view class="preferences-container">
+					<view class="preferences-list">
+						<view 
+							class="preference-item {{item.selected ? 'selected' : ''}}" 
+							wx:for="{{servingsOptions}}" 
+							wx:key="id"
+							data-index="{{index}}"
+							bindtap="onSelectServings"
+						>
+							<text class="preference-text">{{item.name}}</text>
+							<image 
+								src="{{item.selected ? 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/green-check.png' : 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/pink-add.png'}}" 
+								mode="aspectFit" 
+								class="preference-icon"
+							/>
+						</view>
+					</view>
+				</view>
+			</swiper-item>
 			
-      <block wx:elif="{{!hasUserInfo}}">
-        <button wx:if="{{canIUseGetUserProfile}}" bindtap="getUserProfile"> 获取头像昵称 </button>
-        <view wx:else> 请使用2.10.4及以上版本基础库 </view>
-      </block>
-      <block wx:else>
-        <image bindtap="bindViewTap" class="userinfo-avatar" src="{{userInfo.avatarUrl}}" mode="cover"></image>
-        <text class="userinfo-nickname">{{userInfo.nickName}}</text>
-      </block>
-    </view>
-		<button bindtap="goToLogin">点击进入登录页面</button>
-		<text>这只是暂时的，用于测试跳转页面逻辑</text>
-    <view class="usermotto">
-      <text class="user-motto">{{motto}}</text>
-    </view>
-  </view>
-</scroll-view>
+		</swiper>
+	</view>
+</view>

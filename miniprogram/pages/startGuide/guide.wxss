@@ -1,0 +1,105 @@
+/* pages/startGuide/guide.wxss */
+
+/*变量设置 - 引用全局变量*/
+.guide-page {
+	/* 色彩 */
+	--color-primary: var(--color-primary);
+	--color-text-primary: var(--text-white);
+	--color-text-secondary: var(--text-black);
+
+	/* 字体 */
+	--font-size-title: var(--font-size-8xl);
+	--font-size-body: var(--font-size-2xl);
+	--font-size-caption: var(--font-size-lg);
+}
+
+.guide-page {
+	width: 750rpx;
+	height: 100vh;
+
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+
+	background-image: url(https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/bg.png);
+	background-size: 100% 100%;
+
+	position: relative;
+}
+
+.swiper-container {
+	width: 750rpx;
+	height: 80vh;
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+}
+
+.swiper-container swiper-item {
+	width: 500rpx;
+	height: 328rpx;
+
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+}
+
+.swiper-container swiper-item .description-container {
+	display: flex;
+	flex-direction: column;
+	margin-top: 60rpx;
+}
+
+.swiper-container swiper-item .description-container .main {
+	font-size: var(--font-size-title);
+	color: var(--color-text-secondary);
+	margin: 0 auto;
+}
+
+.swiper-container swiper-item .description-container .second-container {
+	display: flex;
+	align-items: center;
+	margin-top: 18rpx;
+}
+
+.swiper-container swiper-item .description-container .second-container .second {
+	font-size: var(--font-size-caption);
+	color: var(--color-text-secondary);
+	margin:0 9rpx;
+}
+
+.swiper-container swiper-item .description-container .second-container .divider-line {
+	width: 83rpx;
+	border-top: 1px solid var(--color-text-secondary);
+}
+
+@keyframes btnFadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(14rpx);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.start-btn {
+	width: 490rpx;
+	height: 72rpx;
+	text-align: center;
+	line-height: 72rpx;
+	font-size: var(--font-size-body);
+
+	background-color: var(--color-primary);
+	border-radius: 31px;
+	color: var(--color-text-primary);
+
+	position: absolute;
+	bottom: 470rpx;
+
+	animation: btnFadeInUp 0.4s ease-out forwards;
+}

@@ -1,14 +1,11 @@
-// pages/fistLogin/firstLogin.js
+// pages/community/community.js
 Page({
 
   /**
    * 页面的初始数据
    */
   data: {
-		isAgree: true,
 
-		isShake: false,
-		isShaking: false
   },
 
   /**
@@ -29,19 +26,7 @@ Page({
    * 生命周期函数--监听页面显示
    */
   onShow() {
-		if(!this.data.isAgree && !this.data.isShaking) {
-			this.setData({
-				isShake: true,
-				isShaking: true
-			})
-			setTimeout(() => {
-				this.setData({
-					isShake: false,
-					isShaking: false
-				})
-			}, 1000)
-			return
-		}
+
   },
 
   /**

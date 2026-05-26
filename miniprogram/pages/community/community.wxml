@@ -1,0 +1,5 @@
+<!--pages/community/community.wxml-->
+<view class="community-page">
+	<view class="title">社区页面</view>
+	<view class="empty-text">社区功能正在开发中...</view>
+</view>

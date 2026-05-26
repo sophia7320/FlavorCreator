@@ -1,62 +1,412 @@
 /**index.wxss**/
-page {
+.index-page {
+	/* ========== 页面专属变量 ========== */
+	/* 偏好选项尺寸 */
+	--pref-taste-width: 139rpx;
+	--pref-taste-height: 69rpx;
+	--pref-time-width: 533rpx;
+	--pref-time-height: 69rpx;
+	--pref-servings-width: 573rpx;
+	--pref-servings-height: 69rpx;
+
+	/* 偏好选项字体 */
+	--pref-font-size: 24rpx;
+	--pref-font-weight: 500;
+	--pref-font-color: rgba(93, 64, 55, 1);
+
+	width: 750rpx;
   height: 100vh;
+
   display: flex;
   flex-direction: column;
-}
-.scrollarea {
-  flex: 1;
-  overflow-y: hidden;
+
+	background-color: var(--bg-primary);
+	position: relative;
 }
 
-.userinfo {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  color: #aaa;
-  width: 80%;
+/* 顶部遮罩 */
+.top-mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 400rpx;
+  background: rgba(255, 225, 207, 1);
+  border-bottom-left-radius: 60rpx;
+  border-bottom-right-radius: 60rpx;
+  z-index: 1;
 }
 
-.userinfo-avatar {
-  overflow: hidden;
-  width: 128rpx;
-  height: 128rpx;
-  margin: 20rpx;
-  border-radius: 50%;
+.top-recommand-container {
+	width: 750rpx;
+	height: 350rpx;
+
+	display: flex;
+	flex-direction: column;
+	gap: 34rpx;
+	padding: 87rpx 53rpx 53rpx;
+	border-radius: 0 0 80rpx 80rpx;
+	background-image: url(https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/bg/top-bar-dish-bg.png);
+
+	background-size: 100% 100%;
+	position: relative;
+	z-index: 10;
 }
 
-.usermotto {
-  margin-top: 200px;
+.top-recommand-container .name-date-container {
+	width: 100%;
+
+	display: flex;
+	justify-content: space-between;
 }
 
-.avatar-wrapper {
-  padding: 0;
-  width: 56px !important;
-  border-radius: 8px;
-  margin-top: 40px;
-  margin-bottom: 40px;
+.top-recommand-container .name-date-container .dish-name {
+	font-size: 54rpx;
+	font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+	/* 字体问题待解决 */
 }
 
-.avatar {
-  display: block;
-  width: 56px;
-  height: 56px;
+.top-recommand-container .name-date-container {
+	font-size: 24rpx;
 }
 
-.nickname-wrapper {
-  display: flex;
-  width: 100%;
-  padding: 16px;
-  box-sizing: border-box;
-  border-top: .5px solid rgba(0, 0, 0, 0.1);
-  border-bottom: .5px solid rgba(0, 0, 0, 0.1);
-  color: black;
+.top-recommand-container .description {
+	width: 592rpx;
+	font-size: 20rpx;
 }
 
-.nickname-label {
-  width: 105px;
+.tool-bar-container {
+	width: 750rpx;
+	height: 80rpx;
+
+	display: flex;
+	align-items: center;
+
+	padding: 0 42rpx 0;
+	margin-top: 38rpx;
+	position: relative;
+	z-index: 10;
 }
 
-.nickname-input {
-  flex: 1;
+.tool-bar-container .setting , .tool-bar-container .ingredients-storage {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	width: 80rpx;
+	height: 80rpx;
+	background-color: var(--bg-light-pink);
+	border-radius: 50%;
+
+	box-shadow: 0 4rpx 4rpx 0 var(--shadow-black);
+}
+
+.tool-bar-container .setting .setting-icon {
+	width: 30rpx;
+	height: 35rpx;
+}
+
+.tool-bar-container .ingredients-storage .ingredients-storage-icon {
+	width: 37rpx;
+	height: 38rpx;
+}
+
+.tool-bar-container .title {
+	flex: 1;
+	text-align: center;
+	font-size: var(--font-size-5xl);
+	font-weight: var(--font-weight-bold);
+	color: var(--color-primary);
+}
+
+.main-container {
+	width: 659rpx;
+	height: 947rpx;
+
+	display: flex;
+	flex-direction: column;
+	position: relative;
+
+	margin: 21rpx auto;
+	padding: 50rpx;
+
+	background-color: var(--bg-secondary);
+	border-radius: var(--radius-xxxl);
+	box-shadow: 0 4rpx 4rpx 0 var(--shadow-black);
+}
+
+swiper {
+	width: 100%;
+	height: 500rpx;
+}
+
+.main-container .search-container {
+	width: 560rpx;
+	height: 77rpx;
+
+	display: flex;
+	align-items: center;
+	padding: 0 25rpx;
+
+	border-radius: var(--radius-xxxl);
+	background-color:  var(--bg-light-pink-alt);
+}
+
+.main-container .search-container .listener {
+	width: 40rpx;
+	height: 40rpx;
+}
+
+.main-container .search-container .listener .listener-icon {
+	width: 100%;
+	height: 100%;
+}
+
+.main-container .search-container .input-wrapper {
+	flex: 1;
+	margin: 0 10rpx;
+	position: relative;
+	z-index: 100;
+}
+
+.main-container .search-container .input-container {
+	flex: 1;
+	border-radius: var(--radius-small);
+	height: 57rpx;
+	background-color: var(--bg-white);
+	display: flex;
+	align-items: center;
+	padding-left: 25rpx;
+}
+
+/* 自动补全下拉框 */
+.autocomplete-dropdown {
+	position: absolute;
+	top: 67rpx;
+	left: 0;
+	right: 0;
+	background-color: #FFF9F0;
+	border-radius: 20rpx;
+	box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.15);
+	padding: 10rpx 0;
+	max-height: 400rpx;
+	overflow-y: auto;
+	z-index: 1000;
+}
+
+.autocomplete-item {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 24rpx 30rpx;
+	border-bottom: 1rpx solid rgba(141, 110, 99, 0.1);
+	transition: background-color 0.2s ease;
+}
+
+.autocomplete-item:last-child {
+	border-bottom: none;
+}
+
+.autocomplete-item:active {
+	background-color: rgba(255, 232, 210, 0.5);
+}
+
+.item-name {
+	font-size: 30rpx;
+	font-weight: 500;
+	color: #5D4037;
+}
+
+.item-unit {
+	font-size: 24rpx;
+	color: #8D6E63;
+	background-color: rgba(226, 138, 80, 0.15);
+	padding: 6rpx 16rpx;
+	border-radius: 12rpx;
+}
+
+.main-container .search-container .add-Btn {
+	width: 43rpx;
+	height: 43rpx;
+
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	background-color: var(--bg-secondary);
+	border-radius: 50%;
+}
+
+.main-container .search-container .add-icon {
+	width: 20rpx;
+	height: 20rpx;	
+}
+
+.main-container .create-process-container {
+	width: 570rpx;
+	/* height: 50rpx; */
+	display: flex;
+	flex-direction: column;
+	
+}
+
+.main-container .create-process-container .steps-bar {
+	width: 100%;
+	position: relative;
+
+	display: flex;
+	gap: 40rpx;
+	margin-top: 35rpx;
+
+	font-size: var(--font-size-xl);
+	color: var(--color-primary-light);
+}
+
+.main-container .create-process-container .default-mode {
+	width: 178rpx;
+	height: 37rpx;
+
+	display: flex;
+	align-items: center;
+	gap: 10rpx;
+}
+
+.main-container .create-process-container .default-mode .rectangle {
+	width: 50rpx;
+	height: 28rpx;
+
+	background-color: var(--bg-white-30);
+	border: 1rpx solid var(--border-primary);
+	border-radius: 900rpx;
+
+	display: flex;
+	padding: 0 3.5rpx;
+	align-items: center;
+}
+
+.main-container .create-process-container .default-mode .rectangle .circle {
+	width: 21rpx;
+	height: 21rpx;
+
+	border-radius: 50%;
+	background-color: var(--func-switch);
+
+	transition: all .2s ease-in-out;
+}
+
+.main-container .create-process-container .steps-bar .default-mode .rectangle.active .circle {
+	transform: translateX(calc(50rpx - 3.5rpx * 2 - 21rpx)); 
+}
+
+.main-container .create-process-container .steps-bar .active {
+	color: var(--color-primary);
+	font-size: var(--font-size-xl);
+}
+
+.main-container .create-process-container .steps-bar .selected-line {
+	position: absolute;
+	bottom: -12rpx;
+
+	width: 57rpx;
+	height: 2rpx;
+	border-radius: var(--radius-small);
+	background-color: var(--color-primary);
+	margin-bottom: 8rpx;
+	transition: all .3s ease-in-out;
+}
+
+
+.main-container .create-process-container .divider-line {
+	width: 100%;
+	height: 2rpx;
+	border-radius: var(--radius-small);
+	background-color: var(--divider-light);
+	margin: 15rpx 0 40rpx 0;
+}
+
+.basket {
+	width: 80rpx;
+	height: 80rpx;
+
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	position: absolute;
+	bottom: 107rpx;
+
+	border-radius: 50%;
+	background-color: var(--bg-light-pink);
+
+	box-shadow: 0 4rpx 4rpx 0 var(--shadow-black);
+}
+
+.basket .basket-icon {
+	width: 36rpx;
+	height: 36rpx;
+}
+
+/* 偏好设置容器 */
+.preferences-container {
+	width: 100%;
+	height: 100%;
+	padding-top: 20rpx;
+}
+
+/* 口味网格布局 */
+.preferences-grid {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 20rpx;
+}
+
+/* 时长和份量列表布局 */
+.preferences-list {
+	display: flex;
+	flex-direction: column;
+	gap: 20rpx;
+}
+
+/* 偏好选项 */
+.preference-item {
+	background-color: var(--bg-light-pink);
+	border-radius: 41rpx;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	font-size: var(--pref-font-size);
+	font-weight: var(--pref-font-weight);
+	color: var(--pref-font-color);
+	padding: 0 30rpx;
+	transition: all 0.2s ease;
+}
+
+/* 口味选项：139rpx * 39rpx */
+.preferences-grid .preference-item {
+	width: var(--pref-taste-width);
+	height: var(--pref-taste-height);
+}
+
+/* 时长和份量选项：573rpx * 69rpx */
+.preferences-list .preference-item {
+	width: var(--pref-time-width);
+	height: var(--pref-time-height);
+}
+
+/* 选中状态 */
+.preference-item.selected {
+	background-color: var(--bg-light-green);
+	color: var(--color-primary);
+	border: 2rpx solid var(--color-primary);
+}
+
+/* 选项文本 */
+.preference-text {
+	flex: 1;
+}
+
+/* 选项图标 */
+.preference-icon {
+	width: 20rpx;
+	height: 20rpx;
+	margin-left: 10rpx;
 }

@@ -7,24 +7,17 @@
 	</view>
 
 	<view class="login-way">
-		<view class="phone-login">
-			<image src="" mode="" class="phone-icon"/>
+		<view class="phone-login" bindtap="onPhoneLogin">
+			<image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/phone-icon.png" mode="aspectFit" class="phone-icon"/>
 			<view class="phone-btn">手机号登录</view>
 		</view>
-		<view class="wx-login">
-			<image src="" mode="" class="wx-icon"/>
+		<view class="wx-login" bindtap="onWxLogin">
+			<image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/wx-login-icon.png" mode="aspectFit" class="wx-icon"/>
 			<view class="wx-btn">微信登录</view>
 		</view>
 	</view>
 
-	<checkbox-group bindchange="agreementTick">
-					<label class="{{isShake ? 'shake' : ''}}">
-						<checkbox class="checkbox" checked="{{ isAgree }}" value="true" />
-						<text class="description">
-							我已阅读并同意<text class="user-agreement"  bindtap="goAgreement">《用户协议》</text>&<text class="privacy-agreement" bindtap="goPrivacy">《隐私协议》</text>
-						</text>
-					</label>
-				</checkbox-group>
+	<agreement-checkbox id="agreement" bind:showagreement="onShowAgreement" />
 
 	<view class="foot-decoration">
 		<view class="description">
@@ -38,4 +31,5 @@
 		</view>
 	</view>
 
+	<agreement-popup visible="{{showPopup}}" type="{{popupType}}" pageSource="firstLogin" bind:close="onClosePopup" />
 </view>
