@@ -1,0 +1,17 @@
+<!--custom-tab-bar/index.wxml-->
+<view class="tab-bar">
+	<view class="container">
+		<view class="community">
+			<image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community.png" mode="aspectFit" class="community-icon"/>
+			<text class="description">社区</text>
+		</view>
+		<view class="FC-create" bindtap="onCreateClick">
+			<image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/small-logo.png" mode="aspectFit" class="FC-create-icon {{showCreate ? 'show' : 'hide'}}"/>
+			<view class="create-text {{showCreate ? 'show' : 'hide'}}">Create</view>
+		</view>
+		<view class="ME">
+			<image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/mine.png" mode="aspectFit" class="ME-icon"/>
+			<text class="description">我的</text>
+		</view>
+	</view>
+</view>

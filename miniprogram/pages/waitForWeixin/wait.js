@@ -1,116 +1,76 @@
 // pages/waitForWeixin/wait.js
+const app = getApp()
+const { BASE_URL } = require('../../config/api')
+
 Page({
-
-  /**
-   * 页面的初始数据
-   */
   data: {
-
+    success: false
   },
 
-  /**
-   * 生命周期函数--监听页面加载
-   */
   onLoad(options) {
-		wx.login({
-			success: (res) => {
-				const code = res.code;
-				console.log(code)
-	
-				//打包数据
-				const loginParams = {
-					code: code
+    wx.login({
+      success: (res) => {
+        const code = res.code
+        const loginParams = { code: code }
+
+        wx.request({
+          url: BASE_URL + '/api/auth/login-wx',
+          method: "POST",
+          data: loginParams,
+
+          success: (res) => {
+            const resp = res.data
+
+            if (resp.code === 200) {
+              const data = resp.data
+              app.saveLoginInfo(data.token, data.refreshToken, data.user)
+
+              wx.showToast({
+                title: resp.message || "登录成功",
+                icon: "success"
+              })
+
+              setTimeout(() => {
+                const hasSeenGuide = wx.getStorageSync('hasSeenGuide')
+                if (data.isNewUser && !hasSeenGuide) {
+                  wx.reLaunch({ url: '/pages/startGuide/guide' })
+                } else {
+                  wx.switchTab({ url: '/pages/index/index' })
+                }
+              }, 1500)
+            }
+
+				else {
+					wx.showToast({
+						title: resp.message || "登录失败，请稍后重试",
+						icon: "none"
+					})
+					setTimeout(function() {
+						wx.reLaunch({ url: '/pages/phoneNumberLogin/login' })
+					}, 2000)
 				}
-	
-				wx.request({
-					url: "https://api.it120.cc/",	 	 //后端接口，需要修改
-					method: "POST",
-					data: loginParams,    					 //将打包后的用户信息发送给后端接口
-					
-					success: (res) => {
-						const resp = res.data          //这是后端返回的内容，先接收，后面判断错误码
-						
-						if (resp.code === 200) {
-							const data = resp.data
-							
-							//将用户信息保存到本地
-							wx.setStorageSync('token', data.token)
-							wx.setStorageSync('refreshToken', data.refreshToken)
-							wx.setStorageSync('userInfo', data.user)
-							
-							wx.switchTab({
-								url: '/pages/index/index'
-							})
-							
-							wx.showToast({
-								title: resp.message || "登录成功",  		//如果后端返回的message无效，则显示默认的登录成功
-								icon: "success"
-							})
-						} else {
-							wx.showToast({
-								title: resp.message || "登录失败",
-								icon: "none"
-							})
-						}
-					},
-	
-					fail: (err) => {
-						wx.showToast({
-							title: "网络异常，请稍后重试",
-							icon: "none"
-						})
-					}
-				})
-			}
-		})
+          },
 
-  },
-
-  /**
-   * 生命周期函数--监听页面初次渲染完成
-   */
-  onReady() {
-  },
-
-  /**
-   * 生命周期函数--监听页面显示
-   */
-  onShow() {
-
-  },
-
-  /**
-   * 生命周期函数--监听页面隐藏
-   */
-  onHide() {
-
-  },
-
-  /**
-   * 生命周期函数--监听页面卸载
-   */
-  onUnload() {
-
-  },
-
-  /**
-   * 页面相关事件处理函数--监听用户下拉动作
-   */
-  onPullDownRefresh() {
-
-  },
-
-  /**
-   * 页面上拉触底事件的处理函数
-   */
-  onReachBottom() {
-
-  },
-
-  /**
-   * 用户点击右上角分享
-   */
-  onShareAppMessage() {
-
+          fail: (err) => {
+            wx.showToast({
+              title: "网络异常，请稍后重试",
+              icon: "none"
+            })
+            setTimeout(function() {
+              wx.reLaunch({ url: '/pages/phoneNumberLogin/login' })
+            }, 2000)
+          }
+        })
+      },
+      fail: (err) => {
+        wx.showToast({
+          title: "获取登录凭证失败",
+          icon: "none"
+        })
+        setTimeout(function() {
+          wx.reLaunch({ url: '/pages/phoneNumberLogin/login' })
+        }, 2000)
+      }
+    })
   }
 })

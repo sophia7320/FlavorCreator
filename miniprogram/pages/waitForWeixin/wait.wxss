@@ -1,8 +1,8 @@
 /* pages/waitForWeixin/wait.wxss */
 .wait-page {
-	--radius: 50rpx;
-	--img-container-bg-color: rgba(7, 206, 104, 0.62);
-	--text-color: rgba(0, 156, 76, 1);
+	--radius: var(--radius-xl);
+	--img-container-bg-color: var(--wechat-success);
+	--text-color: var(--wechat-text);
 }
 
 .wait-page {
@@ -41,5 +41,5 @@
 
 .text-container .text {
 	color: var(--text-color);
-	font-size: 36rpx;
+	font-size: var(--font-size-3xl);
 }
