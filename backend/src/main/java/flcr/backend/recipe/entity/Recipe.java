@@ -52,9 +52,9 @@ public class Recipe {
     private String tips;
 
     /**
-     * 烹饪时间（分钟）
+     * 烹饪方式：简单/普通/慢炖
      */
-    private Integer cookTime;
+    private String cookTime;
 
     /**
      * 难度：1-简单 2-中等 3-困难
@@ -100,6 +100,11 @@ public class Recipe {
      * 浏览数
      */
     private Integer viewCount;
+
+    /**
+     * 状态
+     */
+    private String status;
 
     /**
      * 创建时间

@@ -1,6 +1,36 @@
 # AGENTS.md
 
+**Generated:** 2026-05-26 | **Commit:** 81a937f | **Branch:** master
+
 此文件为 AI 编码提供架构思路和编码偏好指引。项目技术栈见 CLAUDE.md。
+
+## 工作范围
+
+**本知识库仅覆盖后端（`backend/`）**。`miniprogram/`（微信小程序前端）不在 AI 编码范围内，请勿修改或为其生成文档。
+
+## 模块索引
+
+子目录 AGENTS.md 见各后端模块目录（`auth/`、`common/`、`admin/`、`community/`、`recipe/`、`ingredient/`、`user/`）。
+
+## 快速查找
+
+| 任务 | 位置 | 备注 |
+|------|------|------|
+| 添加 API 接口 | `backend/src/main/java/flcr/backend/{模块}/controller/` | `@RestController` + `@RequestMapping("/api/{模块}")` |
+| 添加业务逻辑 | `backend/src/main/java/flcr/backend/{模块}/service/impl/` | 接口在 `service/`，实现在 `impl/` |
+| 添加数据库操作 | `backend/src/main/java/flcr/backend/{模块}/mapper/` | 继承 `BaseMapper<Entity>` |
+| 添加 Entity | `backend/src/main/java/flcr/backend/{模块}/entity/` | `@TableName` + `@TableId(type=AUTO)` |
+| 添加 DTO | `backend/src/main/java/flcr/backend/{模块}/DTO/request/` 或 `response/` | 请求四合一之外的 `@NoArgsConstructor` |
+| 认证拦截 | `common/aop/AuthInterceptor.java` | 拦截 `/api/**`，尊重 `@Public` 注解 |
+| 管理员认证 | `common/aop/AdminAuthInterceptor.java` | 拦截 `/api/admin/**`，独立 JWT |
+| 错误码 | `common/constants/ResultCode.java` | 所有业务错误码常量 |
+| 统一响应 | `common/response/Response.java` | `Response.success(data)` / `Response.error(code, msg)` |
+| 图片上传/审核 | `common/service/ImageModerationService.java` | 三步校验: validate → store → moderate |
+| 文件存储 | `common/service/FileStorageService.java` | Local/COS/OSS 三套实现 |
+| JWT Token | `common/util/JwtTokenUtil.java` | 用户 JWT（userId+openid） |
+| 用户上下文 | `common/context/UserContext.java` | ThreadLocal，拦截器自动清理 |
+| 全局异常处理 | `common/exception/GlobalExceptionHandler.java` | `@RestControllerAdvice` |
+| 新模块开发 | 按下方清单逐步创建 | 参考 `AGENTS.md` 编码契约 
 
 ## 架构原则
 
@@ -12,12 +42,19 @@ Controller → Service(接口) → Service/impl → Mapper
 - Service 层不返回 Controller 层的 Request DTO
 - 跨模块引用时直接注入目标模块的 **Mapper**，不注入 Service（避免循环依赖）
 
-### 认证模型
-- `WebMvcConfig` 注册 `AuthInterceptor` 拦截所有 `/api/**` 请求
+### 用户认证模型
+- `WebMvcConfig` 注册 `AuthInterceptor` 拦截所有 `/api/**` 请求（用户端）
 - **无需认证**的 Controller 方法标注 `@Public`（游客可访问，有 Token 则解析写入 UserContext）
 - **无 `@Public` 注解** = 需要认证，无 Token 则返回 401
 - Service 层通过 `UserContext.getUserId()` 获取当前用户，**不在方法签名中传 userId**
 - `AuthInterceptor.afterCompletion()` 自动 `UserContext.clear()`
+
+### 管理员认证模型
+- `WebMvcConfig` 注册 `AdminAuthInterceptor` 拦截 `/api/admin/**` 请求
+- 使用独立 JWT 密钥（`admin.jwt.secret`），**不与用户 Token 互通**
+- 用户 Token 无法访问 Admin 接口（返回 BusinessException）
+- 排除路径：`/api/admin/auth/login`（登录）、`/api/admin/auth/refresh`（刷新）
+- AdminAuthInterceptor 从 token 中解析 `adminId` 写入 request attribute
 
 ### 错误处理
 - Service 层只能抛 `BusinessException(code, message)`，禁止 `throw new RuntimeException()`
@@ -130,8 +167,10 @@ Response.error("服务器错误");  // 默认 code=500
 | 时间格式 | `DateTimeFormatter.ISO_LOCAL_DATE_TIME` |
 | 分页默认 | page=1, size=20 |
 | 文件上传限制 | 单文件 10MB / 总请求 20MB |
-| Token 过期 | 访问 5min / 刷新 30d |
-| JWT Claim | userId(L), openid(S) |
+| 用户 Token 过期 | 访问 5min / 刷新 30d |
+| 管理员 Token 过期 | 访问 2h / 刷新 7d |
+| 用户 JWT Claim | userId(L), openid(S) |
+| 管理员 JWT Claim | adminId(L), username(S), role(S) |
 | Actuator 端点 | health, info |
 
 ## 测试约定
@@ -164,15 +203,14 @@ Response.error("服务器错误");  // 默认 code=500
 ## 已知待办
 
 - `RecipeListRequestDTO.taste` 字段已定义但在 Service 中未使用
-- `admin` 模块待实现
-- 手机号绑定 (`/api/auth/phone-wx`) 待实现
-- 个人中心 (收藏/发布/历史/点赞) 的专用 API 端点待实现
 - 图片审核启用后需在云环境配置 COS CI 相关环境变量（`COS_SECRET_ID` 等）
+- Admin 登录密码当前为明文比较，应改为 BCrypt 加密存储
+- `TestController` 包名 `flcr.backend.Test` 首字母大写不规范，建议移至 `controller/` 或删除
 
 ## 已知限制
 
 - 菜谱批量图片上传时，若第 N 张审核失败，前 N-1 张已上传的 COS 文件会成为孤儿（DB事务回滚但文件无法回滚）。当前可接受，长期应将 upload 延后到全部图片审核通过后统一执行。
-- `CosModerationServiceImpl.moderate()` 的 COSClient 每次新建，与 `CosFileStorageServiceImpl.store()` 各自独立创建，存在重复连接开销。
+- `buildSingleCommentDTO()` N+1 查询：流中每层调 `userMapper.selectById`（不同于批量的 `buildCommentDTO`）
 
 ## 图片上传与审核
 

@@ -1,12 +1,8 @@
 package flcr.backend.common.service.impl;
 
 import com.qcloud.cos.COSClient;
-import com.qcloud.cos.ClientConfig;
-import com.qcloud.cos.auth.BasicCOSCredentials;
-import com.qcloud.cos.auth.COSCredentials;
 import com.qcloud.cos.model.ciModel.auditing.ImageAuditingRequest;
 import com.qcloud.cos.model.ciModel.auditing.ImageAuditingResponse;
-import com.qcloud.cos.region.Region;
 import flcr.backend.common.config.ModerationProperties;
 import flcr.backend.common.config.StorageProperties;
 import flcr.backend.common.constants.ResultCode;
@@ -26,6 +22,7 @@ public class CosModerationServiceImpl implements ImageModerationService {
 
     private final ModerationProperties moderationProperties;
     private final StorageProperties storageProperties;
+    private final COSClient cosClient;
 
     @Override
     public void validate(MultipartFile file, String scene) {
@@ -42,7 +39,6 @@ public class CosModerationServiceImpl implements ImageModerationService {
             return;
         }
 
-        COSClient cosClient = buildCosClient(cos);
         try {
             ImageAuditingRequest request = new ImageAuditingRequest();
             request.setBucketName(cos.getBucket());
@@ -76,8 +72,6 @@ public class CosModerationServiceImpl implements ImageModerationService {
         } catch (Exception e) {
             log.error("图片内容审核调用失败", e);
             throw new BusinessException(ResultCode.IMAGE_UPLOAD_ERROR, "图片审核服务异常，请稍后重试");
-        } finally {
-            cosClient.shutdown();
         }
     }
 
@@ -118,9 +112,4 @@ public class CosModerationServiceImpl implements ImageModerationService {
         }
     }
 
-    COSClient buildCosClient(StorageProperties.Cos cos) {
-        COSCredentials cred = new BasicCOSCredentials(cos.getSecretId(), cos.getSecretKey());
-        ClientConfig clientConfig = new ClientConfig(new Region(cos.getRegion()));
-        return new COSClient(cred, clientConfig);
-    }
 }

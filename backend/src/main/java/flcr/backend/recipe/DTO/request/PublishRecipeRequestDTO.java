@@ -14,7 +14,7 @@ public class PublishRecipeRequestDTO {
     private String tags;
     private String category;
     private String tips;
-    private Integer cookTime;
+    private String cookTime;
     private Integer difficulty;
     private Integer calories;
 }

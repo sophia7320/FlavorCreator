@@ -30,6 +30,8 @@ flcr:
   storage:
     local-path: ./uploads
     url-prefix: /uploads
+  token:
+    store: memory
 
 springdoc:
   swagger-ui:

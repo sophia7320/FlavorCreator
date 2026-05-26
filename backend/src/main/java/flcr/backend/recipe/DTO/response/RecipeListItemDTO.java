@@ -14,7 +14,7 @@ public class RecipeListItemDTO {
     private String name;
     private String cover;
     private AuthorInfo author;
-    private Integer cookTime;
+    private String cookTime;
     private String difficulty;
     private Integer calories;
     private String[] tags;

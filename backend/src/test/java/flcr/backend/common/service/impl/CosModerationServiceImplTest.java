@@ -25,7 +25,7 @@ class CosModerationServiceImplTest {
     @Mock private ModerationProperties moderationProperties;
     @Mock private StorageProperties storageProperties;
     @Mock private COSClient cosClient;
-    @InjectMocks @Spy private CosModerationServiceImpl moderationService;
+    @InjectMocks private CosModerationServiceImpl moderationService;
 
     private static final String BUCKET = "test-bucket-1250000000";
     private static final String REGION = "ap-shanghai";
@@ -50,8 +50,6 @@ class CosModerationServiceImplTest {
         lenient().when(cos.getRegion()).thenReturn(REGION);
         lenient().when(cos.getSecretId()).thenReturn("test-id");
         lenient().when(cos.getSecretKey()).thenReturn("test-key");
-
-        lenient().doReturn(cosClient).when(moderationService).buildCosClient(any());
     }
 
     // ==================== validate() tests ====================

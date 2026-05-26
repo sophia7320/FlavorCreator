@@ -30,7 +30,7 @@ public class UserInfoResponseDTO {
     public static class PreferencesInfo {
         private List<String> taste;
         private List<String> dietary;
-        private Integer cookTime;
+        private String cookTime;
         private String difficulty;
     }
 

@@ -10,6 +10,7 @@ import flcr.backend.auth.entity.User;
 import flcr.backend.auth.mapper.UserMapper;
 import flcr.backend.auth.service.UserService;
 import flcr.backend.common.constants.ResultCode;
+import flcr.backend.common.constants.GenderConstants;
 import flcr.backend.common.context.UserContext;
 import flcr.backend.common.exception.BusinessException;
 import flcr.backend.common.service.RefreshTokenService;
@@ -154,11 +155,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             user.setNickname(request.getUserInfo().getNickName());
             user.setAvatar(request.getUserInfo().getAvatarUrl());
             if (request.getUserInfo().getGender() != null) {
-                user.setGender(Integer.parseInt(request.getUserInfo().getGender()));
+                try {
+                    user.setGender(Integer.parseInt(request.getUserInfo().getGender()));
+                } catch (NumberFormatException e) {
+                    throw new BusinessException(ResultCode.PARAM_ERROR, "性别格式错误");
+                }
             }
         } else {
             user.setNickname("创味机用户");
-            user.setGender(0);
+            user.setGender(GenderConstants.UNKNOWN);
         }
 
         user.setCreatedAt(LocalDateTime.now());

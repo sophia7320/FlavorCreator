@@ -2,6 +2,7 @@ package flcr.backend.auth.controller;
 
 import flcr.backend.auth.DTO.request.LoginRequestDTO;
 import flcr.backend.auth.DTO.request.LogoutRequestDTO;
+import flcr.backend.auth.DTO.request.PhoneBindRequestDTO;
 import flcr.backend.auth.DTO.request.RefreshTokenRequestDTO;
 import flcr.backend.auth.DTO.response.LoginResponseDTO;
 import flcr.backend.auth.service.UserService;
@@ -38,5 +39,17 @@ public class UserController {
     public Response<Void> logout(@Valid @RequestBody LogoutRequestDTO logoutRequest) {
         userService.logout(logoutRequest.getRefreshToken());
         return Response.success("退出成功", null);
+    }
+
+    @Public
+    @PostMapping("/phone/bind")
+    public Response<Void> bindPhone(@Valid @RequestBody PhoneBindRequestDTO request) {
+        return Response.error("手机号绑定功能开发中，敬请期待");
+    }
+
+    @Public
+    @PostMapping("/phone/unbind")
+    public Response<Void> unbindPhone(@Valid @RequestBody PhoneBindRequestDTO request) {
+        return Response.error("手机号解绑功能开发中，敬请期待");
     }
 }

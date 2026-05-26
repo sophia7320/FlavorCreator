@@ -96,7 +96,7 @@ class UserInfoServiceImplTest {
         UpdateUserInfoRequestDTO.Preferences prefs = new UpdateUserInfoRequestDTO.Preferences();
         prefs.setTaste(List.of("清淡"));
         prefs.setDietary(List.of("低卡"));
-        prefs.setCookTime(30);
+        prefs.setCookTime("简单");
         prefs.setDifficulty("简单");
 
         UpdateUserInfoRequestDTO request = new UpdateUserInfoRequestDTO();

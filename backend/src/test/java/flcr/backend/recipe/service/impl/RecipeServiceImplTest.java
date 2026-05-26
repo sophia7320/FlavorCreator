@@ -32,6 +32,15 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class RecipeServiceImplTest {
 
+    @BeforeAll
+    static void initMybatisPlusCache() {
+        com.baomidou.mybatisplus.core.MybatisConfiguration configuration = new com.baomidou.mybatisplus.core.MybatisConfiguration();
+        configuration.setDefaultScriptingLanguage(com.baomidou.mybatisplus.core.MybatisXMLLanguageDriver.class);
+        org.apache.ibatis.builder.MapperBuilderAssistant assistant = new org.apache.ibatis.builder.MapperBuilderAssistant(configuration, "");
+        assistant.setCurrentNamespace("flcr.backend.recipe.mapper.RecipeMapper");
+        com.baomidou.mybatisplus.core.metadata.TableInfoHelper.initTableInfo(assistant, Recipe.class);
+    }
+
     @Mock private RecipeMapper recipeMapper;
     @Mock private LikeMapper likeMapper;
     @Mock private CollectionMapper collectionMapper;
@@ -200,7 +209,7 @@ class RecipeServiceImplTest {
         recipe.setCover("/uploads/test.jpg");
         recipe.setAuthorId(USER_ID);
         recipe.setCategory("家常菜");
-        recipe.setCookTime(30);
+        recipe.setCookTime("简单");
         recipe.setDifficulty(1);
         recipe.setCalories(300);
         recipe.setLikeCount(10);

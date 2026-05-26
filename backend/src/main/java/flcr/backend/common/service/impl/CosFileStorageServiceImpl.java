@@ -1,13 +1,9 @@
 package flcr.backend.common.service.impl;
 
 import com.qcloud.cos.COSClient;
-import com.qcloud.cos.ClientConfig;
-import com.qcloud.cos.auth.BasicCOSCredentials;
-import com.qcloud.cos.auth.COSCredentials;
 import com.qcloud.cos.model.CannedAccessControlList;
 import com.qcloud.cos.model.ObjectMetadata;
 import com.qcloud.cos.model.PutObjectRequest;
-import com.qcloud.cos.region.Region;
 import flcr.backend.common.config.StorageProperties;
 import flcr.backend.common.constants.ResultCode;
 import flcr.backend.common.exception.BusinessException;
@@ -18,7 +14,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
@@ -30,6 +25,28 @@ import java.util.UUID;
 public class CosFileStorageServiceImpl implements FileStorageService {
 
     private final StorageProperties storageProperties;
+    private final COSClient cosClient;
+
+    @Override
+    public void delete(String fileUrl) {
+        if (fileUrl == null || fileUrl.isEmpty()) {
+            return;
+        }
+        StorageProperties.Cos cos = storageProperties.getCos();
+        String bucketPrefix = String.format("https://%s.cos.%s.myqcloud.com/",
+                cos.getBucket(), cos.getRegion());
+        if (!fileUrl.startsWith(bucketPrefix)) {
+            log.warn("无法删除非本存储的文件: {}", fileUrl);
+            return;
+        }
+        String key = fileUrl.substring(bucketPrefix.length());
+        try {
+            cosClient.deleteObject(cos.getBucket(), key);
+            log.info("COS 文件已删除: {}", key);
+        } catch (Exception e) {
+            log.error("COS 文件删除失败: {}", key, e);
+        }
+    }
 
     @Override
     public String store(MultipartFile file, String dir) {
@@ -38,10 +55,6 @@ public class CosFileStorageServiceImpl implements FileStorageService {
         }
 
         StorageProperties.Cos cos = storageProperties.getCos();
-        COSCredentials cred = new BasicCOSCredentials(cos.getSecretId(), cos.getSecretKey());
-        ClientConfig clientConfig = new ClientConfig(new Region(cos.getRegion()));
-        COSClient cosClient = new COSClient(cred, clientConfig);
-
         try {
             String originalName = file.getOriginalFilename();
             String ext = "";
@@ -73,8 +86,6 @@ public class CosFileStorageServiceImpl implements FileStorageService {
         } catch (Exception e) {
             log.error("COS 文件上传失败", e);
             throw new BusinessException(ResultCode.SYSTEM_ERROR, "文件上传失败");
-        } finally {
-            cosClient.shutdown();
         }
     }
 }
