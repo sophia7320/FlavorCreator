@@ -19,7 +19,7 @@ spring:
 
 wx:
   app-id: wx50af4e183b6a52cd
-  secret: f3a49068c2e7e1757e6120034c4e002b
+  secret: 28b1158530a2378ebb8845dafd3787d1
 
 jwt:
   secret: FlavorCreatorSecretKey2026

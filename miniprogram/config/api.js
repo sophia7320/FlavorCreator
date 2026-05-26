@@ -1,5 +1,5 @@
 // 配置文件
-const BASE_URL = 'https://api.example.com' // TODO: 替换为你的实际后端地址
+const BASE_URL = 'http://127.0.0.1:8080' // TODO: 替换为你的实际后端地址
 
 const API_CONFIG = {
   // 认证相关
