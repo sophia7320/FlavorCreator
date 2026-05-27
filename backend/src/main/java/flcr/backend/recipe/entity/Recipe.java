@@ -102,11 +102,6 @@ public class Recipe {
     private Integer viewCount;
 
     /**
-     * 状态
-     */
-    private String status;
-
-    /**
      * 创建时间
      */
     private LocalDateTime createdAt;

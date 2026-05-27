@@ -17,8 +17,6 @@ public interface AdminContentService {
 
     void deleteRecipe(Long id);
 
-    void updateRecipeStatus(Long id, AdminRecipeStatusRequestDTO request);
-
     Page<AdminCommentResponseDTO> listComments(AdminCommentListRequestDTO request);
 
     AdminCommentResponseDTO getCommentDetail(Long id);
@@ -28,6 +26,4 @@ public interface AdminContentService {
     AdminCommentResponseDTO updateComment(Long id, AdminCommentUpdateRequestDTO request);
 
     void deleteComment(Long id);
-
-    void updateCommentStatus(Long id, AdminCommentStatusRequestDTO request);
 }

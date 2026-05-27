@@ -7,6 +7,5 @@ public class AdminRecipeListRequestDTO {
     private Integer page = 1;
     private Integer size = 20;
     private String keyword;
-    private String status;
     private Integer source;
 }

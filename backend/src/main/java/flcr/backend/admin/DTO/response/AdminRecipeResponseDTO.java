@@ -24,7 +24,6 @@ public class AdminRecipeResponseDTO {
     private Integer collectionCount;
     private Integer commentCount;
     private Integer viewCount;
-    private String status;
     private String createdAt;
     private String updatedAt;
 }

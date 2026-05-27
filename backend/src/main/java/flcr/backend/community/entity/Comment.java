@@ -42,11 +42,6 @@ public class Comment {
     private Integer likeCount;
 
     /**
-     * 状态
-     */
-    private String status;
-
-    /**
      * 创建时间
      */
     private LocalDateTime createdAt;
