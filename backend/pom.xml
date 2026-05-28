@@ -77,6 +77,12 @@
             <artifactId>jackson-databind</artifactId>
         </dependency>
 
+        <!-- 处理json -->
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+        </dependency>
+
         <!-- 微信小程序 Java SDK -->
         <dependency>
             <groupId>com.github.binarywang</groupId>
