@@ -28,6 +28,24 @@ public class LocalFileStorageServiceImpl implements FileStorageService {
     private final StorageProperties storageProperties;
 
     @Override
+    public void delete(String fileUrl) {
+        if (fileUrl == null || fileUrl.isEmpty()) {
+            return;
+        }
+        try {
+            java.net.URL url = new java.net.URL(fileUrl);
+            String relativePath = url.getPath();
+            Path filePath = Paths.get(storageProperties.getLocalPath(), relativePath);
+            if (filePath.startsWith(storageProperties.getLocalPath())) {
+                Files.deleteIfExists(filePath);
+                log.info("本地文件已删除: {}", filePath);
+            }
+        } catch (Exception e) {
+            log.error("本地文件删除失败: {}", fileUrl, e);
+        }
+    }
+
+    @Override
     public String store(MultipartFile file, String dir) {
         if (file == null || file.isEmpty()) {
             throw new BusinessException(ResultCode.PARAM_ERROR, "上传文件为空");

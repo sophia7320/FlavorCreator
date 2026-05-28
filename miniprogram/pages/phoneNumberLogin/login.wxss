@@ -1,20 +1,20 @@
 /* pages/login/login.wxss */
 
-/*定义登录界面变量*/
+/*定义登录界面变量 - 引用全局变量*/
 .login-page {
-	--radius: 30rpx;
+	--radius: var(--radius-large);
 	--card-width: 554rpx;
 	--card-height: 805rpx;
 	
-	--text-color: rgba(64, 32, 10, 1);
-	--foot-color: rgba(166, 166, 166, 1);
-	--border-color: rgba(165, 68, 23, 1);
-	--loginBtn-color: rgba(186, 91, 33, .75);
-	--card-bg-color: rgba(249, 242, 228, 0.7);
-	--diliver-color: rgba(212, 212, 212, 1);
-	--text-login-color: rgba(186, 91, 33, 1);
-	--text-scondary-color: rgba(191, 191, 191, 1);
-	--protocol-color: rgba(202, 127, 79, 1);
+	--text-color: var(--text-primary);
+	--foot-color: var(--text-quaternary);
+	--border-color: var(--color-primary-border);
+	--loginBtn-color: var(--btn-login);
+	--card-bg-color: var(--bg-card);
+	--diliver-color: var(--border-secondary);
+	--text-login-color: var(--color-primary);
+	--text-scondary-color: var(--text-tertiary);
+	--protocol-color: var(--text-link);
 }
 
 /*定义动画效果*/
@@ -29,12 +29,15 @@
 	}
 }
 
-@keyframes agreement-shake {
-	0%, 100% {transform: translateX(0);}
-	20% {transform: translateX(-8rpx);}
-	40% {transform: translateX(8rpx);}
-	60% {transform: translateX(-8rpx);}
-	80% {transform: translateX(8rpx);}
+@keyframes pop-up {
+	0% {
+		opacity: 0;
+		transform: translateY(8rpx);
+	}
+	100% {
+		opacity: 1;
+		transform: translateY(0rpx);
+	}
 }
 
 /*页面样式*/
@@ -89,7 +92,7 @@
 
 .login-card-container .mini-program-name {
 	font-size: 38rpx;
-	font-weight: 700;
+	font-weight: var(--font-weight-bold);
 	font-family: Arial, Helvetica, sans-serif;
 	margin: 76rpx 0 0;
 	color: var(--text-color);
@@ -113,8 +116,8 @@
 }
  
 .login-card-container .head-divider-container .divider-text {
-	font-size: 28rpx;
-	font-weight: 700;
+	font-size: var(--font-size-xl);
+	font-weight: var(--font-weight-bold);
 	color: var(--text-color);
 }
 
@@ -128,13 +131,57 @@
 	flex-direction: column;
 	justify-content: center;
 	align-items: center;
+
+	position: relative;
+}
+
+/*使用伪元素做对话框的小三角*/
+.login-form-container .wrong-format::after {
+	content: '';
+	position: absolute;
+	left: 25rpx;
+	top: 32rpx;
+	width: 10rpx;
+	height: 10rpx;
+
+	width: 23rpx;   /* 三角形的底 */
+  height: 10rpx;  /* 三角形的高 */
+  background-color: var(--bg-white);
+	border-radius: var(--radius);
+  
+  /* 多边形裁剪 (左上角, 右上角, 底边中点) */
+  clip-path: polygon(0% 0%, 100% 0%, 50% 100%);
+}
+
+.login-form-container .wrong-format {
+	width: 420rpx;
+	height: 35rpx;
+	
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	position: absolute;
+	
+	left: 20rpx;
+	top: 25rpx;
+	
+	font-size: var(--font-size-base);
+	letter-spacing: 10rpx;
+	color: var(--border-color);
+	border-radius: var(--radius);
+	background-color: var(--bg-white);
+	
+	overflow: visible; /*避免伪元素被裁切*/
+
+	/*设置回弹的动效*/
+	animation: pop-up 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
 }
 
 .login-form-container .telephone-number-container {
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	margin: 65rpx 0 22rpx;
+	margin: 80rpx 0 22rpx;
 }
 
 .login-form-container .telephone-number-container .divider-line, .login-form-container .verify-container .divider-line {
@@ -152,7 +199,7 @@
 	height: 61rpx;
 
 	position: relative;
-	background-color: #fff;
+	background-color: var(--bg-white);
 	border-radius: var(--radius);
 	border: 1px solid var(--border-color);
 }
@@ -163,22 +210,22 @@
 
 	position: absolute;
 	right: 0px;
-	border-radius: 30rpx;
-	background-color: rgba(202, 127, 80, 1);
+	border-radius: var(--radius);
+	background-color: var(--btn-send-code);
 
-	font-size: 18rpx;
+	font-size: var(--font-size-base);
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	color: #fff;
+	color: var(--text-white);
 	z-index: 10;
-	box-shadow: 0 4rpx 4rpx rgba(0, 0, 0, .25);
+	box-shadow: 0 4rpx 4rpx var(--shadow-black);
 
 }
 
 .resend-msg {
 	width: 110rpx;
-	font-size: 18rpx;
+	font-size: var(--font-size-base);
 	position: absolute;
 	right: 0;
 	color: var(--protocol-color);
@@ -208,34 +255,6 @@
 	height: 27rpx;
 }
 
-.login-form-container checkbox-group label {
-	width: 400rpx;
-	margin-left: 33rpx;
-	display: flex;
-	margin-top: 12rpx;
-}
-
-.login-form-container checkbox-group label.shake {
-	animation: agreement-shake .4s ease;
-}
-
-.login-form-container checkbox-group .checkbox {
-	display: flex;
-	align-items: center;
-	transform: scale(0.545);
-	transform-origin: left bottom;
-}
-
-.login-form-container checkbox-group .description {
-	color: var(--text-scondary-color);
-	font-size: 18rpx;
-	font-weight: 400;
-}
-
-.login-form-container checkbox-group .description .user-agreement, .login-form-container checkbox-group .description .privacy-agreement {
-	color: var(--protocol-color);
-}
-
 .login-btn-container {
 	margin-top: 30rpx;
 }
@@ -248,14 +267,14 @@
 	justify-content: center;
 	align-items: center;
 
-	color: #fff;
+	color: var(--text-white);
 	border-radius: var(--radius);
 	background-color: var(--loginBtn-color);
 }
 
 .login-btn-container .login-btn text {
 	font-size: 26rpx;
-	font-weight: 700;
+	font-weight: var(--font-weight-bold);
 }
 
 .login-btn-container .login-btn text:nth-child(1) {
@@ -279,9 +298,9 @@
 
 .login-form-container .foot-divider-container .divider-text {
 	font-size: 17rpx;
-	font-weight: 700;
+	font-weight: var(--font-weight-bold);
 	text-decoration: underline;
-	color: rgba(64, 32, 10, 1);
+	color: var(--text-primary);
 }
 
 .login-form-container .foot-divider-container .divider-line {
@@ -295,7 +314,7 @@
 	justify-content: center;
 	align-items: center;
 	color: var(--foot-color);
-	font-size: 16rpx;
+	font-size: var(--font-size-sm);
 }
 
 .other-login-way .wx-login-btn {
@@ -311,4 +330,36 @@
 .login-card-container .other-login-way image {
 	width: 100%;
 	height: 100%;
+}
+
+.toast {
+	width: 225rpx;
+	height: 227rpx;
+
+	position: fixed;
+	top: 550rpx;
+	margin: auto;
+	z-index: 100;
+	
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+
+	background-color: var(--bg-white);
+	border-radius: var(--radius);
+
+	box-shadow: 0 4rpx 4rpx 0 var(--shadow-black);
+}
+
+.toast .icon {
+	width: 104rpx;
+	height: 99rpx;
+}
+
+.toast text {
+	width: 130rpx;
+	margin-top: 30rpx;
+	font-size: 22rpx;
+	color: var(--text-black);
 }

@@ -1,11 +1,11 @@
 /* pages/agreement/agreement.wxss */
 .agreement-page {
-	--bg-color: rgba(255, 238, 209, 1);
-	--card-radius: 60rpx;
-	--title-font-size: 24rpx;
-	--content-font-size: 24rpx;
-	--title-font-weight: 400;
-	--content-font-weight: 400;
+	--bg-color: var(--bg-primary);
+	--card-radius: var(--radius-xxl);
+	--title-font-size: var(--font-size-lg);
+	--content-font-size: var(--font-size-lg);
+	--title-font-weight: var(--font-weight-normal);
+	--content-font-weight: var(--font-weight-normal);
 }
 
 .agreement-page {

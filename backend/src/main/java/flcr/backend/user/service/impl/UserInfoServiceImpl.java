@@ -10,6 +10,7 @@ import flcr.backend.common.constants.ResultCode;
 import flcr.backend.common.context.UserContext;
 import flcr.backend.common.exception.BusinessException;
 import flcr.backend.common.service.FileStorageService;
+import flcr.backend.common.service.ImageModerationService;
 import flcr.backend.community.entity.Collection;
 import flcr.backend.community.entity.Like;
 import flcr.backend.community.mapper.CollectionMapper;
@@ -37,6 +38,7 @@ public class UserInfoServiceImpl implements UserInfoService {
     private final CollectionMapper collectionMapper;
     private final ObjectMapper objectMapper;
     private final FileStorageService fileStorageService;
+    private final ImageModerationService imageModerationService;
 
     @Override
     public UserInfoResponseDTO getInfo() {
@@ -86,7 +88,9 @@ public class UserInfoServiceImpl implements UserInfoService {
     @Override
     public String uploadAvatar(MultipartFile file) {
         Long userId = UserContext.getUserId();
+        imageModerationService.validate(file, "avatar");
         String avatarUrl = fileStorageService.store(file, "avatar");
+        imageModerationService.moderate(avatarUrl, "avatar");
 
         User user = userMapper.selectById(userId);
         if (user != null) {
@@ -101,7 +105,9 @@ public class UserInfoServiceImpl implements UserInfoService {
     @Override
     public String uploadBackground(MultipartFile file) {
         Long userId = UserContext.getUserId();
+        imageModerationService.validate(file, "background");
         String backgroundUrl = fileStorageService.store(file, "background");
+        imageModerationService.moderate(backgroundUrl, "background");
 
         User user = userMapper.selectById(userId);
         if (user != null) {

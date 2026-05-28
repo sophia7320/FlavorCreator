@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import flcr.backend.common.service.RefreshTokenService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +14,7 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@ConditionalOnProperty(name = "flcr.token.store", havingValue = "redis")
 public class RefreshTokenServiceImpl implements RefreshTokenService {
 
     private static final String RT_PREFIX = "rt:";

@@ -1,0 +1,36 @@
+<!--pages/choose-recipes/choose-recipes.wxml-->
+<view class="choose-recipes-page">
+	<view class="title">菜谱选择页面</view>
+	
+	<view class="data-section" wx:if="{{recipeData}}">
+		<view class="section-title">已提交的数据：</view>
+		
+		<view class="subsection">
+			<view class="subsection-title">食材：</view>
+			<view class="ingredient-list">
+				<view class="ingredient-item" wx:for="{{recipeData.ingredients}}" wx:key="name">
+					{{item.name}} - {{item.quantity}}{{item.unit}}
+				</view>
+			</view>
+		</view>
+		
+		<view class="subsection">
+			<view class="subsection-title">口味：</view>
+			<view class="preference-text">{{recipeData.preferences.taste.join(', ')}}</view>
+		</view>
+		
+		<view class="subsection">
+			<view class="subsection-title">时长：</view>
+			<view class="preference-text">{{recipeData.preferences.cookTime}}分钟</view>
+		</view>
+		
+		<view class="subsection">
+			<view class="subsection-title">难度：</view>
+			<view class="preference-text">{{recipeData.preferences.difficulty}}</view>
+		</view>
+	</view>
+	
+	<view class="empty-section" wx:else>
+		<view class="empty-text">暂无数据，请先在首页选择食材</view>
+	</view>
+</view>

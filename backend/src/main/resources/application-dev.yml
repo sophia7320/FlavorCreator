@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/flcr?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true&zeroDateTimeBehavior=convertToNull&transformedBitIsBoolean=true&allowMultiQueries=true&tinyInt1isBit=false
+    url: jdbc:mysql://localhost:3306/flcr?sslMode=DISABLED&allowPublicKeyRetrieval=true&zeroDateTimeConversion=CONVERT_TO_NULL&allowMultiQueries=true&connectionCollation=utf8mb4_unicode_ci
     username: root
     password: yiming070320
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -19,7 +19,7 @@ spring:
 
 wx:
   app-id: wx50af4e183b6a52cd
-  secret: f3a49068c2e7e1757e6120034c4e002b
+  secret: 28b1158530a2378ebb8845dafd3787d1
 
 jwt:
   secret: FlavorCreatorSecretKey2026
@@ -35,3 +35,11 @@ logging:
 flcr:
   storage:
     type: local
+  moderation:
+    enabled: false
+    allowed-types: jpg, jpeg, png, gif, webp, bmp
+    max-size:
+      avatar: 2097152
+      background: 5242880
+      recipe-cover: 5242880
+      recipe-image: 5242880

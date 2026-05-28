@@ -1,0 +1,20 @@
+<!--components/index-swiper-contianer/swiper-ingredients/ingredients-choose.wxml-->
+<view class="ingredients-component">
+	<view class="tab-bar">
+		<!-- 使用block遍历渲染item -->
+		<block wx:for="{{tabList}}" wx:key="index">
+			<view class="ingredients-item {{currentTab === index ? 'active' : ''}}" data-index="{{index}}" bindtap='onSwitchTab'>
+				{{ item }}
+			</view>
+		</block>
+	</view>
+
+	<view class="ingredient-container">
+		<block wx:for="{{ingredientsData}}" wx:key="id">
+			<view class="item {{item.selected ? 'selected' : ''}}" data-index="{{index}}" bindtap='onSelectedIngredients'>
+				<text>{{item.name}}</text>
+				<image src="{{item.selected ? 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/green-check.png' : 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/pink-add.png'}}" mode="aspectFit" class="add"/>
+			</view>
+		</block>
+	</view>
+</view>

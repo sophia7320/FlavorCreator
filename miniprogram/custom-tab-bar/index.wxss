@@ -1,0 +1,100 @@
+/* custom-tab-bar/index.wxss */
+.tab-bar {
+	/* 在组件根元素定义CSS变量 */
+	--radius-xl: 50rpx;
+	--bg-white-transparent: rgba(255, 255, 255, 0.7);
+	--font-size-xs: 12rpx;
+	--color-primary: rgba(186, 91, 33, 1);
+
+	width: 750rpx;
+	height: 134rpx;
+	
+	display: flex;
+	align-items: start;
+	justify-content: center;
+	
+}
+
+.tab-bar .container {
+	width: 659rpx;
+	height: 94rpx;
+
+	border-radius: var(--radius-xl);
+	background-color: var(--bg-white-transparent);
+
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+
+	padding: 0 107rpx;
+}
+
+.community, .ME {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.description {
+	font-size: var(--font-size-xs);
+	color: var(--color-primary);
+	margin-top: 4rpx;
+}
+
+.community-icon, .ME-icon {
+	width: 34rpx;
+	height: 34rpx;
+}
+
+.FC-create {
+	position: relative;
+	width: 130rpx;
+	height: 130rpx;
+	overflow: hidden;
+	border-radius: 50%;
+	transform: translateY(-25rpx);
+	background-color: rgba(255, 164, 12, 0.2);
+}
+
+.FC-create-icon {
+	width: 130rpx;
+	height: 130rpx;
+	transition: transform 0.3s ease-in-out;
+}
+
+/* 图标显示状态：向上移出容器 */
+.FC-create-icon.show {
+	transform: translateY(-130rpx);
+}
+
+/* 图标隐藏状态：原位显示 */
+.FC-create-icon.hide {
+	transform: translateY(0);
+}
+
+.create-text {
+	position: absolute;
+	inset: 0;
+	margin: auto;
+
+	width: 130rpx;
+	height: 130rpx;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: rgba(185, 89, 33, 1);
+	font-weight: 700;
+	font-size: 30rpx;
+	transition: transform 0.3s ease-in-out;
+}
+
+/* 文字显示状态：原位显示 */
+.create-text.show {
+	transform: translateY(0);
+}
+
+/* 文字隐藏状态：向下移动，完全在容器外 */
+.create-text.hide {
+	transform: translateY(130rpx);
+}

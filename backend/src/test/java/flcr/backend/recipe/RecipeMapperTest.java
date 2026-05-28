@@ -91,7 +91,7 @@ class RecipeMapperTest {
         recipe.setCover("/uploads/test.jpg");
         recipe.setAuthorId(1L);
         recipe.setCategory("家常菜");
-        recipe.setCookTime(30);
+        recipe.setCookTime("简单");
         recipe.setDifficulty(1);
         recipe.setCalories(300);
         recipe.setLikeCount(0);

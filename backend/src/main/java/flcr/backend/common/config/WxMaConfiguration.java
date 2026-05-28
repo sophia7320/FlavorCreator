@@ -44,7 +44,7 @@ public class WxMaConfiguration {
                 } catch (IOException e) {
                     // 如果读取失败（比如本地没部署这个文件），可以选择 fallback 到普通模式
                     // 或者抛出异常提醒你检查环境
-                    log.error("读取微信访问令牌文件失败: {}", tokenPath, e);
+                    log.warn("云托管环境未检测到访问令牌文件，使用普通模式: {}", tokenPath);
                     // 这里为了演示，如果读不到文件，就返回 null 或调用父类方法（父类会尝试去请求微信接口）
                     return super.getAccessToken();
                 }

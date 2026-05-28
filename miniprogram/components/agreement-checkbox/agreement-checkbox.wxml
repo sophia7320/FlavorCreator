@@ -1,0 +1,10 @@
+<view class="agreement-checkbox">
+    <checkbox-group bindchange="agreementTick">
+        <label class="{{isShake ? 'shake' : ''}}">
+            <checkbox class="checkbox" checked="{{ isAgree }}" value="true" />
+            <text class="description">
+                我已阅读并同意<text class="user-agreement" bindtap="goAgreement">《用户协议》</text>&<text class="privacy-agreement" bindtap="goPrivacy">《隐私协议》</text>
+            </text>
+        </label>
+    </checkbox-group>
+</view>
