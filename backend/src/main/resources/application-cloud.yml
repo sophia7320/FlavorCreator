@@ -5,7 +5,7 @@
 spring:
   autoconfigure:
     exclude:
-      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+      org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
   datasource:
     url: ${DB_URL}
     username: ${DB_USERNAME}

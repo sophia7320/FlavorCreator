@@ -4,6 +4,7 @@ const CLOUD_CONFIG = {
   service: 'flavor-creator'
 }
 
+
 const API_CONFIG = {
   // 认证相关
   auth: {

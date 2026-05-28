@@ -15,7 +15,6 @@ public class AdminUserResponseDTO {
     private String avatar;
     private String phoneNumber;
     private Integer gender;
-    private String status;
     private String createdAt;
     private String updatedAt;
 }

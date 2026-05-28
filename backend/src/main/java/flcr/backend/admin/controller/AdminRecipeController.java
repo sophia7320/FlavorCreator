@@ -49,10 +49,4 @@ public class AdminRecipeController {
         return Response.success("删除成功", null);
     }
 
-    @PatchMapping("/{id}/status")
-    public Response<Void> updateStatus(@PathVariable Long id,
-                                        @Valid @RequestBody AdminRecipeStatusRequestDTO request) {
-        adminContentService.updateRecipeStatus(id, request);
-        return Response.success("状态更新成功", null);
-    }
 }

@@ -25,7 +25,6 @@ public class User {
     private String signature;
     private String background;
     private String preferences;
-    private String status;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

@@ -1,7 +1,6 @@
 package flcr.backend.admin.service.impl;
 
 import flcr.backend.admin.DTO.request.AdminUserListRequestDTO;
-import flcr.backend.admin.DTO.request.AdminUserStatusRequestDTO;
 import flcr.backend.admin.DTO.response.AdminUserResponseDTO;
 import flcr.backend.auth.entity.User;
 import flcr.backend.auth.mapper.UserMapper;
@@ -43,28 +42,6 @@ class AdminUserServiceImplTest {
         assertEquals(ResultCode.RESOURCE_NOT_EXIST, ex.getCode());
     }
 
-    @Test
-    @DisplayName("updateUserStatus成功")
-    void testUpdateUserStatus_Success() {
-        when(userMapper.selectById(1L)).thenReturn(buildUser(1L));
-        when(userMapper.updateById(any(User.class))).thenReturn(1);
-
-        AdminUserStatusRequestDTO request = new AdminUserStatusRequestDTO();
-        request.setStatus("DISABLED");
-
-        assertDoesNotThrow(() -> adminUserService.updateUserStatus(1L, request));
-        verify(userMapper).updateById(any(User.class));
-    }
-
-    @Test
-    @DisplayName("updateUserStatus用户不存在抛异常")
-    void testUpdateUserStatus_NotFound() {
-        when(userMapper.selectById(99L)).thenReturn(null);
-        AdminUserStatusRequestDTO request = new AdminUserStatusRequestDTO();
-        request.setStatus("DISABLED");
-        assertThrows(BusinessException.class, () -> adminUserService.updateUserStatus(99L, request));
-    }
-
     private User buildUser(Long id) {
         User user = new User();
         user.setId(id);
@@ -72,7 +49,6 @@ class AdminUserServiceImplTest {
         user.setAvatar("/avatar.jpg");
         user.setPhoneNumber("13800138000");
         user.setGender(1);
-        user.setStatus("ENABLED");
         user.setCreatedAt(LocalDateTime.now());
         user.setUpdatedAt(LocalDateTime.now());
         return user;

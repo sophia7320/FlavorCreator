@@ -45,9 +45,6 @@ public class AdminContentServiceImpl implements AdminContentService {
         if (request.getKeyword() != null && !request.getKeyword().isEmpty()) {
             wrapper.like(Recipe::getName, request.getKeyword());
         }
-        if (request.getStatus() != null && !request.getStatus().isEmpty()) {
-            wrapper.eq(Recipe::getStatus, request.getStatus());
-        }
         if (request.getSource() != null) {
             wrapper.eq(Recipe::getSource, request.getSource());
         }
@@ -151,28 +148,12 @@ public class AdminContentServiceImpl implements AdminContentService {
     }
 
     @Override
-    @Transactional
-    public void updateRecipeStatus(Long id, AdminRecipeStatusRequestDTO request) {
-        Recipe recipe = recipeMapper.selectById(id);
-        if (recipe == null) {
-            throw new BusinessException(ResultCode.RESOURCE_NOT_EXIST, "菜谱不存在");
-        }
-        recipe.setStatus(request.getStatus());
-        recipe.setUpdatedAt(LocalDateTime.now());
-        recipeMapper.updateById(recipe);
-        log.info("管理员修改菜谱状态: id={}, status={}", id, request.getStatus());
-    }
-
-    @Override
     public Page<AdminCommentResponseDTO> listComments(AdminCommentListRequestDTO request) {
         LambdaQueryWrapper<Comment> wrapper = new LambdaQueryWrapper<>();
         wrapper.orderByDesc(Comment::getCreatedAt);
 
         if (request.getKeyword() != null && !request.getKeyword().isEmpty()) {
             wrapper.like(Comment::getContent, request.getKeyword());
-        }
-        if (request.getStatus() != null && !request.getStatus().isEmpty()) {
-            wrapper.eq(Comment::getStatus, request.getStatus());
         }
         if (request.getRecipeId() != null) {
             wrapper.eq(Comment::getRecipeId, request.getRecipeId());
@@ -264,19 +245,6 @@ public class AdminContentServiceImpl implements AdminContentService {
         log.info("管理员删除评论: id={}", id);
     }
 
-    @Override
-    @Transactional
-    public void updateCommentStatus(Long id, AdminCommentStatusRequestDTO request) {
-        Comment comment = commentMapper.selectById(id);
-        if (comment == null) {
-            throw new BusinessException(ResultCode.RESOURCE_NOT_EXIST, "评论不存在");
-        }
-        comment.setStatus(request.getStatus());
-        comment.setUpdatedAt(LocalDateTime.now());
-        commentMapper.updateById(comment);
-        log.info("管理员修改评论状态: id={}, status={}", id, request.getStatus());
-    }
-
     private AdminRecipeResponseDTO buildRecipeDTO(Recipe recipe, User user) {
         return AdminRecipeResponseDTO.builder()
                 .id(recipe.getId())
@@ -293,7 +261,6 @@ public class AdminContentServiceImpl implements AdminContentService {
                 .collectionCount(recipe.getCollectionCount())
                 .commentCount(recipe.getCommentCount())
                 .viewCount(recipe.getViewCount())
-                .status(recipe.getStatus())
                 .createdAt(recipe.getCreatedAt() != null ? recipe.getCreatedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : null)
                 .updatedAt(recipe.getUpdatedAt() != null ? recipe.getUpdatedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : null)
                 .build();
@@ -309,7 +276,6 @@ public class AdminContentServiceImpl implements AdminContentService {
                 .content(comment.getContent())
                 .parentId(comment.getParentId())
                 .likeCount(comment.getLikeCount())
-                .status(comment.getStatus())
                 .createdAt(comment.getCreatedAt() != null ? comment.getCreatedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : null)
                 .updatedAt(comment.getUpdatedAt() != null ? comment.getUpdatedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : null)
                 .build();

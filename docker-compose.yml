@@ -15,16 +15,16 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
-  redis:
-    image: redis:7-alpine
-    container_name: flcr-redis
-    ports:
-      - "6380:6379"
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
+#  redis:
+#    image: redis:7-alpine
+#    container_name: flcr-redis
+#    ports:
+#      - "6380:6379"
+#    healthcheck:
+#      test: ["CMD", "redis-cli", "ping"]
+#      interval: 5s
+#      timeout: 5s
+#      retries: 10
   app:
     build:
       context: ./backend
@@ -41,7 +41,7 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
-      redis:
-        condition: service_healthy
+#      redis:
+#        condition: service_healthy
 volumes:
   mysql-data:

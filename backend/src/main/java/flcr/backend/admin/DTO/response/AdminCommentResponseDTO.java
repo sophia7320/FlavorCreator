@@ -18,7 +18,6 @@ public class AdminCommentResponseDTO {
     private String content;
     private Long parentId;
     private Integer likeCount;
-    private String status;
     private String createdAt;
     private String updatedAt;
 }

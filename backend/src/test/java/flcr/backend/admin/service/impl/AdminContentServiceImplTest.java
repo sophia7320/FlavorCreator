@@ -104,19 +104,6 @@ class AdminContentServiceImplTest {
     }
 
     @Test
-    @DisplayName("updateRecipeStatus成功")
-    void testUpdateRecipeStatus_Success() {
-        when(recipeMapper.selectById(1L)).thenReturn(buildRecipe(1L));
-        when(recipeMapper.updateById(any(Recipe.class))).thenReturn(1);
-
-        AdminRecipeStatusRequestDTO request = new AdminRecipeStatusRequestDTO();
-        request.setStatus("APPROVED");
-
-        assertDoesNotThrow(() -> adminContentService.updateRecipeStatus(1L, request));
-        verify(recipeMapper).updateById(any(Recipe.class));
-    }
-
-    @Test
     @DisplayName("createComment成功")
     void testCreateComment_Success() {
         when(recipeMapper.selectById(1L)).thenReturn(buildRecipe(1L));
@@ -155,19 +142,6 @@ class AdminContentServiceImplTest {
 
         assertDoesNotThrow(() -> adminContentService.deleteComment(1L));
         verify(commentMapper).deleteById(1L);
-    }
-
-    @Test
-    @DisplayName("updateCommentStatus成功")
-    void testUpdateCommentStatus_Success() {
-        when(commentMapper.selectById(1L)).thenReturn(buildComment(1L));
-        when(commentMapper.updateById(any(Comment.class))).thenReturn(1);
-
-        AdminCommentStatusRequestDTO request = new AdminCommentStatusRequestDTO();
-        request.setStatus("HIDDEN");
-
-        assertDoesNotThrow(() -> adminContentService.updateCommentStatus(1L, request));
-        verify(commentMapper).updateById(any(Comment.class));
     }
 
     private Recipe buildRecipe(Long id) {
