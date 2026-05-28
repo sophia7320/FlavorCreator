@@ -2,7 +2,7 @@
 <view class="guide-page">
 	<swiper class="swiper-container" indicator-dots bindchange="onChange">
 		<swiper-item>
-			<image src="../../art/start-page/start-1.png" mode="aspectFit" />
+			<image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/start-page/start-1.png" mode="aspectFit" />
 			<view class="description-container">
 				<text class="main"> {{ mainText }} </text>
 				<view class="second-container">
@@ -13,7 +13,7 @@
 			</view>
 		</swiper-item>
 		<swiper-item>
-			<image src="../../art/start-page/start-2.png" mode="aspectFit" />
+			<image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/start-page/start-2.png" mode="aspectFit" />
 			<view class="description-container">
 				<text class="main"> {{ mainText }} </text>
 				<view class="second-container">
@@ -24,7 +24,7 @@
 			</view>
 		</swiper-item>
 		<swiper-item>
-			<image src="../../art/start-page/start-3.png" mode="aspectFit" />
+			<image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/start-page/start-3.png" mode="aspectFit" />
 			<view class="description-container">
 				<text class="main"> {{ mainText }} </text>
 				<view class="second-container">

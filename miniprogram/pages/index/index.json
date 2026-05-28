@@ -1,5 +1,6 @@
 {
   "usingComponents": {
 		"ingredients-choose": "/components/index-swiper-contianer/swiper-ingredients/ingredients-choose"
-  }
+  },
+  "enablePullDownRefresh": false
 }

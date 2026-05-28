@@ -53,7 +53,8 @@
 	overflow: hidden;
 	border-radius: 50%;
 	transform: translateY(-25rpx);
-	background-color: rgba(255, 164, 12, 0.2);
+	background-image: url(https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/bg/bar-home-bg.png);
+	background-size: 100% 100%;
 }
 
 .FC-create-icon {
@@ -87,6 +88,8 @@
 	font-weight: 700;
 	font-size: 30rpx;
 	transition: transform 0.3s ease-in-out;
+
+	
 }
 
 /* 文字显示状态：原位显示 */

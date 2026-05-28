@@ -14,37 +14,37 @@ Page({
       {
         id: 'profile',
         title: '个人资料设置',
-        icon: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/profile.png',
+        icon: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/profile.svg',
         desc: '完善你的个人信息'
       },
       {
         id: 'taste',
         title: '口味偏好设置',
-        icon: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/taste.png',
+        icon: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/palate.svg',
         desc: '记录你的专属口味标签'
       },
       {
         id: 'history',
         title: '浏览历史记录',
-        icon: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/history.png',
+        icon: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/history.svg',
         desc: '查看你看过的所有内容'
       },
       {
         id: 'security',
         title: '账号安全',
-        icon: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/security.png',
+        icon: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/security.svg',
         desc: '保护你的账号与隐私安全'
       },
       {
         id: 'help',
         title: '帮助中心',
-        icon: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/help.png',
+        icon: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/help-center.svg',
         desc: '常见问题与使用指南'
       },
       {
         id: 'feedback',
         title: '反馈',
-        icon: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/feedback.png',
+        icon: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/feedback.svg',
         desc: '提交建议或问题给我们'
       }
     ]

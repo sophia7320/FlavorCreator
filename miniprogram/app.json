@@ -1,4 +1,5 @@
 {
+  "cloud": true,
   "pages": [
     "pages/index/index",
     "pages/welcome/welcome",
@@ -36,7 +37,9 @@
     "navigationBarTextStyle": "black",
     "navigationBarTitleText": "Weixin",
     "navigationStyle": "custom",
-    "navigationBarBackgroundColor": "#ffffff"
+    "navigationBarBackgroundColor": "#ffffff",
+    "enablePullDownRefresh": false,
+		"disableScroll": true
   },
   "style": "v2",
   "componentFramework": "glass-easel",

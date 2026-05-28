@@ -1,7 +1,5 @@
 <!--index.wxml-->
 <view class="index-page">
-  <!-- 顶部遮罩 -->
-  <view class="top-mask"></view>
 
 	<view class="top-recommand-container">
 		<view class="top-title">每日推荐</view>
@@ -17,7 +15,7 @@
 	</view>
 
 	<view class="tool-bar-container">
-		<view class="setting">
+		<view class="setting" bindtap="onSettingTap">
 			<image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/setting-icon.png" mode="aspectFit" class="setting-icon"/>
 		</view>
 		<view class="title">Cooking!</view>
@@ -26,14 +24,14 @@
 		</view>
 	</view>
 
-	<view class="main-container">
+	<scroll-view class="main-container" scroll-y="true" enhanced="true" show-scrollbar="false">
 		<view class="search-container">
 			<view class="listener">
 				<image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/linstener.png" mode="aspectFit" class="listener-icon"/>
 			</view>
 			<view class="input-wrapper">
 				<view class="input-container">
-					<input type="text" class="text-input" placeholder="找不到食材？试试语音手动输入" placeholder-style="color: rgba(191, 191, 191, 1); font-size: 18rpx;" value="{{searchText}}" bindinput="onSearchInput" bindfocus="onInputFocus" bindblur="onInputBlur" />
+					<input type="text" class="text-input" placeholder="找不到食材？试试语音手动输入" placeholder-style="color: rgba(191, 191, 191, 1); font-size: 22rpx;" value="{{searchText}}" bindinput="onSearchInput" bindfocus="onInputFocus" bindblur="onInputBlur" />
 				</view>
 				<!-- 自动补全下拉框 -->
 				<view class="autocomplete-dropdown" wx:if="{{showDropdown && autocompleteList.length > 0}}">
@@ -142,5 +140,13 @@
 			</swiper-item>
 			
 		</swiper>
-	</view>
+
+		<view class="basket-wrapper">
+			<view class="basket {{showBasketAnimation ? 'animate' : ''}}">
+				<image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/basket.png" mode="aspectFit" class="basket-icon"/>
+			</view>
+			<view class="basket-tip" wx:if="{{showBasketTip}}">{{basketTipText}}</view>
+		</view>
+	</scroll-view>
+	
 </view>

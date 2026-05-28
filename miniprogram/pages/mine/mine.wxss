@@ -1,11 +1,14 @@
 /* pages/mine/mine.wxss */
 .mine-page {
   width: 750rpx;
-  min-height: 100vh;
+  height: 100vh;
   background: linear-gradient(180deg, #FFE8D2 0%, #FFE5BE 100%);
   padding: 40rpx 50rpx 120rpx;
   box-sizing: border-box;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 /* 顶部遮罩 */
@@ -35,6 +38,11 @@
   box-shadow: 0 6rpx 20rpx rgba(0, 0, 0, 0.06);
   position: relative;
   z-index: 10;
+}
+
+/* 内容区域 */
+.mine-content {
+  flex: 1;
 }
 
 .user-avatar {

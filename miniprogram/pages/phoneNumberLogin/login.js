@@ -79,8 +79,8 @@ Page({
 			return
 		}
 
-		wx.switchTab({
-			url: '/pages/index/index'
+		wx.redirectTo({
+			url: '/pages/startGuide/guide'
 		})
     },
 
@@ -106,12 +106,8 @@ Page({
 
     //验证码按钮事件
     sendMsg() {
-        if (this.data.isDisable || this.data.wrongFormat || this.data.phone === '') return //若已经开始倒计时则不执行
-
-        wx.showToast({
-            title: '验证码已发送',
-            icon: 'success'
-        })
+        //若已经开始倒计时则不执行
+        if (this.data.isDisable || this.data.wrongFormat || this.data.phone === '') return
 
         // 先清空旧残留定时器，防止多个定时器同时跑
         clearInterval(this.data.timer)

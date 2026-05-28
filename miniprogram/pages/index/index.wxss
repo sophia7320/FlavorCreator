@@ -22,19 +22,7 @@
 
 	background-color: var(--bg-primary);
 	position: relative;
-}
-
-/* 顶部遮罩 */
-.top-mask {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 400rpx;
-  background: rgba(255, 225, 207, 1);
-  border-bottom-left-radius: 60rpx;
-  border-bottom-right-radius: 60rpx;
-  z-index: 1;
+  overflow: hidden;
 }
 
 .top-recommand-container {
@@ -62,8 +50,7 @@
 
 .top-recommand-container .name-date-container .dish-name {
 	font-size: 54rpx;
-	font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-	/* 字体问题待解决 */
+	
 }
 
 .top-recommand-container .name-date-container {
@@ -324,6 +311,13 @@ swiper {
 	margin: 15rpx 0 40rpx 0;
 }
 
+.basket-wrapper {
+	position: relative;
+	/* display: flex;
+	flex-direction: column;
+	align-items: center; */
+}
+
 .basket {
 	width: 80rpx;
 	height: 80rpx;
@@ -331,8 +325,6 @@ swiper {
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	position: absolute;
-	bottom: 107rpx;
 
 	border-radius: 50%;
 	background-color: var(--bg-light-pink);
@@ -340,9 +332,38 @@ swiper {
 	box-shadow: 0 4rpx 4rpx 0 var(--shadow-black);
 }
 
+.basket.animate {
+	animation: basketJump 0.4s ease-in-out;
+}
+
+@keyframes basketJump {
+	0% {
+		transform: translateY(0);
+	}
+	50% {
+		transform: translateY(-20rpx);
+	}
+	100% {
+		transform: translateY(0);
+	}
+}
+
 .basket .basket-icon {
 	width: 36rpx;
 	height: 36rpx;
+}
+
+.basket-tip {
+	margin-top: 20rpx;
+	font-size: 24rpx;
+	color: rgba(49, 39, 36, 0.8);
+	text-align: center;
+	display: inline-flex;
+	width: auto;
+	white-space: nowrap;
+	border-radius: 10rpx;
+	background-color: rgba(237, 186, 186, 0.8);
+	padding: 4rpx 12rpx;
 }
 
 /* 偏好设置容器 */
