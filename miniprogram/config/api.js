@@ -4,6 +4,11 @@ const CLOUD_CONFIG = {
   service: 'flcr2'
 }
 
+// 直连请求配置
+const REQUEST_CONFIG = {
+  baseUrl: 'http://localhost:8080'
+}
+
 
 const API_CONFIG = {
   // 认证相关
@@ -71,5 +76,6 @@ const API_CONFIG = {
 
 module.exports = {
   CLOUD_CONFIG,
+  REQUEST_CONFIG,
   API_CONFIG
 }
