@@ -1,5 +1,11 @@
 <!--pages/login/login.wxml-->
 <view class="login-page" >
+
+	<view class="toast" wx:if="{{showToast}}">
+		<image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/sad.png" mode="aspectFit" class="icon"/>
+		<text>{{ toastText }}</text>
+	</view>
+
 	<view class="icon-container">
 		<image class="fc-icon" src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/FC-icon.png" mode="aspectFit" />
 	</view>
@@ -18,29 +24,27 @@
 		<view>
 			<form bindsubmit="" class="login-form-container">
 
+				<view class="wrong-format" wx:if="{{ wrongFormat }}">
+					<text>手机号格式错误，请重新输入</text>
+				</view>
+
 				<view class="telephone-number-container">
 					<image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/user-icon.png" />
 					<view class="divider-line"></view>
-					<input bindinput="inputPhone" value="{{phone}}" type="number" class="telephone-number" maxlength="13"  placeholder="请输入手机号" placeholder-style="color: rgba(212, 212, 212, 1); font-size: 18rpx; font-weight: 400;"/>
+					<input bindinput="inputPhone" bindblur="checkPhone" value="{{phone}}" type="number" maxlength="11"  placeholder="请输入手机号" placeholder-style="color: rgba(212, 212, 212, 1); font-size: 18rpx; font-weight: 400;"/>
 				</view>
 
 				<view class="verify-container">
 					<image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/verify-icon.png" mode="aspectFit"/>
 					<view class="divider-line"></view>
-					<input type="text" class="password" placeholder="请输入验证码" password placeholder-style="color: rgba(212, 212, 212, 1); font-size: 18rpx; font-weight: 400;" />
+					<input type="number" bindinput="inputVerifyCode" maxlength="4"placeholder="请输入验证码" placeholder-style="color: rgba(212, 212, 212, 1); font-size: 18rpx; font-weight: 400;" />
 					<view class="send-msg-container {{ isMsgTagActive ? 'active' : 'default'}}" bindtap="sendMsg">
 						<view class="send-btn" >点击获取</view>
 					</view>
 					<view class="resend-msg">再次获取({{time}})</view>
 				</view>
-				<checkbox-group bindchange="agreementTick">
-					<label class="{{isShake ? 'shake' : ''}}">
-						<checkbox class="checkbox" checked="{{ isAgree }}" value="true" />
-						<text class="description">
-							我已阅读并同意<text class="user-agreement"  bindtap="goAgreement">《用户协议》</text>&<text class="privacy-agreement" bindtap="goPrivacy">《隐私协议》</text>
-						</text>
-					</label>
-				</checkbox-group>
+				
+				<agreement-checkbox id="agreement" defaultChecked="{{true}}" bind:agreechange="onAgreeChange" bind:showagreement="onShowAgreement" />
 
 				<view class="login-btn-container">
 					<button class="login-btn" bindtap="handleLogin">
@@ -71,4 +75,6 @@
 		</view>
 		
 	</view>
+
+	<agreement-popup visible="{{showPopup}}" type="{{popupType}}" pageSource="login" bind:close="onClosePopup" />
 </view>

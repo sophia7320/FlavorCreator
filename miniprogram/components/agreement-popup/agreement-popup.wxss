@@ -1,0 +1,74 @@
+.popup-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 999;
+  display: flex;
+  padding-top: 205rpx;
+  justify-content: center;
+}
+
+@keyframes popupIn {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+	50% {
+		transform: scale(1.1);
+	}
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.popup-card {
+  width: 665rpx;
+  height: 1111rpx;
+  border-radius: var(--radius-small);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
+
+	transform-origin: center center;  /* 以中心为基准缩放 */
+  animation: popupIn 0.3s ease-out forwards; /*forward维持动画尾帧*/
+}
+
+.popup-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 30rpx 30rpx 20rpx;
+  border-bottom: 1rpx solid #eeeeee;
+  flex-shrink: 0;
+}
+
+.popup-title {
+  font-size: 32rpx;
+  font-weight: var(--font-weight-bold);
+  color: var(--text-black);
+}
+
+.popup-close {
+  width: 42rpx;
+  height: 42rpx;
+}
+
+.agreement-container {
+  flex: 1;
+  height: 0;
+  padding: 30rpx 30rpx 50rpx 30rpx;
+  box-sizing: border-box;
+}
+
+.content-text {
+  font-size: 26rpx;
+  color: var(--text-black);
+  line-height: 1.8;
+  white-space: pre-wrap;
+}

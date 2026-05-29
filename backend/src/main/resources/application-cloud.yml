@@ -1,0 +1,59 @@
+# ============================================
+# 微信云托管环境配置 (SPRING_PROFILES_ACTIVE=cloud)
+# ============================================
+
+spring:
+  autoconfigure:
+    exclude:
+      org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
+wx:
+  app-id: ${WX_APP_ID}
+  secret: ${WX_SECRET}
+
+jwt:
+  secret: ${JWT_SECRET}
+
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.nologging.NoLoggingImpl
+
+logging:
+  file:
+    path: /var/log/flavor-creator
+  level:
+    flcr.backend: INFO
+
+flcr:
+  token:
+    store: memory
+  storage:
+    type: cos
+    cos:
+      secret-id: ${COS_SECRET_ID}
+      secret-key: ${COS_SECRET_KEY}
+      region: ${COS_REGION:ap-shanghai}
+      bucket: ${COS_BUCKET}
+  moderation:
+    enabled: false
+    allowed-types: jpg, jpeg, png, gif, webp, bmp
+    max-size:
+      avatar: 2097152
+      background: 5242880
+      recipe-cover: 5242880
+      recipe-image: 5242880
+
+springdoc:
+  api-docs:
+    enabled: false

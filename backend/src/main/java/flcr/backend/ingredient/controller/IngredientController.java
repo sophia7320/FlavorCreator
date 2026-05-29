@@ -10,6 +10,7 @@ import flcr.backend.ingredient.DTO.response.CommonIngredientResponseDTO;
 import flcr.backend.ingredient.DTO.response.ExpiringNoticeResponseDTO;
 import flcr.backend.ingredient.DTO.response.IngredientListResponseDTO;
 import flcr.backend.ingredient.service.IngredientService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -30,12 +31,12 @@ public class IngredientController {
     }
 
     @PostMapping
-    public Response<Long> add(@RequestBody IngredientAddRequestDTO request) {
+    public Response<Long> add(@Valid @RequestBody IngredientAddRequestDTO request) {
         return Response.success(ingredientService.add(request));
     }
 
     @PutMapping("/{id}")
-    public Response<Void> update(@PathVariable Long id, @RequestBody IngredientUpdateRequestDTO request) {
+    public Response<Void> update(@PathVariable Long id, @Valid @RequestBody IngredientUpdateRequestDTO request) {
         ingredientService.update(id, request);
         return Response.success();
     }
@@ -47,7 +48,7 @@ public class IngredientController {
     }
 
     @PostMapping("/batch")
-    public Response<List<Long>> batchAdd(@RequestBody IngredientBatchAddRequestDTO request) {
+    public Response<List<Long>> batchAdd(@Valid @RequestBody IngredientBatchAddRequestDTO request) {
         return Response.success(ingredientService.batchAdd(request));
     }
 

@@ -1,0 +1,60 @@
+<!--pages/mine/mine.wxml-->
+<view class="mine-page">
+  <!-- 顶部遮罩 -->
+  <view class="top-mask"></view>
+  
+  <!-- 用户信息卡片 -->
+  <view class="user-card">
+    <image src="{{userInfo.avatar || 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/avatar.png'}}" mode="aspectFill" class="user-avatar"/>
+    <view class="user-info">
+      <view class="user-name">{{userInfo.nickname || '用户昵称'}}</view>
+      <view class="user-id">ID: {{userInfo.username || 'user001'}}</view>
+    </view>
+    <view class="settings-btn" bindtap="goToSettings">
+      <image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/settings.png" mode="aspectFit" class="settings-icon"/>
+    </view>
+  </view>
+
+  <!-- 功能菜单 -->
+  <view class="menu-list">
+    <view class="menu-item" bindtap="onMenuTap" data-id="favorites">
+      <view class="menu-left">
+        <image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/favorites.png" mode="aspectFit" class="menu-icon"/>
+        <text class="menu-title">我的收藏</text>
+      </view>
+      <view class="menu-arrow"></view>
+    </view>
+    <view class="menu-item" bindtap="onMenuTap" data-id="works">
+      <view class="menu-left">
+        <image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/works.png" mode="aspectFit" class="menu-icon"/>
+        <text class="menu-title">我的作品</text>
+      </view>
+      <view class="menu-arrow"></view>
+    </view>
+    <view class="menu-item" bindtap="onMenuTap" data-id="notes">
+      <view class="menu-left">
+        <image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/notes.png" mode="aspectFit" class="menu-icon"/>
+        <text class="menu-title">厨艺笔记</text>
+      </view>
+      <view class="menu-arrow"></view>
+    </view>
+  </view>
+
+  <!-- 更多功能 -->
+  <view class="menu-list">
+    <view class="menu-item" bindtap="onMenuTap" data-id="help">
+      <view class="menu-left">
+        <image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/help-mini.png" mode="aspectFit" class="menu-icon"/>
+        <text class="menu-title">帮助与反馈</text>
+      </view>
+      <view class="menu-arrow"></view>
+    </view>
+    <view class="menu-item" bindtap="onMenuTap" data-id="about">
+      <view class="menu-left">
+        <image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/about.png" mode="aspectFit" class="menu-icon"/>
+        <text class="menu-title">关于我们</text>
+      </view>
+      <view class="menu-arrow"></view>
+    </view>
+  </view>
+</view>

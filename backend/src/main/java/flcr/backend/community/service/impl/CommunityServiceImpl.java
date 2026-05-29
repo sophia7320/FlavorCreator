@@ -3,8 +3,10 @@ package flcr.backend.community.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import flcr.backend.auth.entity.User;
 import flcr.backend.auth.mapper.UserMapper;
 import flcr.backend.common.constants.ResultCode;
+import flcr.backend.common.constants.TargetTypeConstants;
 import flcr.backend.common.context.UserContext;
 import flcr.backend.common.exception.BusinessException;
 import flcr.backend.community.DTO.request.CommentRequestDTO;
@@ -26,8 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -47,7 +48,7 @@ public class CommunityServiceImpl implements CommunityService {
         LambdaQueryWrapper<Like> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Like::getUserId, userId)
                 .eq(Like::getTargetId, recipeId)
-                .eq(Like::getTargetType, 1);
+                .eq(Like::getTargetType, TargetTypeConstants.RECIPE);
 
         if (likeMapper.selectCount(wrapper) > 0) {
             throw new BusinessException(ResultCode.PARAM_ERROR, "已经点赞过");
@@ -56,7 +57,7 @@ public class CommunityServiceImpl implements CommunityService {
         Like like = new Like();
         like.setUserId(userId);
         like.setTargetId(recipeId);
-        like.setTargetType(1);
+        like.setTargetType(TargetTypeConstants.RECIPE);
         like.setCreatedAt(LocalDateTime.now());
         try {
             likeMapper.insert(like);
@@ -79,7 +80,7 @@ public class CommunityServiceImpl implements CommunityService {
         LambdaQueryWrapper<Like> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Like::getUserId, userId)
                 .eq(Like::getTargetId, recipeId)
-                .eq(Like::getTargetType, 1);
+                .eq(Like::getTargetType, TargetTypeConstants.RECIPE);
         likeMapper.delete(wrapper);
 
         LambdaUpdateWrapper<Recipe> unlikeWrapper = new LambdaUpdateWrapper<>();
@@ -140,6 +141,8 @@ public class CommunityServiceImpl implements CommunityService {
     @Override
     public List<CommentResponseDTO> getComments(Long recipeId, Integer page, Integer size) {
         Long userId = UserContext.getUserId();
+
+        // 1. Query parent comments (paged)
         LambdaQueryWrapper<Comment> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Comment::getRecipeId, recipeId)
                 .isNull(Comment::getParentId)
@@ -147,9 +150,55 @@ public class CommunityServiceImpl implements CommunityService {
 
         Page<Comment> commentPage = new Page<>(page, size);
         Page<Comment> result = commentMapper.selectPage(commentPage, wrapper);
+        List<Comment> comments = result.getRecords();
 
-        return result.getRecords().stream()
-                .map(comment -> convertToCommentDTO(comment, userId))
+        if (comments.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        // 2. Collect all comment IDs and user IDs
+        List<Long> commentIds = comments.stream().map(Comment::getId).collect(Collectors.toList());
+        Set<Long> userIds = comments.stream().map(Comment::getUserId).collect(Collectors.toSet());
+
+        // 3. Batch query replies (parentId IN commentIds)
+        LambdaQueryWrapper<Comment> replyQuery = new LambdaQueryWrapper<>();
+        replyQuery.in(Comment::getParentId, commentIds)
+                .orderByAsc(Comment::getCreatedAt);
+        List<Comment> replies = commentMapper.selectList(replyQuery);
+
+        // 4. Group replies by parentId and collect reply user IDs
+        Map<Long, List<Comment>> repliesByParentId = replies.stream()
+                .collect(Collectors.groupingBy(Comment::getParentId));
+        userIds.addAll(replies.stream().map(Comment::getUserId).collect(Collectors.toSet()));
+
+        // 5. Batch query all users (both comment authors and reply authors)
+        Map<Long, User> userMap = Collections.emptyMap();
+        if (!userIds.isEmpty()) {
+            List<User> users = userMapper.selectBatchIds(new ArrayList<>(userIds));
+            userMap = users.stream().collect(Collectors.toMap(
+                    User::getId, u -> u, (a, b) -> a));
+        }
+
+        // 6. Batch check liked status for all comments
+        Set<Long> likedCommentIds = Collections.emptySet();
+        if (userId != null) {
+            Set<Long> allCommentIds = new HashSet<>(commentIds);
+            allCommentIds.addAll(replies.stream().map(Comment::getId).collect(Collectors.toSet()));
+            if (!allCommentIds.isEmpty()) {
+                LambdaQueryWrapper<Like> likeQuery = new LambdaQueryWrapper<>();
+                likeQuery.eq(Like::getUserId, userId)
+                        .eq(Like::getTargetType, TargetTypeConstants.COMMENT)
+                        .in(Like::getTargetId, new ArrayList<>(allCommentIds));
+                List<Like> likes = likeMapper.selectList(likeQuery);
+                likedCommentIds = likes.stream().map(Like::getTargetId).collect(Collectors.toSet());
+            }
+        }
+
+        // 7. Build DTOs from pre-fetched data (no additional DB queries)
+        final Set<Long> finalLikedCommentIds = likedCommentIds;
+        final Map<Long, User> finalUserMap = userMap;
+        return comments.stream()
+                .map(comment -> buildCommentDTO(comment, finalUserMap, repliesByParentId, finalLikedCommentIds))
                 .collect(Collectors.toList());
     }
 
@@ -173,7 +222,7 @@ public class CommunityServiceImpl implements CommunityService {
                 .setSql("comment_count = comment_count + 1");
         recipeMapper.update(null, commentWrapper);
 
-        return convertToCommentDTO(comment, userId);
+        return buildSingleCommentDTO(comment, userId);
     }
 
     @Override
@@ -204,7 +253,7 @@ public class CommunityServiceImpl implements CommunityService {
         LambdaQueryWrapper<Like> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Like::getUserId, userId)
                 .eq(Like::getTargetId, commentId)
-                .eq(Like::getTargetType, 2);
+                .eq(Like::getTargetType, TargetTypeConstants.COMMENT);
 
         if (likeMapper.selectCount(wrapper) > 0) {
             throw new BusinessException(ResultCode.PARAM_ERROR, "已经点赞过");
@@ -213,7 +262,7 @@ public class CommunityServiceImpl implements CommunityService {
         Like like = new Like();
         like.setUserId(userId);
         like.setTargetId(commentId);
-        like.setTargetType(2);
+        like.setTargetType(TargetTypeConstants.COMMENT);
         like.setCreatedAt(LocalDateTime.now());
         likeMapper.insert(like);
 
@@ -230,7 +279,7 @@ public class CommunityServiceImpl implements CommunityService {
         LambdaQueryWrapper<Like> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Like::getUserId, userId)
                 .eq(Like::getTargetId, commentId)
-                .eq(Like::getTargetType, 2);
+                .eq(Like::getTargetType, TargetTypeConstants.COMMENT);
         likeMapper.delete(wrapper);
 
         LambdaUpdateWrapper<Comment> unlikeWrapper = new LambdaUpdateWrapper<>();
@@ -241,21 +290,20 @@ public class CommunityServiceImpl implements CommunityService {
 
     // ==================== 私有辅助方法 ====================
 
-    private CommentResponseDTO convertToCommentDTO(Comment comment, Long userId) {
-        flcr.backend.auth.entity.User user = userMapper.selectById(comment.getUserId());
-
-        LambdaQueryWrapper<Comment> replyWrapper = new LambdaQueryWrapper<>();
-        replyWrapper.eq(Comment::getParentId, comment.getId())
-                .orderByAsc(Comment::getCreatedAt);
-        List<Comment> replies = commentMapper.selectList(replyWrapper);
+    private CommentResponseDTO buildCommentDTO(Comment comment,
+                                                Map<Long, User> userMap,
+                                                Map<Long, List<Comment>> repliesByParentId,
+                                                Set<Long> likedCommentIds) {
+        User user = userMap.get(comment.getUserId());
+        List<Comment> replies = repliesByParentId.getOrDefault(comment.getId(), Collections.emptyList());
 
         List<CommentResponseDTO.CommentReplyDTO> replyDTOs = replies.stream()
                 .map(reply -> {
-                    flcr.backend.auth.entity.User replyUser = userMapper.selectById(reply.getUserId());
+                    User replyUser = userMap.get(reply.getUserId());
                     return CommentResponseDTO.CommentReplyDTO.builder()
                             .id(reply.getId())
                             .user(CommentResponseDTO.UserInfo.builder()
-                                    .id(replyUser != null ? (long) replyUser.getId() : null)
+                                    .id(replyUser != null ? replyUser.getId() : null)
                                     .nickname(replyUser != null ? replyUser.getNickname() : "未知用户")
                                     .avatar(replyUser != null ? replyUser.getAvatar() : "")
                                     .build())
@@ -265,12 +313,55 @@ public class CommunityServiceImpl implements CommunityService {
                 })
                 .collect(Collectors.toList());
 
-        boolean isLiked = userId != null && checkLiked(userId, comment.getId(), 2);
+        boolean isLiked = likedCommentIds.contains(comment.getId());
 
         return CommentResponseDTO.builder()
                 .id(comment.getId())
                 .user(CommentResponseDTO.UserInfo.builder()
-                        .id(user != null ? (long) user.getId() : null)
+                        .id(user != null ? user.getId() : null)
+                        .nickname(user != null ? user.getNickname() : "未知用户")
+                        .avatar(user != null ? user.getAvatar() : "")
+                        .build())
+                .content(comment.getContent())
+                .likeCount(comment.getLikeCount())
+                .isLiked(isLiked)
+                .createdAt(comment.getCreatedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
+                .replies(replyDTOs)
+                .build();
+    }
+
+    private CommentResponseDTO buildSingleCommentDTO(Comment comment, Long userId) {
+        User user = userMapper.selectById(comment.getUserId());
+
+        List<CommentResponseDTO.CommentReplyDTO> replyDTOs = Collections.emptyList();
+        if (comment.getParentId() == null) {
+            LambdaQueryWrapper<Comment> replyWrapper = new LambdaQueryWrapper<>();
+            replyWrapper.eq(Comment::getParentId, comment.getId())
+                    .orderByAsc(Comment::getCreatedAt);
+            List<Comment> replies = commentMapper.selectList(replyWrapper);
+            replyDTOs = replies.stream()
+                    .map(reply -> {
+                        User replyUser = userMapper.selectById(reply.getUserId());
+                        return CommentResponseDTO.CommentReplyDTO.builder()
+                                .id(reply.getId())
+                                .user(CommentResponseDTO.UserInfo.builder()
+                                        .id(replyUser != null ? replyUser.getId() : null)
+                                        .nickname(replyUser != null ? replyUser.getNickname() : "未知用户")
+                                        .avatar(replyUser != null ? replyUser.getAvatar() : "")
+                                        .build())
+                                .content(reply.getContent())
+                                .createdAt(reply.getCreatedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
+                                .build();
+                    })
+                    .collect(Collectors.toList());
+        }
+
+        boolean isLiked = userId != null && checkLiked(userId, comment.getId(), TargetTypeConstants.COMMENT);
+
+        return CommentResponseDTO.builder()
+                .id(comment.getId())
+                .user(CommentResponseDTO.UserInfo.builder()
+                        .id(user != null ? user.getId() : null)
                         .nickname(user != null ? user.getNickname() : "未知用户")
                         .avatar(user != null ? user.getAvatar() : "")
                         .build())
@@ -284,7 +375,7 @@ public class CommunityServiceImpl implements CommunityService {
 
     private LikeCollectResponseDTO buildLikeCollectResponse(Long recipeId, Long userId) {
         Recipe recipe = recipeMapper.selectById(recipeId);
-        boolean isLiked = checkLiked(userId, recipeId, 1);
+        boolean isLiked = checkLiked(userId, recipeId, TargetTypeConstants.RECIPE);
         boolean isCollected = checkCollected(userId, recipeId);
 
         return LikeCollectResponseDTO.builder()

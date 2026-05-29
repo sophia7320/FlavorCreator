@@ -1,0 +1,11 @@
+<view class="popup-mask" wx:if="{{visible}}" bindtap="closePopup">
+  <view class="popup-card" catchtap="stopPropagation" style="background-image: url({{bgImageUrl}}); background-size: cover;">
+    <view class="popup-header">
+      <text class="popup-title">{{ title }}</text>
+      <image class="popup-close" src="/art/icon/close-btn.png" mode="aspectFit" bindtap="closePopup" />
+    </view>
+    <scroll-view scroll-y class="agreement-container">
+      <view class="content-text">{{ content }}</view>
+    </scroll-view>
+  </view>
+</view>

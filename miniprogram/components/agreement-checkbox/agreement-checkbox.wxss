@@ -1,0 +1,36 @@
+@keyframes agreement-shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-8rpx); }
+    40% { transform: translateX(8rpx); }
+    60% { transform: translateX(-8rpx); }
+    80% { transform: translateX(8rpx); }
+}
+
+.agreement-checkbox label {
+    width: 400rpx;
+    margin-left: 33rpx;
+    display: flex;
+    margin-top: 12rpx;
+}
+
+.agreement-checkbox label.shake {
+    animation: agreement-shake .4s ease;
+}
+
+.agreement-checkbox .checkbox {
+    display: flex;
+    align-items: center;
+    transform: scale(0.545);
+    transform-origin: left bottom;
+}
+
+.agreement-checkbox .description {
+    color: var(--text-tertiary);
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-normal);
+}
+
+.agreement-checkbox .description .user-agreement,
+.agreement-checkbox .description .privacy-agreement {
+    color: var(--text-link);
+}

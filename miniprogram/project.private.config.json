@@ -23,11 +23,18 @@
 		"miniprogram": {
 			"list": [
 				{
-					"name": "正常启动",
-					"pathName": "pages/waitForWeixin/wait",
+					"name": "test",
+					"pathName": "pages/settings/settings",
 					"query": "",
 					"scene": null,
 					"launchMode": "default"
+				},
+				{
+					"name": "正常启动",
+					"pathName": "pages/welcome/welcome",
+					"query": "",
+					"launchMode": "default",
+					"scene": null
 				}
 			]
 		}

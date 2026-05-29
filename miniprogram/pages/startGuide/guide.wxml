@@ -1,0 +1,42 @@
+<!--pages/startGuide/guide.wxml-->
+<view class="guide-page">
+	<swiper class="swiper-container" indicator-dots bindchange="onChange">
+		<swiper-item>
+			<image src="../../art/start-page/start-1.png" mode="aspectFit" />
+			<view class="description-container">
+				<text class="main"> {{ mainText }} </text>
+				<view class="second-container">
+					<view class="divider-line"></view>
+					<view class="second"> {{ secondText }} </view>
+					<view class="divider-line"></view>
+				</view>
+			</view>
+		</swiper-item>
+		<swiper-item>
+			<image src="../../art/start-page/start-2.png" mode="aspectFit" />
+			<view class="description-container">
+				<text class="main"> {{ mainText }} </text>
+				<view class="second-container">
+					<view class="divider-line"></view>
+					<view class="second"> {{ secondText }} </view>
+					<view class="divider-line"></view>
+				</view>
+			</view>
+		</swiper-item>
+		<swiper-item>
+			<image src="../../art/start-page/start-3.png" mode="aspectFit" />
+			<view class="description-container">
+				<text class="main"> {{ mainText }} </text>
+				<view class="second-container">
+					<view class="divider-line"></view>
+					<view class="second"> {{ secondText }} </view>
+					<view class="divider-line"></view>
+				</view>
+			</view>
+		</swiper-item>
+	</swiper>
+
+	<view class="start-btn" wx:if="{{index == 2}}" bind:tap="onStart">
+		开启你的创味机
+	</view>
+</view>

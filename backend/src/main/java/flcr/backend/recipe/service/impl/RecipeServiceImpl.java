@@ -9,9 +9,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import flcr.backend.auth.entity.User;
 import flcr.backend.auth.mapper.UserMapper;
 import flcr.backend.common.constants.ResultCode;
+import flcr.backend.common.constants.SourceConstants;
 import flcr.backend.common.context.UserContext;
 import flcr.backend.common.exception.BusinessException;
 import flcr.backend.common.service.FileStorageService;
+import flcr.backend.common.service.ImageModerationService;
 import flcr.backend.community.entity.Collection;
 import flcr.backend.community.entity.Like;
 import flcr.backend.community.mapper.CollectionMapper;
@@ -44,20 +46,67 @@ public class RecipeServiceImpl implements RecipeService {
     private final UserMapper userMapper;
     private final ObjectMapper objectMapper;
     private final FileStorageService fileStorageService;
+    private final ImageModerationService imageModerationService;
 
     @Override
     @Transactional
     public Long publishRecipe(PublishRecipeRequestDTO request, MultipartFile cover,
                               List<MultipartFile> images) {
         Long userId = UserContext.getUserId();
-        String coverUrl = cover != null ? fileStorageService.store(cover, "recipe-cover") : "";
-        List<String> imageUrls = new ArrayList<>();
+
+        // Phase 1: Validate all files (format + size, no side effects)
+        if (cover != null) {
+            imageModerationService.validate(cover, "recipe-cover");
+        }
         if (images != null) {
             for (MultipartFile image : images) {
-                imageUrls.add(fileStorageService.store(image, "recipe-image"));
+                imageModerationService.validate(image, "recipe-image");
             }
         }
 
+        // Phase 2: Store cover
+        String coverUrl = "";
+        List<String> storedUrls = new ArrayList<>();
+        try {
+            if (cover != null) {
+                coverUrl = fileStorageService.store(cover, "recipe-cover");
+                storedUrls.add(coverUrl);
+            }
+
+            // Phase 3: Store all images
+            List<String> imageUrls = new ArrayList<>();
+            if (images != null) {
+                for (MultipartFile image : images) {
+                    String imageUrl = fileStorageService.store(image, "recipe-image");
+                    imageUrls.add(imageUrl);
+                    storedUrls.add(imageUrl);
+                }
+            }
+
+            // Phase 4: Moderate all (content check, all must pass)
+            if (cover != null) {
+                imageModerationService.moderate(coverUrl, "recipe-cover");
+            }
+            for (String imageUrl : imageUrls) {
+                imageModerationService.moderate(imageUrl, "recipe-image");
+            }
+
+            // Phase 5: Build and save recipe (only if all checks pass)
+            Recipe recipe = buildRecipe(request, coverUrl, imageUrls, userId);
+            recipeMapper.insert(recipe);
+            storedUrls.clear(); // success, don't clean up
+            return recipe.getId();
+
+        } finally {
+            // Compensation: if anything went wrong, clean up stored files
+            for (String url : storedUrls) {
+                fileStorageService.delete(url);
+            }
+        }
+    }
+
+    private Recipe buildRecipe(PublishRecipeRequestDTO request, String coverUrl,
+                                List<String> imageUrls, Long userId) {
         Recipe recipe = new Recipe();
         recipe.setName(request.getName());
         recipe.setCover(coverUrl);
@@ -75,16 +124,14 @@ public class RecipeServiceImpl implements RecipeService {
         recipe.setCookTime(request.getCookTime());
         recipe.setDifficulty(request.getDifficulty());
         recipe.setCalories(request.getCalories());
-        recipe.setSource(2);
+        recipe.setSource(SourceConstants.USER);
         recipe.setLikeCount(0);
         recipe.setCollectionCount(0);
         recipe.setCommentCount(0);
         recipe.setViewCount(0);
         recipe.setCreatedAt(LocalDateTime.now());
         recipe.setUpdatedAt(LocalDateTime.now());
-
-        recipeMapper.insert(recipe);
-        return recipe.getId();
+        return recipe;
     }
 
     @Override

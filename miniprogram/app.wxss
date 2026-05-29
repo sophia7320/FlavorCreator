@@ -5,3 +5,79 @@ page, view, text, image, navigator, swiper, scroll-view {
   padding: 0;
 	flex-direction: row;
 }
+
+/* ==================== 全局CSS变量定义 ==================== */
+page {
+  /* ========== 颜色系统 ========== */
+  /* 主色调 - 棕色系 */
+  --color-primary: rgba(186, 91, 33, 1);
+  --color-primary-light: rgba(239, 164, 121, 1);
+  --color-primary-dark: rgba(64, 32, 10, 1);
+  --color-primary-border: rgba(165, 68, 23, 1);
+  
+  /* 背景色 */
+  --bg-primary: rgba(255, 238, 209, 1);
+  --bg-secondary: rgba(255, 225, 207, 1);
+  --bg-light-pink: rgba(253, 239, 237, 1);
+  --bg-light-pink-alt: rgba(253, 239, 238, 1);
+  --bg-light-green: rgba(232, 245, 233, 1);
+  --bg-card: rgba(249, 242, 228, 0.7);
+  --bg-white: rgba(255, 255, 255, 1);
+  --bg-white-transparent: rgba(255, 255, 255, 0.7);
+  --bg-white-30: rgba(255, 255, 255, 0.3);
+  
+  /* 文本色 */
+  --text-primary: rgba(64, 32, 10, 1);
+  --text-secondary: rgba(93, 64, 55, 1);
+  --text-tertiary: rgba(191, 191, 191, 1);
+  --text-quaternary: rgba(166, 166, 166, 1);
+  --text-white: rgba(255, 255, 255, 1);
+  --text-black: rgba(0, 0, 0, 1);
+  --text-link: rgba(202, 127, 79, 1);
+  
+  /* 边框和分隔线 */
+  --border-primary: rgba(244, 200, 198, 1);
+  --border-secondary: rgba(212, 212, 212, 1);
+  --divider-light: rgba(239, 164, 121, 1);
+  
+  /* 功能色 */
+  --func-switch: rgba(232, 167, 167, 1);
+  --shadow-black: rgba(0, 0, 0, 0.25);
+  
+  /* 微信相关色 */
+  --wechat-primary: rgba(2, 216, 107, 0.83);
+  --wechat-success: rgba(7, 206, 104, 0.62);
+  --wechat-text: rgba(0, 156, 76, 1);
+  
+  /* 登录按钮色 */
+  --btn-phone-login: rgba(201, 128, 79, 0.83);
+  --btn-login: rgba(186, 91, 33, 0.75);
+  --btn-send-code: rgba(202, 127, 80, 1);
+  
+  /* ========== 尺寸系统 ========== */
+  --radius-small: 20rpx;
+  --radius-medium: 24rpx;
+  --radius-large: 30rpx;
+  --radius-xl: 50rpx;
+  --radius-xxl: 60rpx;
+  --radius-xxxl: 80rpx;
+  
+  /* ========== 字体系统 ========== */
+  --font-size-xs: 12rpx;
+  --font-size-sm: 16rpx;
+  --font-size-base: 18rpx;
+  --font-size-md: 20rpx;
+  --font-size-lg: 24rpx;
+  --font-size-xl: 28rpx;
+  --font-size-2xl: 30rpx;
+  --font-size-3xl: 36rpx;
+  --font-size-4xl: 38rpx;
+  --font-size-5xl: 48rpx;
+  --font-size-6xl: 50rpx;
+  --font-size-7xl: 54rpx;
+  --font-size-8xl: 64rpx;
+  
+  --font-weight-light: 350;
+  --font-weight-normal: 400;
+  --font-weight-bold: 700;
+}

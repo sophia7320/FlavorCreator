@@ -1,0 +1,129 @@
+/* pages/fistLogin/firstLogin.wxss */
+.first-login-page {
+	--name-font-size: var(--font-size-6xl);
+	--name-font-weight: var(--font-weight-bold);
+	--name-font-color: var(--text-primary);
+
+	--phone-btn-bg-color: var(--btn-phone-login);
+	--wx-btn-bg-color: var(--wechat-primary);
+	--btn-color: var(--text-white);
+	--btn-text-font-size: var(--font-size-md);
+
+	--radius: var(--radius-medium);
+}
+
+.first-login-page {
+	width: 750rpx;
+	height: 100vh;
+
+	background-image: url(https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/bg.png);
+	background-size: 100% 100%;
+
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+}
+
+.title-container {
+	display: flex;
+	padding-top: 150rpx;
+}
+
+.title-container .icon {
+	width: 156rpx;
+	height: 150rpx;
+	
+}
+
+.title-container .Name {
+	margin: 81rpx 0 0 40rpx;
+	font-size: var(--name-font-size);
+	font-weight: var(--name-font-weight);
+	color: var(--name-font-color);
+}
+
+.login-way {
+	width: 488rpx;
+	height: 158rpx;
+
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	align-items: center;
+
+	margin-top: 91rpx;
+}
+
+.phone-login, .wx-login {
+	width: 100%;
+	height: 64rpx;
+
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	border-radius: var(--radius);
+	color: var(--btn-color);
+	font-size: var(--btn-text-font-size);
+
+	box-shadow: 0 3rpx 6rpx 0 rgba(0, 0, 0, 0.16);
+}
+
+.phone-login {
+	background-color: var(--phone-btn-bg-color);
+
+}
+
+.wx-login {
+	background-color: var(--wx-btn-bg-color);
+
+} 
+
+.login-way .phone-icon {
+	width: 18rpx;
+	height: 24rpx;
+	margin-right: 20rpx;
+}
+
+.login-way .wx-icon {
+	width: 27rpx;
+	height: 23rpx;
+	margin-right: 20rpx;
+}
+
+.foot-decoration {
+	margin-top: 463rpx;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.foot-decoration .description {
+  font-size: var(--font-size-lg);
+	font-weight: var(--font-weight-light);
+	color: var(--name-font-color);
+}
+
+.divider-container {
+	width: 400rpx;
+
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	margin-top: 19rpx;
+}
+
+.divider-container .divider-line {
+	width: 190rpx;
+	height: 1px;
+	border-top: 1px solid var(--name-font-color);
+}
+
+.divider-container .divider-point {
+	width: 3rpx;
+	height: 3rpx;
+	background-color: var(--name-font-color);
+	margin: 0 20rpx;
+}

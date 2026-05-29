@@ -1,0 +1,35 @@
+<!--pages/fistLogin/firstLogin.wxml-->
+<view class="first-login-page">
+
+	<view class="title-container">
+		<image class="icon" src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/FC-icon.png" mode="aspectFit"/>
+		<view class="Name">Flavor Creater</view>
+	</view>
+
+	<view class="login-way">
+		<view class="phone-login" bindtap="onPhoneLogin">
+			<image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/phone-icon.png" mode="aspectFit" class="phone-icon"/>
+			<view class="phone-btn">手机号登录</view>
+		</view>
+		<view class="wx-login" bindtap="onWxLogin">
+			<image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/wx-login-icon.png" mode="aspectFit" class="wx-icon"/>
+			<view class="wx-btn">微信登录</view>
+		</view>
+	</view>
+
+	<agreement-checkbox id="agreement" bind:showagreement="onShowAgreement" />
+
+	<view class="foot-decoration">
+		<view class="description">
+			<text>你的专属做饭决策帮手</text>
+		</view>
+
+		<view class="divider-container">
+			<view class="divider-line"></view>
+			<view class="divider-point"></view>
+			<view class="divider-line"></view>
+		</view>
+	</view>
+
+	<agreement-popup visible="{{showPopup}}" type="{{popupType}}" pageSource="firstLogin" bind:close="onClosePopup" />
+</view>

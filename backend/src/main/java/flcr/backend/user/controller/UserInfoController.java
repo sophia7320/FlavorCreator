@@ -4,6 +4,7 @@ import flcr.backend.common.response.Response;
 import flcr.backend.user.DTO.request.UpdateUserInfoRequestDTO;
 import flcr.backend.user.DTO.response.UserInfoResponseDTO;
 import flcr.backend.user.service.UserInfoService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +26,7 @@ public class UserInfoController {
     }
 
     @PostMapping("/info")
-    public Response<UserInfoResponseDTO> updateInfo(@RequestBody UpdateUserInfoRequestDTO request) {
+    public Response<UserInfoResponseDTO> updateInfo(@Valid @RequestBody UpdateUserInfoRequestDTO request) {
         return Response.success(userInfoService.updateInfo(request));
     }
 

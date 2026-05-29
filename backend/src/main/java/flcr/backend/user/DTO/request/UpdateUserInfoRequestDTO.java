@@ -18,7 +18,7 @@ public class UpdateUserInfoRequestDTO {
     public static class Preferences {
         private List<String> taste;
         private List<String> dietary;
-        private Integer cookTime;
+        private String cookTime;
         private String difficulty;
     }
 }

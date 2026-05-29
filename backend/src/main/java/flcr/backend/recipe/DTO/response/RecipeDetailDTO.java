@@ -20,7 +20,7 @@ public class RecipeDetailDTO {
     private List<IngredientItem> ingredients;
     private List<StepItem> steps;
     private String tips;
-    private Integer cookTime;
+    private String cookTime;
     private String difficulty;
     private Integer calories;
     private String[] tags;
