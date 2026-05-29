@@ -1,4 +1,4 @@
-const { CLOUD_CONFIG } = require('../config/api')
+const { CLOUD_CONFIG, REQUEST_CONFIG } = require('../config/api')
 
 let loadingCount = 0
 
@@ -134,8 +134,91 @@ function post(apiConfig, data, options) {
   return request({ ...apiConfig, method: 'POST' }, data, options)
 }
 
+/**
+ * 直连请求方法（使用 wx.request）
+ * @param {Object} apiConfig API 配置对象 { path, method }
+ * @param {Object} data 请求数据
+ * @param {Object} options 其他选项 { showLoading = true, showError = true }
+ */
+function directRequest(apiConfig, data = {}, options = {}) {
+  const { showLoading: needLoading = true, showError = true } = options
+
+  return new Promise((resolve, reject) => {
+    if (needLoading) {
+      showLoading()
+    }
+
+    const headers = {
+      'Content-Type': 'application/json'
+    }
+
+    const token = getAuthorization()
+    if (token) {
+      headers['Authorization'] = token
+    }
+
+    wx.request({
+      url: REQUEST_CONFIG.baseUrl + apiConfig.path,
+      method: apiConfig.method,
+      header: headers,
+      data: data,
+      success: (res) => {
+        if (needLoading) {
+          hideLoading()
+        }
+
+        if (res.statusCode === 200) {
+          if (res.data.code === 0 || res.data.code === 200) {
+            resolve(res.data)
+          } else {
+            if (showError) {
+              wx.showToast({
+                title: res.data.message || '请求失败',
+                icon: 'none'
+              })
+            }
+            reject(res.data)
+          }
+        } else if (res.statusCode === 401) {
+          wx.showToast({
+            title: '登录已过期',
+            icon: 'none'
+          })
+          setTimeout(() => {
+            wx.reLaunch({
+              url: '/pages/phoneNumberLogin/login'
+            })
+          }, 1500)
+          reject(res)
+        } else {
+          if (showError) {
+            wx.showToast({
+              title: '网络错误',
+              icon: 'none'
+            })
+          }
+          reject(res)
+        }
+      },
+      fail: (err) => {
+        if (needLoading) {
+          hideLoading()
+        }
+        if (showError) {
+          wx.showToast({
+            title: '网络请求失败',
+            icon: 'none'
+          })
+        }
+        reject(err)
+      }
+    })
+  })
+}
+
 module.exports = {
   request,
+  directRequest,
   get,
   post
 }
