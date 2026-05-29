@@ -29,6 +29,7 @@ public class WxMaConfiguration {
             {
                 this.setAppid(appId);
                 this.setSecret(secret); // 虽然免Token，但配置里最好还是填上，库内部可能需要
+                this.setApiUrl("http://api.weixin.qq.com");
             }
 
             // 2. 【核心】重写 getAccessToken 方法
@@ -48,6 +49,12 @@ public class WxMaConfiguration {
                     // 这里为了演示，如果读不到文件，就返回 null 或调用父类方法（父类会尝试去请求微信接口）
                     return super.getAccessToken();
                 }
+            }
+
+            // 3. 【可选】重写 getApiUrl 确保即使 setApiUrl 未生效也能返回 HTTP（双重保险）
+            @Override
+            public String getApiUrl() {
+                return "http://api.weixin.qq.com";
             }
         };
     }
