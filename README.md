@@ -2,10 +2,10 @@
   <img src="art/logo.png" alt="FlavorCreator Logo" width="120" onerror="this.style.display='none'">
 </p>
 
-<h1 align="center">FlavorCreator <small>(创味机)</small></h1>
+<h1 align="center">FlavorCreator <small>（创味机）</small></h1>
 
 <p align="center">
-  <strong>A WeChat Mini Program Backend for Recipe Discovery, Ingredient Management, and Community Sharing</strong>
+  <strong>微信小程序后端 —— 菜谱发现、食材管理与社区分享</strong>
 </p>
 
 <p align="center">
@@ -20,162 +20,162 @@
 
 ---
 
-## Overview （项目概述）
+## 项目概述
 
-FlavorCreator is a backend service powering a WeChat Mini Program that helps users discover recipes, manage kitchen ingredients, and engage with a food-loving community. Built with Spring Boot, it features a clean layered architecture, dual JWT authentication (user + admin), and flexible multi-environment deployment.
+FlavorCreator 是支撑微信小程序的后端服务，帮助用户发现菜谱、管理厨房食材以及参与美食社区互动。基于 Spring Boot 构建，采用清晰的分层架构，支持双 JWT 认证（用户 + 管理员）和灵活的多环境部署。
 
-> **Note:** This repository covers the **backend** (`backend/`) only. The WeChat Mini Program frontend (`miniprogram/`) is a separate native project and is not maintained within this repo.
+> **注意：** 本仓库仅包含**后端**（`backend/`）代码。微信小程序前端（`miniprogram/`）是独立的原生项目，不在此仓库维护。
 
-## Features （功能特性）
+## 功能特性
 
-| Module | Description |
-|--------|-------------|
-| **Auth** (`auth`) | WeChat one-tap login (微信一键登录), JWT issuance, refresh token management |
-| **Admin** (`admin`) | Admin dashboard — full CRUD for recipes & comments, user management, statistics, independent JWT auth |
-| **Community** (`community`) | Recipe likes, favorites (collections), comments with toggle-mode atomic increment/decrement |
-| **Recipe** (`recipe`) | Recipe publishing with multipart image upload, listing with filtering, detail view |
-| **Ingredient** (`ingredient`) | Pantry management — CRUD for ingredients & condiments, expiration alerts, common ingredient presets |
-| **User** (`user`) | Profile management, preferences, avatar/background image upload, my collections/likes/recipes |
-| **Common** (`common`) | Auth interceptors, AOP logging, global exception handling, file storage (Local/COS/OSS), image moderation |
+| 模块 | 说明 |
+|------|------|
+| **Auth**（`auth`） | 微信一键登录、JWT 签发、刷新令牌管理 |
+| **Admin**（`admin`） | 管理后台 — 菜谱与评论的完整 CRUD、用户管理、统计、独立的 JWT 认证 |
+| **Community**（`community`） | 菜谱点赞、收藏、评论，支持切换模式的原子增减 |
+| **Recipe**（`recipe`） | 菜谱发布（支持多图上传）、带筛选的列表浏览、详情查看 |
+| **Ingredient**（`ingredient`） | 食材管理 — 食材与调料的 CRUD、过期提醒、常用食材预设 |
+| **User**（`user`） | 个人资料管理、偏好设置、头像/背景图上传、我的收藏/点赞/菜谱 |
+| **Common**（`common`） | 认证拦截器、AOP 日志、全局异常处理、文件存储（本地/COS/OSS）、图片审核 |
 
-### Highlights
+### 亮点
 
-- **Dual JWT Auth**: Separate secret keys for user (`/api/**`) and admin (`/api/admin/**`) endpoints — no cross-access possible
-- **Token Store Flexibility**: In-memory (`ConcurrentHashMap`) by default; Redis as an opt-in alternative via `flcr.token.store` config
-- **Image Moderation Pipeline**: 3-step upload — `validate` (type + size) → `store` (upload) → `moderate` (content review); dev skips moderation, cloud/prod uses Tencent COS CI
-- **Multi-Environment Configs**: `dev` (local), `cloud` (WeChat Cloud Run / 微信云托管), `prod` (production)
-- **Layered Architecture**: `Controller → Service (interface) → ServiceImpl → Mapper` with strict adherence to separation of concerns
-- **Unified Response**: `Response<T> { code, message, data }` for all API responses
+- **双 JWT 认证**：用户端（`/api/**`）和管理端（`/api/admin/**`）使用独立密钥，互不串通
+- **令牌存储灵活**：默认内存存储（`ConcurrentHashMap`），可选 Redis，通过 `flcr.token.store` 配置切换
+- **图片审核流水线**：三步上传 — `validate`（类型+大小）→ `store`（上传）→ `moderate`（内容审核）；开发环境跳过审核，云端/生产环境使用腾讯云 COS CI
+- **多环境配置**：`dev`（本地）、`cloud`（微信云托管）、`prod`（生产环境）
+- **分层架构**：`Controller → Service（接口）→ ServiceImpl → Mapper`，严格遵守关注点分离
+- **统一响应**：所有 API 返回 `Response<T> { code, message, data }` 格式
 
-## Tech Stack （技术栈）
+## 技术栈
 
-| Layer | Technology |
-|-------|------------|
-| **Language** | Java 17 |
-| **Framework** | Spring Boot 4.0.4 |
+| 层级 | 技术 |
+|------|------|
+| **语言** | Java 17 |
+| **框架** | Spring Boot 4.0.4 |
 | **ORM** | MyBatis-Plus 3.5.16 |
-| **Database** | MySQL 8.0 |
-| **Cache** | Redis 7 (optional) |
-| **Auth** | JWT (java-jwt 4.4.0 / Auth0) |
-| **WeChat SDK** | WxJava (weixin-java-miniapp) 4.8.0 |
-| **File Storage** | Local / Tencent COS / Alibaba OSS |
-| **Image Moderation** | Tencent COS CI (cloud/prod) |
-| **API Docs** | SpringDoc OpenAPI (Swagger UI) 2.7.0 |
-| **Build** | Maven Wrapper (`./mvnw`) |
-| **Containerization** | Docker multi-stage build + docker-compose |
+| **数据库** | MySQL 8.0 |
+| **缓存** | Redis 7（可选） |
+| **认证** | JWT（java-jwt 4.4.0 / Auth0） |
+| **微信 SDK** | WxJava（weixin-java-miniapp）4.8.0 |
+| **文件存储** | 本地 / 腾讯云 COS / 阿里云 OSS |
+| **图片审核** | 腾讯云 COS CI（云端/生产） |
+| **API 文档** | SpringDoc OpenAPI（Swagger UI）2.7.0 |
+| **构建** | Maven Wrapper（`./mvnw`） |
+| **容器化** | Docker 多阶段构建 + docker-compose |
 
-## Quick Start （快速开始）
+## 快速开始
 
-### Prerequisites
+### 前置条件
 
 - Java 17+
-- Maven 3.9+ (or use the bundled `./mvnw` wrapper)
+- Maven 3.9+（或使用内置的 `./mvnw` 脚本）
 - MySQL 8.0
-- Redis 7 (optional — can run with in-memory token store)
+- Redis 7（可选 — 可使用内存令牌存储）
 
-### Option 1: Docker Compose (Recommended)
+### 方式一：Docker Compose（推荐）
 
-Starts MySQL 8.0, Redis 7, and the application in one command:
+一键启动 MySQL 8.0、Redis 7 和应用：
 
 ```bash
 docker compose up -d --build
 ```
 
-The app will be available at `http://localhost:8080`.
+应用将在 `http://localhost:8080` 启动。
 
-### Option 2: Local Development
+### 方式二：本地开发
 
 ```bash
-# 1. Create the database
+# 1. 创建数据库
 mysql -u root -e "CREATE DATABASE IF NOT EXISTS flcr CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 
-# 2. Run SQL init scripts (optional — tables are auto-created by MyBatis-Plus in dev)
+# 2. 运行 SQL 初始化脚本（可选 — 开发环境下 MyBatis-Plus 会自动建表）
 # mysql -u root flcr < script/sql/flcr.sql
 # mysql -u root flcr < script/sql/user.sql
-# ... (run all scripts under script/sql/)
+# ...（运行 script/sql/ 下所有脚本）
 
-# 3. Configure database credentials in backend/src/main/resources/application-dev.yml
+# 3. 在 backend/src/main/resources/application-dev.yml 中配置数据库凭证
 
-# 4. Build & run
+# 4. 构建并运行
 cd backend
 ./mvnw spring-boot:run
 ```
 
-### Default Profiles
+### 默认环境配置
 
-| Profile | Config File | Environment |
-|---------|-------------|-------------|
-| `dev` | `application-dev.yml` | Local development (default) |
-| `cloud` | `application-cloud.yml` | WeChat Cloud Run (微信云托管) |
-| `prod` | `application-prod.yml` | Production (env-variable driven) |
+| 环境 | 配置文件 | 说明 |
+|------|----------|------|
+| `dev` | `application-dev.yml` | 本地开发（默认） |
+| `cloud` | `application-cloud.yml` | 微信云托管 |
+| `prod` | `application-prod.yml` | 生产环境（环境变量驱动） |
 
 ```bash
-# Override profile
+# 切换环境
 ./mvnw spring-boot:run -Dspring-boot.run.arguments="--spring.profiles.active=prod"
 ```
 
-## Project Structure （项目结构）
+## 项目结构
 
 ```
 FlavorCreator/
-├── backend/                                    # Spring Boot backend
+├── backend/                                    # Spring Boot 后端
 │   ├── src/main/java/flcr/backend/
-│   │   ├── BackendApplication.java             # Entry point + @MapperScan
-│   │   ├── auth/                               # Auth module
-│   │   │   ├── controller/                     #   REST controllers
-│   │   │   ├── service/                        #   Service interfaces
-│   │   │   │   └── impl/                       #   Service implementations
-│   │   │   ├── mapper/                         #   MyBatis-Plus mappers
-│   │   │   ├── entity/                         #   DB entities
-│   │   │   └── DTO/                            #   Request/Response DTOs
-│   │   ├── admin/                              # Admin module
-│   │   ├── community/                          # Community module
-│   │   ├── recipe/                             # Recipe module
-│   │   ├── ingredient/                         # Ingredient module
-│   │   ├── user/                               # User module
-│   │   └── common/                             # Shared components
-│   │       ├── aop/                            #   Interceptors & aspects
-│   │       ├── config/                         #   Spring configuration beans
-│   │       ├── constants/                      #   Error codes (ResultCode)
-│   │       ├── context/                        #   UserContext (ThreadLocal)
-│   │       ├── exception/                      #   BusinessException & global handler
-│   │       ├── response/                       #   Unified Response<T>
-│   │       ├── service/                        #   Shared services (storage, moderation)
-│   │       └── util/                           #   JwtTokenUtil & helpers
+│   │   ├── BackendApplication.java             # 入口 + @MapperScan
+│   │   ├── auth/                               # 认证模块
+│   │   │   ├── controller/                     #   REST 控制器
+│   │   │   ├── service/                        #   服务接口
+│   │   │   │   └── impl/                       #   服务实现
+│   │   │   ├── mapper/                         #   MyBatis-Plus 映射器
+│   │   │   ├── entity/                         #   数据库实体
+│   │   │   └── DTO/                            #   请求/响应 DTO
+│   │   ├── admin/                              # 管理后台模块
+│   │   ├── community/                          # 社区模块
+│   │   ├── recipe/                             # 菜谱模块
+│   │   ├── ingredient/                         # 食材模块
+│   │   ├── user/                               # 用户模块
+│   │   └── common/                             # 公共组件
+│   │       ├── aop/                            #   拦截器与切面
+│   │       ├── config/                         #   Spring 配置
+│   │       ├── constants/                      #   错误码（ResultCode）
+│   │       ├── context/                        #   UserContext（ThreadLocal）
+│   │       ├── exception/                      #   BusinessException 与全局处理器
+│   │       ├── response/                       #   统一响应 Response<T>
+│   │       ├── service/                        #   公共服务（存储、审核）
+│   │       └── util/                           #   JwtTokenUtil 等工具类
 │   ├── src/main/resources/
-│   │   ├── application.yml                     # Base configuration
-│   │   ├── application-dev.yml                 # Development profile
-│   │   ├── application-cloud.yml               # WeChat Cloud Run profile
-│   │   ├── application-prod.yml                # Production profile
-│   │   └── logback-spring.xml                  # Logging configuration
-│   ├── src/test/                               # 165+ test cases
-│   ├── Dockerfile                              # Multi-stage Docker build
-│   └── pom.xml                                 # Maven project descriptor
-├── script/sql/                                 # Database init scripts
-├── docker-compose.yml                          # Docker Compose orchestration
-└── miniprogram/                                # WeChat Mini Program frontend (not maintained here)
+│   │   ├── application.yml                     # 基础配置
+│   │   ├── application-dev.yml                 # 开发环境配置
+│   │   ├── application-cloud.yml               # 微信云托管配置
+│   │   ├── application-prod.yml                # 生产环境配置
+│   │   └── logback-spring.xml                  # 日志配置
+│   ├── src/test/                               # 165+ 条测试用例
+│   ├── Dockerfile                              # Docker 多阶段构建
+│   └── pom.xml                                 # Maven 项目描述文件
+├── script/sql/                                 # 数据库初始化脚本
+├── docker-compose.yml                          # Docker Compose 编排
+└── miniprogram/                                # 微信小程序前端（不在此维护）
 ```
 
-## API Documentation
+## API 文档
 
-Once the application is running, interactive API docs are available at:
+应用运行后，交互式 API 文档位于：
 
 ```
 http://localhost:8080/swagger-ui.html
 ```
 
-### API Overview
+### API 概览
 
-| Prefix | Scope | Auth |
-|--------|-------|------|
-| `/api/auth` | WeChat login, token refresh, logout | Mixed (`@Public`) |
-| `/api/recipe` | Recipe CRUD, listing, detail | Mixed (`@Public` for list/detail) |
-| `/api/community` | Likes, favorites, comments | User JWT required |
-| `/api/ingredient` | Pantry management, alerts | User JWT required |
-| `/api/user` | Profile, preferences, uploads | User JWT required |
-| `/api/admin` | Admin dashboard | Admin JWT required (separate secret) |
+| 前缀 | 作用范围 | 认证方式 |
+|------|----------|----------|
+| `/api/auth` | 微信登录、令牌刷新、登出 | 混合（`@Public`） |
+| `/api/recipe` | 菜谱 CRUD、列表、详情 | 混合（列表/详情 `@Public`） |
+| `/api/community` | 点赞、收藏、评论 | 需用户 JWT |
+| `/api/ingredient` | 食材管理、过期提醒 | 需用户 JWT |
+| `/api/user` | 个人资料、偏好、上传 | 需用户 JWT |
+| `/api/admin` | 管理后台 | 需管理员 JWT（独立密钥） |
 
-All endpoints return a unified `Response<T>` format:
+所有接口返回统一 `Response<T>` 格式：
 
 ```json
 {
@@ -185,99 +185,99 @@ All endpoints return a unified `Response<T>` format:
 }
 ```
 
-## Architecture （架构）
+## 架构
 
-### Layered Design
+### 分层设计
 
 ```
 ┌──────────────────────────────────────────────────┐
-│  Controller (@RestController)                     │
-│  → Receives HTTP requests, validates parameters   │
-│  → Calls Service, returns Response<T>             │
+│  Controller（@RestController）                     │
+│  → 接收 HTTP 请求，校验参数                         │
+│  → 调用 Service，返回 Response<T>                   │
 └──────────────────┬───────────────────────────────┘
                    │
 ┌──────────────────▼───────────────────────────────┐
-│  Service (interface) / ServiceImpl                │
-│  → Business logic, @Transactional writes          │
-│  → Gets userId via UserContext (ThreadLocal)      │
-│  → Throws BusinessException on errors             │
+│  Service（接口）/ ServiceImpl                      │
+│  → 业务逻辑，@Transactional 写操作                  │
+│  → 通过 UserContext（ThreadLocal）获取 userId       │
+│  → 出错时抛出 BusinessException                    │
 └──────────────────┬───────────────────────────────┘
                    │
 ┌──────────────────▼───────────────────────────────┐
-│  Mapper (extends BaseMapper<Entity>)              │
-│  → Database operations via MyBatis-Plus            │
+│  Mapper（继承 BaseMapper<Entity>）                 │
+│  → 通过 MyBatis-Plus 操作数据库                    │
 └──────────────────────────────────────────────────┘
 ```
 
-### Auth Flow
+### 认证流程
 
 ```
-Client                    AuthInterceptor         Service Layer
+客户端                    AuthInterceptor          服务层
   │                              │                      │
   │  Authorization: Bearer <JWT> │                      │
   │─────────────────────────────>│                      │
-  │                              │ parse JWT            │
-  │                              │ set UserContext      │
+  │                              │ 解析 JWT              │
+  │                              │ 设置 UserContext      │
   │                              │─────────────────────>│
   │                              │                      │ UserContext.getUserId()
   │                              │                      │
   │  Response<T>                 │                      │
-  │<─────────────────────────────│  afterCompletion     │
+  │<─────────────────────────────│  afterCompletion      │
   │                              │ UserContext.clear()   │
 ```
 
-- Methods annotated with `@Public` are accessible without a token (guest-friendly)
-- Methods without `@Public` require a valid JWT — returns 401 otherwise
-- Admin endpoints (`/api/admin/**`) use a **separate JWT secret** — user tokens are rejected
+- 标注 `@Public` 的方法无需令牌即可访问（游客友好）
+- 未标注 `@Public` 的方法需要有效 JWT，否则返回 401
+- 管理端接口（`/api/admin/**`）使用**独立 JWT 密钥**，用户令牌无法访问
 
-## Testing （测试）
+## 测试
 
 ```bash
 cd backend
-./mvnw test                    # Run all tests (165+ cases)
-./mvnw test -Dtest=UserMapperTest   # Run a single test class
+./mvnw test                              # 运行全部测试（165+ 条）
+./mvnw test -Dtest=UserMapperTest        # 运行单个测试类
 ```
 
-| Type | Annotation | Scope |
-|------|------------|-------|
-| Mapper Integration | `@SpringBootTest` + `@Transactional` | Real DB, auto-rollback |
-| Service Unit | `@ExtendWith(MockitoExtension.class)` | Mocked mappers |
-| Controller Unit | `@ExtendWith(MockitoExtension.class)` | Mocked services |
-| Utility Pure Unit | None | Plain JUnit |
+| 类型 | 注解 | 说明 |
+|------|------|------|
+| Mapper 集成测试 | `@SpringBootTest` + `@Transactional` | 真实数据库，自动回滚 |
+| Service 单元测试 | `@ExtendWith(MockitoExtension.class)` | Mock Mapper |
+| Controller 单元测试 | `@ExtendWith(MockitoExtension.class)` | Mock Service |
+| 工具类纯单元测试 | 无 Spring 注解 | 纯 JUnit |
 
-## Configuration Reference （配置参考）
+## 配置参考
 
-| Key | Default | Description |
-|-----|---------|-------------|
-| `spring.profiles.active` | `dev` | Active profile |
-| `server.port` | `8080` | HTTP port |
-| `jwt.expiration` | `300000` (5 min) | Access token TTL |
-| `jwt.refresh-expiration` | `2592000000` (30 days) | Refresh token TTL |
-| `flcr.storage.type` | `local` | File storage: `local` / `cos` / `oss` |
-| `flcr.storage.local-path` | `./uploads` | Local upload directory |
-| `flcr.token.store` | `memory` | Token store: `memory` / `redis` |
-| `flcr.moderation.enabled` | `false` (dev) | Enable image content moderation |
-| `spring.servlet.multipart.max-file-size` | `10MB` | Per-file upload limit |
-| `spring.servlet.multipart.max-request-size` | `20MB` | Total request limit |
+| 配置项 | 默认值 | 说明 |
+|--------|--------|------|
+| `spring.profiles.active` | `dev` | 激活的环境配置 |
+| `server.port` | `8080` | HTTP 端口 |
+| `jwt.expiration` | `300000`（5 分钟） | 访问令牌有效期 |
+| `jwt.refresh-expiration` | `2592000000`（30 天） | 刷新令牌有效期 |
+| `flcr.storage.type` | `local` | 文件存储类型：`local` / `cos` / `oss` |
+| `flcr.storage.local-path` | `./uploads` | 本地上传目录 |
+| `flcr.token.store` | `memory` | 令牌存储方式：`memory` / `redis` |
+| `flcr.moderation.enabled` | `false`（dev） | 是否启用图片内容审核 |
+| `spring.servlet.multipart.max-file-size` | `10MB` | 单文件上传限制 |
+| `spring.servlet.multipart.max-request-size` | `20MB` | 总请求大小限制 |
 
-## Environment Variables (Production)
+## 生产环境变量
 
-When using `application-prod.yml`, all sensitive values are injected via environment variables:
+使用 `application-prod.yml` 时，所有敏感值通过环境变量注入：
 
-| Variable | Purpose |
-|----------|---------|
+| 变量 | 用途 |
+|------|------|
 | `DB_URL` | MySQL JDBC URL |
-| `DB_USERNAME` | MySQL username |
-| `DB_PASSWORD` | MySQL password |
-| `WX_APP_ID` | WeChat Mini Program AppID |
-| `WX_SECRET` | WeChat Mini Program AppSecret |
-| `JWT_SECRET` | JWT signing secret (user) |
-| `ADMIN_JWT_SECRET` | JWT signing secret (admin) |
-| `REDIS_URL` | Redis connection URL (optional) |
-| `COS_SECRET_ID` | Tencent COS SecretId (cloud/prod) |
-| `COS_SECRET_KEY` | Tencent COS SecretKey (cloud/prod) |
+| `DB_USERNAME` | MySQL 用户名 |
+| `DB_PASSWORD` | MySQL 密码 |
+| `WX_APP_ID` | 微信小程序 AppID |
+| `WX_SECRET` | 微信小程序 AppSecret |
+| `JWT_SECRET` | JWT 签名密钥（用户） |
+| `ADMIN_JWT_SECRET` | JWT 签名密钥（管理员） |
+| `REDIS_URL` | Redis 连接地址（可选） |
+| `COS_SECRET_ID` | 腾讯云 COS SecretId（云端/生产） |
+| `COS_SECRET_KEY` | 腾讯云 COS SecretKey（云端/生产） |
 
-## Deployment （部署）
+## 部署
 
 ### Docker
 
@@ -285,32 +285,32 @@ When using `application-prod.yml`, all sensitive values are injected via environ
 docker compose up -d --build
 ```
 
-The Dockerfile uses a multi-stage build:
-1. **Builder stage**: Compiles the project with Maven on `eclipse-temurin:17-alpine`
-2. **Runtime stage**: Copies the JAR to `eclipse-temurin:17-jre-alpine` for a minimal image
+Dockerfile 采用多阶段构建：
+1. **构建阶段**：基于 `eclipse-temurin:17-alpine` 使用 Maven 编译项目
+2. **运行阶段**：将 JAR 复制到 `eclipse-temurin:17-jre-alpine`，获得最小镜像
 
-### WeChat Cloud Run (微信云托管)
+### 微信云托管
 
-Set `SPRING_PROFILES_ACTIVE=cloud` and configure environment variables via the cloud console.
+设置 `SPRING_PROFILES_ACTIVE=cloud`，通过云控制台配置环境变量。
 
-## Contributing （贡献指南）
+## 贡献指南
 
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/your-feature`
-3. Follow the coding conventions in `AGENTS.md`
-4. Write tests for new functionality
-5. Ensure all tests pass: `./mvnw test`
-6. Submit a Pull Request
+1. Fork 本仓库
+2. 创建特性分支：`git checkout -b feature/your-feature`
+3. 遵循 `AGENTS.md` 中的编码规范
+4. 为新功能编写测试
+5. 确保所有测试通过：`./mvnw test`
+6. 提交 Pull Request
 
-### Coding Conventions
+### 编码规范
 
-Refer to `AGENTS.md` for detailed architectural guidelines and coding standards, including:
+详细架构指南与编码标准请参考 `AGENTS.md`，包括：
 
-- Entity / Mapper / DTO / Service / Controller templates
-- Error handling: use `BusinessException` — never throw raw `RuntimeException`
-- Cross-module access: inject **Mappers** directly, not Services (avoid circular dependencies)
-- `@Public` annotation for public endpoints
+- Entity / Mapper / DTO / Service / Controller 模板
+- 错误处理：使用 `BusinessException`，禁止直接抛出 `RuntimeException`
+- 跨模块引用：直接注入 **Mapper**，而非 Service（避免循环依赖）
+- 公开接口使用 `@Public` 注解
 
-## License
+## 开源协议
 
-This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+本项目基于 MIT 协议开源，详情见 [LICENSE](LICENSE) 文件。
