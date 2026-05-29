@@ -36,9 +36,6 @@ public class Recipe_Request {
         @Schema(description = "口味要求", example = "[\"清淡\", \"少油\"]")
         private List<String> taste;
         
-        @Schema(description = "饮食禁忌/要求", example = "[\"低卡\"]")
-        private List<String> dietary;
-        
         @Schema(description = "期望烹饪时长（分钟）", example = "30")
         private Integer cookTime;
         
