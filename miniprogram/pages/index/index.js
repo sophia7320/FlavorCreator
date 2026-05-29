@@ -68,7 +68,8 @@ Page({
 			// basket 相关
 			showBasketAnimation: false,
 			showBasketTip: false,
-			basketTipText: ''
+			basketTipText: '',
+			showBasketPanel: false
   },
 
 	timerId: null,
@@ -514,6 +515,69 @@ Page({
 			this.setData({ showBasketTip: false })
 			this.timerId = null
 		}, 1500)
+	},
+
+	// 点击 basket 打开面板
+	onBasketTap() {
+		this.setData({
+			showBasketPanel: true
+		})
+	},
+
+	// 关闭 basket 面板
+	onCloseBasketPanel() {
+		this.setData({
+			showBasketPanel: false
+		})
+	},
+
+	// 清空已选食材
+	onClearSelectedIngredients() {
+		wx.showModal({
+			title: '确认清空',
+			content: '确定要清空所有已选食材吗？',
+			success: (res) => {
+				if (res.confirm) {
+					this.setData({
+						selectedIngredients: []
+					})
+					
+					// 更新 tab-bar 的 Create 显示状态
+					if (typeof this.getTabBar === 'function' && this.getTabBar()) {
+						this.getTabBar().updateCreateVisibility(false)
+					}
+					
+					wx.showToast({
+						title: '已清空',
+						icon: 'success'
+					})
+				}
+			}
+		})
+	},
+
+	// 移除单个食材
+	onRemoveIngredient(e) {
+		const ingredient = e.currentTarget.dataset.item
+		const selectedIngredients = [...this.data.selectedIngredients]
+		const index = selectedIngredients.findIndex(item => item.name === ingredient.name)
+		
+		if (index !== -1) {
+			selectedIngredients.splice(index, 1)
+			
+			this.setData({
+				selectedIngredients,
+				basketTipText: `已取消${ingredient.name}`,
+				showBasketTip: true
+			})
+			
+			// 更新 tab-bar 的 Create 显示状态
+			if (typeof this.getTabBar === 'function' && this.getTabBar()) {
+				this.getTabBar().updateCreateVisibility(selectedIngredients.length >= 1)
+			}
+			
+			this.playBasketAnimation()
+		}
 	}
 
 })

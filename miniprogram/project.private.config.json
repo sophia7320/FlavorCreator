@@ -24,7 +24,7 @@
 			"list": [
 				{
 					"name": "test",
-					"pathName": "pages/index/index",
+					"pathName": "pages/waitForWeixin/wait",
 					"query": "",
 					"scene": null,
 					"launchMode": "default"

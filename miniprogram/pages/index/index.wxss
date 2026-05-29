@@ -431,3 +431,179 @@ swiper {
 	height: 20rpx;
 	margin-left: 10rpx;
 }
+
+/* ========== 弹窗容器 ========== */
+.basket-modal-wrapper {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 999;
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity 0.3s ease-out;
+}
+
+.basket-modal-wrapper.show {
+	opacity: 1;
+	pointer-events: auto;
+}
+
+/* ========== 自定义遮罩层 ========== */
+.custom-mask {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: rgba(0, 0, 0, 0);
+	transition: background-color 0.3s ease-out;
+}
+
+.basket-modal-wrapper.show .custom-mask {
+	background-color: rgba(0, 0, 0, 0.3);
+}
+
+/* ========== Basket 面板 ========== */
+.basket-panel {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	background-color: #FFF1E6;
+	border-radius: 40rpx 40rpx 0 0;
+	padding: 30rpx;
+	height: 50vh;
+	display: flex;
+	flex-direction: column;
+	transform: translateY(100%);
+	transition: transform 0.3s ease-out;
+}
+
+.basket-panel.show {
+	transform: translateY(0);
+}
+
+.basket-panel-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 30rpx;
+	position: relative;
+}
+
+.basket-panel-title {
+	font-size: 32rpx;
+	font-weight: 600;
+	color: #5D4037;
+	flex: 1;
+	text-align: center;
+}
+
+.basket-panel-close {
+	width: 60rpx;
+	height: 60rpx;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 50%;
+	background-color: #FFE8D2;
+	position: absolute;
+	left: 0;
+}
+
+.basket-panel-close .close-icon {
+	width: 24rpx;
+	height: 24rpx;
+}
+
+.basket-panel-clear {
+	display: flex;
+	align-items: center;
+	gap: 8rpx;
+	padding: 12rpx 24rpx;
+	border-radius: 50rpx;
+	background-color: #FFF;
+	box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+	position: absolute;
+	right: 0;
+}
+
+.basket-panel-clear .clear-icon {
+	width: 28rpx;
+	height: 28rpx;
+}
+
+.basket-panel-clear .clear-text {
+	font-size: 24rpx;
+	color: #8D6E63;
+}
+
+.basket-panel-content {
+	flex: 1;
+	overflow-y: auto;
+}
+
+.basket-ingredient-list {
+	display: flex;
+	flex-direction: column;
+	gap: 20rpx;
+}
+
+.basket-ingredient-item {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	background-color: #FFF;
+	padding: 24rpx 30rpx;
+	border-radius: 20rpx;
+	box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.08);
+}
+
+.ingredient-info {
+	display: flex;
+	align-items: center;
+	gap: 16rpx;
+}
+
+.ingredient-name {
+	font-size: 30rpx;
+	font-weight: 500;
+	color: #5D4037;
+}
+
+.ingredient-unit {
+	font-size: 24rpx;
+	color: #8D6E63;
+	background-color: rgba(226, 138, 80, 0.15);
+	padding: 6rpx 16rpx;
+	border-radius: 12rpx;
+}
+
+.ingredient-remove {
+	width: 56rpx;
+	height: 56rpx;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 50%;
+	background-color: #FFE8D2;
+}
+
+.ingredient-remove .remove-icon {
+	width: 24rpx;
+	height: 24rpx;
+}
+
+.basket-empty {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 100rpx 0;
+}
+
+.basket-empty .empty-text {
+	font-size: 28rpx;
+	color: #8D6E63;
+}

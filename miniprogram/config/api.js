@@ -1,7 +1,7 @@
 // 配置文件
 const CLOUD_CONFIG = {
   env: 'prod-1g8rulbw951115e9',
-  service: 'flavor-creator'
+  service: 'flcr2'
 }
 
 
@@ -10,27 +10,27 @@ const API_CONFIG = {
   auth: {
     // 发送验证码
     sendCode: {
-      path: '/auth/send-code',
+      path: '/api/auth/send-code',
       method: 'POST'
     },
     // 手机号登录
     loginPhone: {
-      path: '/auth/login-phone',
+      path: '/api/auth/login-phone',
       method: 'POST'
     },
     // 微信一键登录
     loginWx: {
-      path: '/auth/login-wx',
+      path: '/api/auth/login-wx',
       method: 'POST'
     },
     // 刷新 Token
     refresh: {
-      path: '/auth/refresh',
+      path: '/api/auth/refresh',
       method: 'POST'
     },
     // 退出登录
     logout: {
-      path: '/auth/logout',
+      path: '/api/auth/logout',
       method: 'POST'
     }
   },
@@ -39,22 +39,22 @@ const API_CONFIG = {
   user: {
     // 获取用户信息
     info: {
-      path: '/user/info',
+      path: '/api/user/info',
       method: 'GET'
     },
     // 更新用户信息
     update: {
-      path: '/user/info',
+      path: '/api/user/info',
       method: 'POST'
     },
     // 上传头像
     uploadAvatar: {
-      path: '/user/avatar',
+      path: '/api/user/avatar',
       method: 'POST'
     },
     // 上传背景图
     uploadBackground: {
-      path: '/user/background',
+      path: '/api/user/background',
       method: 'POST'
     }
   },
@@ -63,7 +63,7 @@ const API_CONFIG = {
   recipe: {
     // 提交食材获取菜谱
     apply: {
-      path: '/recipe/apply',
+      path: '/api/recipe/apply',
       method: 'POST'
     }
   }

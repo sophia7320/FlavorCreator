@@ -12,8 +12,7 @@
     "pages/community/community",
     "pages/mine/mine",
     "pages/settings/settings",
-    "custom-tab-bar/index",
-    "components/index-swiper-contianer/swiper-ingredients/ingredients-choose"
+    "custom-tab-bar/index"
   ],
   "tabBar": {
     "custom": true,
