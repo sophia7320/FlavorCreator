@@ -1,12 +1,6 @@
 <!--pages/login/login.wxml-->
 <view class="login-page" >
 
-	<view class="request-mode-switch">
-		<text class="switch-label">callContainer</text>
-		<switch checked="{{useCallContainer}}" bindchange="onToggleRequestMode" color="var(--color-primary)" />
-		<text class="switch-label">直连</text>
-	</view>
-
 	<view class="toast" wx:if="{{showToast}}">
 		<image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/sad.png" mode="aspectFit" class="icon"/>
 		<text>{{ toastText }}</text>

@@ -1,4 +1,5 @@
 const { CLOUD_CONFIG, REQUEST_CONFIG } = require('../config/api')
+const { getUseCallContainer } = require('./globalState')
 
 let loadingCount = 0
 
@@ -35,12 +36,12 @@ function getAuthorization() {
 }
 
 /**
- * 统一请求方法
+ * 使用 callContainer 的请求方法
  * @param {Object} apiConfig API 配置对象 { path, method }
  * @param {Object} data 请求数据
  * @param {Object} options 其他选项 { showLoading = true, showError = true }
  */
-function request(apiConfig, data = {}, options = {}) {
+function cloudRequest(apiConfig, data = {}, options = {}) {
   const { showLoading: needLoading = true, showError = true } = options
 
   return new Promise((resolve, reject) => {
@@ -70,39 +71,7 @@ function request(apiConfig, data = {}, options = {}) {
         if (needLoading) {
           hideLoading()
         }
-
-        if (res.statusCode === 200) {
-          if (res.data.code === 0 || res.data.code === 200) {
-            resolve(res.data)
-          } else {
-            if (showError) {
-              wx.showToast({
-                title: res.data.message || '请求失败',
-                icon: 'none'
-              })
-            }
-            reject(res.data)
-          }
-        } else if (res.statusCode === 401) {
-          wx.showToast({
-            title: '登录已过期',
-            icon: 'none'
-          })
-          setTimeout(() => {
-            wx.reLaunch({
-              url: '/pages/phoneNumberLogin/login'
-            })
-          }, 1500)
-          reject(res)
-        } else {
-          if (showError) {
-            wx.showToast({
-              title: '网络错误',
-              icon: 'none'
-            })
-          }
-          reject(res)
-        }
+        handleResponse(res, resolve, reject, showError)
       },
       fail: (err) => {
         if (needLoading) {
@@ -118,6 +87,60 @@ function request(apiConfig, data = {}, options = {}) {
       }
     })
   })
+}
+
+/**
+ * 统一请求方法 - 根据全局状态选择请求方式
+ * @param {Object} apiConfig API 配置对象 { path, method }
+ * @param {Object} data 请求数据
+ * @param {Object} options 其他选项 { showLoading = true, showError = true }
+ */
+function request(apiConfig, data = {}, options = {}) {
+  const useCallContainer = getUseCallContainer()
+  
+  if (useCallContainer) {
+    return cloudRequest(apiConfig, data, options)
+  } else {
+    return directRequest(apiConfig, data, options)
+  }
+}
+
+/**
+ * 处理响应
+ */
+function handleResponse(res, resolve, reject, showError) {
+  if (res.statusCode === 200) {
+    if (res.data.code === 0 || res.data.code === 200) {
+      resolve(res.data)
+    } else {
+      if (showError) {
+        wx.showToast({
+          title: res.data.message || '请求失败',
+          icon: 'none'
+        })
+      }
+      reject(res.data)
+    }
+  } else if (res.statusCode === 401) {
+    wx.showToast({
+      title: '登录已过期',
+      icon: 'none'
+    })
+    setTimeout(() => {
+      wx.reLaunch({
+        url: '/pages/phoneNumberLogin/login'
+      })
+    }, 1500)
+    reject(res)
+  } else {
+    if (showError) {
+      wx.showToast({
+        title: '网络错误',
+        icon: 'none'
+      })
+    }
+    reject(res)
+  }
 }
 
 /**
@@ -166,39 +189,7 @@ function directRequest(apiConfig, data = {}, options = {}) {
         if (needLoading) {
           hideLoading()
         }
-
-        if (res.statusCode === 200) {
-          if (res.data.code === 0 || res.data.code === 200) {
-            resolve(res.data)
-          } else {
-            if (showError) {
-              wx.showToast({
-                title: res.data.message || '请求失败',
-                icon: 'none'
-              })
-            }
-            reject(res.data)
-          }
-        } else if (res.statusCode === 401) {
-          wx.showToast({
-            title: '登录已过期',
-            icon: 'none'
-          })
-          setTimeout(() => {
-            wx.reLaunch({
-              url: '/pages/phoneNumberLogin/login'
-            })
-          }, 1500)
-          reject(res)
-        } else {
-          if (showError) {
-            wx.showToast({
-              title: '网络错误',
-              icon: 'none'
-            })
-          }
-          reject(res)
-        }
+        handleResponse(res, resolve, reject, showError)
       },
       fail: (err) => {
         if (needLoading) {

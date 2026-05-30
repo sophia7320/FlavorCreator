@@ -19,9 +19,7 @@ Page({
         showToast: false,
 
         showPopup: false,
-        popupType: 'agreement',
-
-        useCallContainer: true  // 控制使用 callContainer 还是直连请求
+        popupType: 'agreement'
     },
 
     //手机号码输入事件
@@ -161,13 +159,6 @@ Page({
     onClosePopup() {
         this.setData({
             showPopup: false
-        })
-    },
-
-    // 切换请求模式：callContainer / 直连请求
-    onToggleRequestMode(e) {
-        this.setData({
-            useCallContainer: e.detail.value
         })
     }
 })
