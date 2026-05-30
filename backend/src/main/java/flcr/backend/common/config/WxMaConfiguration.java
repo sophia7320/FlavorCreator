@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -24,46 +25,42 @@ public class WxMaConfiguration {
 
     @Bean
     public WxMaDefaultConfigImpl wxMaConfig() {
-        return new WxMaDefaultConfigImpl() {
-            // 1. 【注入】注入 WxMaConfig 对象
-            {
-                this.setAppid(appId);
-                this.setSecret(secret); // 虽然免Token，但配置里最好还是填上，库内部可能需要
-                this.setApiUrl("http://api.weixin.qq.com");
-            }
-
-            // 2. 【核心】重写 getAccessToken 方法
+        // 创建自定义配置类
+        WxMaDefaultConfigImpl config = new WxMaDefaultConfigImpl() {
             @Override
             public String getAccessToken() {
-                // 微信云托管会将 token 推送到这个固定路径
                 String tokenPath = "/.tencentcloudbase/wx/cloudbase_access_token";
                 try {
-                    // 直接读取文件内容
                     String token = new String(Files.readAllBytes(Paths.get(tokenPath)));
-                    // 注意：读取到的内容可能包含换行符，建议 trim()
                     return token.trim();
                 } catch (IOException e) {
-                    // 如果读取失败（比如本地没部署这个文件），可以选择 fallback 到普通模式
-                    // 或者抛出异常提醒你检查环境
-                    log.warn("云托管环境未检测到访问令牌文件，使用普通模式: {}", tokenPath);
-                    // 这里为了演示，如果读不到文件，就返回 null 或调用父类方法（父类会尝试去请求微信接口）
+                    log.warn("未读取到云托管 token 文件，回退到普通模式: {}", tokenPath);
                     return super.getAccessToken();
                 }
             }
-
-            // 3. 【可选】重写 getApiUrl 确保即使 setApiUrl 未生效也能返回 HTTP（双重保险）
-            @Override
-            public String getApiUrl() {
-                return "http://api.weixin.qq.com";
-            }
         };
+
+        config.setAppid(appId);
+        config.setSecret(secret);
+
+        // 通过反射将 apiUrl 改为 http（绕过 SSL 证书问题）
+        try {
+            Field apiUrlField = WxMaDefaultConfigImpl.class.getDeclaredField("apiUrl");
+            apiUrlField.setAccessible(true);
+            apiUrlField.set(config, "http://api.weixin.qq.com");
+            log.info("已将微信 API 地址强制设置为 http://api.weixin.qq.com");
+        } catch (Exception e) {
+            log.warn("反射修改 apiUrl 失败，当前 WxJava 版本可能不兼容", e);
+        }
+
+        return config;
     }
 
     @Bean
     public WxMaService wxMaService(WxMaDefaultConfigImpl wxMaConfig) {
-        WxMaService wxMaService = new WxMaServiceImpl();
+        // 重要：使用普通的 WxMaServiceImpl，不要使用 WxMaCloudServiceImpl
+        WxMaServiceImpl wxMaService = new WxMaServiceImpl();
         wxMaService.setWxMaConfig(wxMaConfig);
         return wxMaService;
     }
-
 }
