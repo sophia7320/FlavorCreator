@@ -11,7 +11,7 @@ import java.util.Map;
 @Component
 public class LLM_Client {
 
-    @Value(" $ {https://api.siliconflow.cn/v1/chat/completions}")
+    @Value(" $ {llm.api.url:https://api.siliconflow.cn/v1/chat/completions}")
     private String apiUrl;
 
     @Value(" $ {llm.api.model:Pro/zai-org/GLM-4.7}")
