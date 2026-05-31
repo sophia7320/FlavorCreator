@@ -27,22 +27,40 @@ public class WxMaConfiguration {
 
     @Bean
     public WxMaDefaultConfigImpl wxMaConfig() {
+        // 启动时诊断：打印 token 文件是否存在
+        List<String> tokenPaths = List.of(
+                "/wx/cloudbase_access_token",
+                "/.tencentcloudbase/wx/cloudbase_access_token"
+        );
+        for (String path : tokenPaths) {
+            java.io.File f = new java.io.File(path);
+            log.info("云托管 token 文件检查: path={}, exists={}, readable={}, size={}",
+                    path, f.exists(), f.canRead(), f.exists() ? f.length() : 0);
+        }
+
         WxMaDefaultConfigImpl config = new WxMaDefaultConfigImpl() {
             @Override
+            public String getAccessToken() {
+                // 每次调用时动态读取，因为文件可能在容器启动后才被注入
+                Optional<String> cloudToken = readCloudBaseToken();
+                if (cloudToken.isPresent()) {
+                    return cloudToken.get();
+                }
+                // fallback 到父类（可能返回 null，触发 SDK 自动刷新）
+                return super.getAccessToken();
+            }
+
+            @Override
             public boolean isAccessTokenExpired() {
-                // 云托管环境由平台自动注入和刷新 token，无需自行判断过期
-                return false;
+                // 如果能读到云托管文件，认为永不过期（由平台自动刷新）
+                if (readCloudBaseToken().isPresent()) {
+                    return false;
+                }
+                return super.isAccessTokenExpired();
             }
         };
         config.setAppid(appId);
         config.setSecret(secret);
-
-        // 云托管环境：读取注入的 access_token
-        readCloudBaseToken().ifPresent(token -> {
-            config.setAccessToken(token);
-            log.info("已从云托管环境加载 access_token");
-        });
-
         return config;
     }
 
