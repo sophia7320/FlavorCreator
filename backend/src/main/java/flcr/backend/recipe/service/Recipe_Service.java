@@ -1,8 +1,6 @@
-package flcr.backend.recipe.service;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-import flcr.backend.recipe.DTO.Request.Recipe_Request;
-import flcr.backend.recipe.DTO.Response.Recipe_Response;
+import flcr.backend.recipe.DTO.Recipe_Request;
+import flcr.backend.recipe.DTO.Recipe_Response;
 import flcr.backend.recipe.client.LLM_Client;
 import org.springframework.stereotype.Service;
 
@@ -15,13 +13,12 @@ public class Recipe_Service {
     private final LLM_Client llmClient;
     private final ObjectMapper objectMapper;
 
-    public Recipe_Service(LLM_Client llmClient) {
+    public Recipe_Service(LLM_Client llmClient, ObjectMapper objectMapper) {
         this.llmClient = llmClient;
-        this.objectMapper = new ObjectMapper();
+        this.objectMapper = objectMapper;
     }
 
     public Recipe_Response generateRecipe(Recipe_Request request) {
-        // 1. 将请求对象格式化为易读的文本，拼接成 Prompt
         StringBuilder ingredientsBuilder = new StringBuilder();
         for (Recipe_Request.Ingredient ing : request.getIngredients()) {
             ingredientsBuilder.append(String.format("- %s: %d %s\n", ing.getName(), ing.getQuantity(), ing.getUnit()));
@@ -33,7 +30,6 @@ public class Recipe_Service {
             pref.getTaste(), pref.getDietary(), pref.getCookTime(), pref.getDifficulty()
         );
 
-        // 2. 构造系统提示词，将注意事项放在 JSON 结构模板之后
         String systemPrompt = String.format(
             "你是一个专业的食谱问答助手。\n" +
             "可用食材：\n%s\n" +
@@ -52,18 +48,14 @@ public class Recipe_Service {
             ingredientsBuilder.toString(), preferencesFormatted
         );
 
-        // 3. 调用大模型客户端，获取返回的 JSON 字符串
         String llmJsonResponse = llmClient.sendPostRequest(systemPrompt);
 
-        // 4. 将大模型返回的 JSON 字符串解析为 Recipe_Response 对象
         try {
-            // 处理大模型可能返回的 ```json ... ``` 包裹情况
             String cleanJson = llmJsonResponse.replace("```json", "").replace("```", "").trim();
             Recipe_Response response = objectMapper.readValue(cleanJson, Recipe_Response.class);
             return response;
         } catch (Exception e) {
             e.printStackTrace();
-            // 如果解析失败，返回一个兜底的错误响应对象
             Recipe_Response errorResponse = new Recipe_Response();
             Recipe_Response.RecipeDetail errorDetail = new Recipe_Response.RecipeDetail();
             errorDetail.setName("AI生成格式异常，请稍后重试");
