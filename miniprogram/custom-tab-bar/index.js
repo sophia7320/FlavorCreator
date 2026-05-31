@@ -1,4 +1,7 @@
 // custom-tab-bar/index.js
+const { API_CONFIG } = require('../config/api')
+const { request } = require('../utils/request')
+
 Component({
 
   data: {
@@ -38,23 +41,23 @@ Component({
 		},
 
 		onCreateClick() {
-			// 检查是否有选中的食材
-			if (!this.data.showCreate) {
-				wx.showToast({
-					title: '请先选择食材',
-					icon: 'none'
-				})
-				return
-			}
-
 			// 获取当前页面栈
 			const pages = getCurrentPages()
 			const currentPage = pages[pages.length - 1]
 
 			// 检查是否在 index 页面
 			if (currentPage.route !== 'pages/index/index') {
+				// 不在主页，跳转到主页
+				wx.switchTab({
+					url: '/pages/index/index'
+				})
+				return
+			}
+
+			// 检查是否有选中的食材
+			if (!this.data.showCreate) {
 				wx.showToast({
-					title: '请在首页选择食材',
+					title: '请先选择食材',
 					icon: 'none'
 				})
 				return
@@ -73,21 +76,25 @@ Component({
 				}
 			}
 
-			// 显示加载
-			wx.showLoading({ title: '提交中...' })
-
-			// 模拟请求成功
-			setTimeout(() => {
-				wx.hideLoading()
-				
-				// 将数据存储到本地，传递到 create 页面
-				wx.setStorageSync('recipeData', requestData)
-				
-				// 跳转到 choose-recipes 页面
-				wx.navigateTo({
-					url: '/pages/choose-recipes/choose-recipes'
+			// 调用接口
+			request(API_CONFIG.recipe.apply, requestData)
+				.then(res => {
+					// 将请求数据和响应数据都存储到本地
+					wx.setStorageSync('recipeRequest', requestData)
+					wx.setStorageSync('recipeResult', res)
+					
+					// 跳转到 choose-recipes 页面
+					wx.navigateTo({
+						url: '/pages/choose-recipes/choose-recipes'
+					})
 				})
-			}, 500)
+				.catch(err => {
+					console.error('菜谱匹配失败:', err)
+					wx.showToast({
+						title: '匹配失败，请重试',
+						icon: 'none'
+					})
+				})
 		}
 	}
 })

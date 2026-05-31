@@ -101,3 +101,9 @@
 .create-text.hide {
 	transform: translateY(130rpx);
 }
+
+/* 禁用过渡动画（用于瞬间跳转到目标状态） */
+.FC-create-icon.no-transition,
+.create-text.no-transition {
+	transition: none !important;
+}

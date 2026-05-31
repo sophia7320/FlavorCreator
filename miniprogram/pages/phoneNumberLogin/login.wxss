@@ -17,22 +17,6 @@
 	--protocol-color: var(--text-link);
 }
 
-/* 请求模式切换开关 */
-.request-mode-switch {
-	position: fixed;
-	top: 20rpx;
-	left: 20rpx;
-	display: flex;
-	align-items: center;
-	gap: 10rpx;
-	z-index: 1000;
-}
-
-.request-mode-switch .switch-label {
-	font-size: 20rpx;
-	color: var(--text-primary);
-}
-
 /*定义动画效果*/
 @keyframes send-msg-de {
 	0% {

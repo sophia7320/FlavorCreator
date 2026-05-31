@@ -1,71 +1,186 @@
 // pages/choose-recipes/choose-recipes.js
+const { API_CONFIG } = require('../../config/api')
+const { request } = require('../../utils/request')
+
 Page({
 
   /**
    * 页面的初始数据
    */
   data: {
-    recipeData: null
+    matchDegree: 0,
+    recipes: [],
+    needAiGenerate: false,
+    loading: true,
+    aiGenerating: false,
+    recipeRequest: null
   },
 
   /**
    * 生命周期函数--监听页面加载
    */
   onLoad(options) {
-    // 从本地存储获取数据
-    const recipeData = wx.getStorageSync('recipeData')
-    if (recipeData) {
-      this.setData({ recipeData })
-      console.log('接收到的数据:', recipeData)
+    // 从本地存储获取请求数据和响应数据
+    const recipeRequest = wx.getStorageSync('recipeRequest')
+    const recipeResult = wx.getStorageSync('recipeResult')
+    
+    this.setData({ recipeRequest })
+    
+    if (recipeResult) {
+      this.setData({
+        matchDegree: recipeResult.matchDegree || 0,
+        recipes: recipeResult.recipes || [],
+        needAiGenerate: recipeResult.needAiGenerate || false,
+        loading: false
+      })
+      console.log('接收到的菜谱数据:', recipeResult)
+    } else {
+      this.setData({ loading: false })
+      wx.showToast({
+        title: '暂无数据',
+        icon: 'none'
+      })
     }
   },
 
   /**
-   * 生命周期函数--监听页面初次渲染完成
+   * 返回上一页
    */
-  onReady() {
-
+  onBack() {
+    wx.navigateBack()
   },
 
   /**
-   * 生命周期函数--监听页面显示
+   * 点击菜谱卡片 - 获取详情
    */
-  onShow() {
-
+  onRecipeTap(e) {
+    const { id } = e.currentTarget.dataset
+    console.log('点击菜谱:', id)
+    
+    // 显示加载状态
+    wx.showLoading({ title: '加载中...' })
+    
+    // 调用获取详情接口
+    const apiConfig = { ...API_CONFIG.recipe.getDetail }
+    apiConfig.path = apiConfig.path.replace('{id}', id)
+    
+    request(apiConfig)
+      .then(detail => {
+        wx.hideLoading()
+        console.log('菜谱详情:', detail)
+        
+        // 将详情数据存储到本地
+        wx.setStorageSync('recipeDetail', detail)
+        
+        // TODO: 跳转到菜谱详情页
+        wx.showToast({
+          title: '获取详情成功',
+          icon: 'success'
+        })
+      })
+      .catch(err => {
+        wx.hideLoading()
+        console.error('获取菜谱详情失败:', err)
+        wx.showToast({
+          title: '获取详情失败',
+          icon: 'none'
+        })
+      })
   },
 
   /**
-   * 生命周期函数--监听页面隐藏
+   * 点击开始制作 - 获取详情并开始制作
    */
-  onHide() {
-
+  onStartCook(e) {
+    const { id } = e.currentTarget.dataset
+    console.log('开始制作菜谱:', id)
+    
+    // 显示加载状态
+    wx.showLoading({ title: '加载中...' })
+    
+    // 调用获取详情接口
+    const apiConfig = { ...API_CONFIG.recipe.getDetail }
+    apiConfig.path = apiConfig.path.replace('{id}', id)
+    
+    request(apiConfig)
+      .then(detail => {
+        wx.hideLoading()
+        console.log('菜谱详情:', detail)
+        
+        // 将详情数据存储到本地
+        wx.setStorageSync('recipeDetail', detail)
+        
+        // TODO: 跳转到制作页面
+        wx.showToast({
+          title: '开始制作',
+          icon: 'success'
+        })
+      })
+      .catch(err => {
+        wx.hideLoading()
+        console.error('获取菜谱详情失败:', err)
+        wx.showToast({
+          title: '获取详情失败',
+          icon: 'none'
+        })
+      })
   },
 
   /**
-   * 生命周期函数--监听页面卸载
+   * AI 生成菜谱
    */
-  onUnload() {
-
-  },
-
-  /**
-   * 页面相关事件处理函数--监听用户下拉动作
-   */
-  onPullDownRefresh() {
-
-  },
-
-  /**
-   * 页面上拉触底事件的处理函数
-   */
-  onReachBottom() {
-
-  },
-
-  /**
-   * 用户点击右上角分享
-   */
-  onShareAppMessage() {
-
+  onAiGenerate() {
+    const { recipeRequest } = this.data
+    
+    if (!recipeRequest) {
+      wx.showToast({
+        title: '缺少请求数据',
+        icon: 'none'
+      })
+      return
+    }
+    
+    console.log('AI 生成菜谱，请求数据:', recipeRequest)
+    
+    // 显示加载状态
+    this.setData({ aiGenerating: true })
+    wx.showLoading({ title: 'AI 生成中...', mask: true })
+    
+    // 调用 AI 生成接口
+    request(API_CONFIG.recipe.aiGenerate, recipeRequest)
+      .then(res => {
+        wx.hideLoading()
+        this.setData({ aiGenerating: false })
+        console.log('AI 生成成功:', res)
+        
+        if (res.recipe) {
+          // 将生成的菜谱添加到列表中
+          const newRecipe = {
+            ...res.recipe,
+            id: `ai_${Date.now()}`,
+            matchDegree: 100,
+            isAiGenerated: true
+          }
+          
+          this.setData({
+            recipes: [newRecipe, ...this.data.recipes],
+            needAiGenerate: false
+          })
+          
+          wx.showToast({
+            title: 'AI 生成成功',
+            icon: 'success'
+          })
+        }
+      })
+      .catch(err => {
+        wx.hideLoading()
+        this.setData({ aiGenerating: false })
+        console.error('AI 生成失败:', err)
+        wx.showToast({
+          title: 'AI 生成失败',
+          icon: 'none'
+        })
+      })
   }
 })

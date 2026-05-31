@@ -2,23 +2,158 @@
 .community-page {
   width: 750rpx;
   min-height: 100vh;
-  padding: 100rpx 40rpx;
-  box-sizing: border-box;
   background-color: var(--bg-primary);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+
 }
 
-.title {
-  font-size: 48rpx;
-  font-weight: bold;
-  color: var(--color-primary);
-  margin-bottom: 30rpx;
+.top-title {
+	width: 100%;
+	height: 201rpx;
+	background-color: rgba(255, 225, 207, 1);
+	border-radius: 0 0 60rpx 60rpx;
+	padding-top: 120rpx;
+	padding-left: 72rpx;
 }
 
-.empty-text {
-  font-size: 28rpx;
-  color: var(--text-tertiary);
+.top-title .top-title-text {
+	color: rgba(87, 30, 0, 1);
+	font-size: 36rpx;
+}
+
+.switch-tag {
+	height: 40rpx;
+
+	display: flex;
+	align-items: center;
+	gap: 50rpx;
+
+	font-size: 24rpx;
+	font-weight: 350;
+	color: rgba(239, 164, 121, 1);
+
+	margin-top: 30rpx;
+}
+
+.switch-tag .tag-item.selected {
+	font-size: 30rpx;
+	color: rgba(185, 89, 33, 1);
+}
+
+.divider-line {
+	background-color: #BFBFBF;
+	
+	width: 620rpx;
+	height: 1px;
+	margin-top: 6rpx;
+}
+
+.main {
+	width: 100%;
+	padding: 0 30rpx;
+	height: 1100rpx;
+	margin-top: 66rpx;
+	/* background-color: #312727; */
+}
+
+.main .cards-container {
+	display: flex;
+	gap: 20rpx;
+}
+
+.main .cards-container .left-cards-list, .main .cards-container .right-cards-list {
+	width: 336rpx;
+	/* background-color: rgb(192, 224, 224); */
+
+	display: flex;
+	flex-direction: column;
+	gap: 40rpx;
+}
+
+.card {
+	width: 100%;
+	height: 420rpx;
+	background-color: rgba(250, 250, 252, 1);
+
+	padding: 18rpx;
+	padding-top: 40rpx; 
+	border-radius: 16rpx;
+	
+	/* 防止first的高度设置没有生效 */
+	flex-shrink: 0;
+
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+
+	border: rgba(255, 225, 207, 1) 1rpx solid;
+	box-shadow: 0 4rpx 0 0 rgba(255, 225, 207, 1);
+}
+
+.card.first {
+	width: 100%;
+	height: 364rpx;
+	padding-top: 18rpx;
+	/* background-color: aquamarine; */
+}
+
+.card .card-header {
+	display: flex;
+	align-items: center;
+	gap: 16rpx;
+}
+
+.card .card-header .user-image {
+	width: 40rpx;
+	height: 40rpx;
+	border-radius: 50%;
+	background-color: rgba(255, 225, 207, 1);
+
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.card .user-img {
+	width: 60%;
+	height: 60%;
+}
+
+.card .card-header .name-container .user-name {
+	font-size: 20rpx;
+	font-weight: 700;
+	color: rgba(87, 30, 0, 1);
+}
+
+.card .card-header .name-container .recipe-name {
+	font-size: 14rpx; 
+  color: rgba(122, 125, 132, 1);
+}
+
+.card .card-image-contianer {
+	width: 100%;
+	height: 192rpx;
+	background-color: rgba(205, 206, 207, 1);
+	border-radius: 16rpx;
+
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.card .card-image-contianer .card-img {
+	width: 22rpx;
+	height: 22rpx;
+}
+
+.card .tool-bar {
+	display: flex;
+	justify-content: space-between;
+}
+
+.card .like-btn , .card .share-btn{
+	width: 24rpx;
+	height: 24rpx;
 }
