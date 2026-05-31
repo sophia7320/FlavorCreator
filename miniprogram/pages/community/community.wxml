@@ -1,5 +1,81 @@
 <!--pages/community/community.wxml-->
 <view class="community-page">
-	<view class="title">社区页面</view>
-	<view class="empty-text">社区功能正在开发中...</view>
+	<view class="top-title">
+		<view class="top-title-text">社区</view>
+	</view>
+	
+	<view class="switch-tag">
+		<block wx:for="{{tags}}" wx:key="index">
+			<view class="tag-item {{item.selected ? 'selected' : ''}}">
+				{{item.name}}
+			</view>
+		</block>
+	</view>
+	
+	<view class="divider-line"></view>
+
+	<scroll-view class="main" scroll-y>
+		<view class="cards-container">
+			<view class="left-cards-list">
+				<block wx:for="{{leftList}}" wx:key="{{item.id}}">
+					<view class="card {{index === 0 ? 'first' : ''}}">
+						<view class="card-header">
+							<view class="user-image">
+								<image src="{{item.userImg}}" mode="aspectFit" class="user-img"/>
+							</view>
+							<view class="name-container">
+								<view class="user-name">{{item.userName}}</view>
+								<view class="recipe-name">{{item.recipeName}}</view>
+							</view>
+						</view>
+
+						<view class="card-image-contianer">
+							<image src="{{item.recipeImage}}" mode="aspectFit" class="card-img"/>	
+						</view>
+
+						<view class="tool-bar">
+							<view class="like" bindTap="onLike">
+								<image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/like.svg" mode="aspectFit" class="like-btn"/>
+							</view>
+							<view class="share" bindTap="onShare">
+								<image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/share.svg" mode="aspectFit" class="share-btn"/>
+							</view>
+						</view>
+					</view>
+
+				</block>
+			</view>
+
+			<view class="right-cards-list">
+				<block wx:for="{{rightList}}" wx:key="{{item.id}}">
+					<view class="card">
+						<view class="card-header">
+							<view class="user-image">
+								<image src="{{item.userImg}}" mode="aspectFit" class="user-img"/>
+							</view>
+							<view class="name-container">
+								<view class="user-name">{{item.userName}}</view>
+								<view class="recipe-name">{{item.recipeName}}</view>
+							</view>
+						</view>
+
+						<view class="card-image-contianer">
+							<image src="{{item.recipeImage}}" mode="aspectFit" class="card-img"/>	
+						</view>
+
+						<view class="tool-bar">
+							<view class="like" bindTap="onLike">
+								<image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/like.svg" mode="aspectFit" class="like-btn"/>
+							</view>
+							<view class="share" bindTap="onShare">
+								<image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/share.svg" mode="aspectFit" class="share-btn"/>
+							</view>
+						</view>
+					</view>
+
+				</block>
+			</view>
+
+		</view>
+	</scroll-view>
 </view>

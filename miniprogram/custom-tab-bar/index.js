@@ -41,23 +41,23 @@ Component({
 		},
 
 		onCreateClick() {
-			// 检查是否有选中的食材
-			if (!this.data.showCreate) {
-				wx.showToast({
-					title: '请先选择食材',
-					icon: 'none'
-				})
-				return
-			}
-
 			// 获取当前页面栈
 			const pages = getCurrentPages()
 			const currentPage = pages[pages.length - 1]
 
 			// 检查是否在 index 页面
 			if (currentPage.route !== 'pages/index/index') {
+				// 不在主页，跳转到主页
+				wx.switchTab({
+					url: '/pages/index/index'
+				})
+				return
+			}
+
+			// 检查是否有选中的食材
+			if (!this.data.showCreate) {
 				wx.showToast({
-					title: '请在首页选择食材',
+					title: '请先选择食材',
 					icon: 'none'
 				})
 				return

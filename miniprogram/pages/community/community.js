@@ -5,7 +5,25 @@ Page({
    * 页面的初始数据
    */
   data: {
-
+		tags: [
+			{name: '快手菜', selected: true},
+			{name: '减脂餐', selected: false},
+			{name: '家常菜', selected: false},
+			{name: '养生频道', selected: false},
+			{name: '特色菜', selected: false},
+		],
+		leftList: [
+			{userName: 'User Name', userImg: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/user.svg', recipeName: 'Addtional info goes here', recipeImage: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/image.svg'},
+			{userName: 'User Name', userImg: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/user.svg', recipeName: 'Addtional info goes here', recipeImage: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/image.svg'},
+			{userName: 'User Name', userImg: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/user.svg', recipeName: 'Addtional info goes here', recipeImage: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/image.svg'},
+			{userName: 'User Name', userImg: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/user.svg', recipeName: 'Addtional info goes here', recipeImage: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/image.svg'},
+		],
+		rightList: [
+			{userName: 'User Name', userImg: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/user.svg', recipeName: 'Addtional info goes here', recipeImage: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/image.svg'},
+			{userName: 'User Name', userImg: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/user.svg', recipeName: 'Addtional info goes here', recipeImage: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/image.svg'},
+			{userName: 'User Name', userImg: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/user.svg', recipeName: 'Addtional info goes here', recipeImage: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/image.svg'},
+			{userName: 'User Name', userImg: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/user.svg', recipeName: 'Addtional info goes here', recipeImage: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/image.svg'},
+		],
   },
 
   /**

@@ -1,5 +1,5 @@
 // 全局状态管理工具
-const requestConfig = require('../config/request.json')
+const requestConfig = require('../config/request')
 
 /**
  * 获取当前使用的请求方式
