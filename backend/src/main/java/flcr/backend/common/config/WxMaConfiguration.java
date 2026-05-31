@@ -27,11 +27,17 @@ public class WxMaConfiguration {
 
     @Bean
     public WxMaDefaultConfigImpl wxMaConfig() {
-        WxMaDefaultConfigImpl config = new WxMaDefaultConfigImpl();
+        WxMaDefaultConfigImpl config = new WxMaDefaultConfigImpl() {
+            @Override
+            public boolean isAccessTokenExpired() {
+                // 云托管环境由平台自动注入和刷新 token，无需自行判断过期
+                return false;
+            }
+        };
         config.setAppid(appId);
         config.setSecret(secret);
 
-        // 云托管环境：初始化时一次性读取 access_token，避免每次 API 调用都读文件
+        // 云托管环境：读取注入的 access_token
         readCloudBaseToken().ifPresent(token -> {
             config.setAccessToken(token);
             log.info("已从云托管环境加载 access_token");
