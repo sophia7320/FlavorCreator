@@ -77,11 +77,6 @@
             <artifactId>jackson-databind</artifactId>
         </dependency>
 
-        <!-- 处理json -->
-        <dependency>
-            <groupId>org.json</groupId>
-            <artifactId>json</artifactId>
-        </dependency>
 
         <!-- 微信小程序 Java SDK -->
         <dependency>
@@ -144,24 +139,7 @@
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjweaver</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <optional>true</optional>
-        </dependency>
 
-        <!-- Spring Boot 参数校验依赖 (用于 @NotEmpty, @Valid 等注解) -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-validation</artifactId>
-        </dependency>
-
-        <!--Swagger 接口文档依赖 (用于 @Schema 注解) -->
-         <dependency>
-             <groupId>org.springdoc</groupId>
-             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-             <version>2.2.0</version>
-         </dependency>
     </dependencies>
 
 
