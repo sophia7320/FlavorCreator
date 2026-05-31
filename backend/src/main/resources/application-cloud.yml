@@ -25,6 +25,12 @@ wx:
 jwt:
   secret: ${JWT_SECRET}
 
+admin:
+  jwt:
+    secret: ${ADMIN_JWT_SECRET}
+    expiration: ${ADMIN_JWT_EXPIRATION:7200000}
+    refresh-expiration: ${ADMIN_JWT_REFRESH_EXPIRATION:604800000}
+
 mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.nologging.NoLoggingImpl
