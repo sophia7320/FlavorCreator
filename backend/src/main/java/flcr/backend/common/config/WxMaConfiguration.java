@@ -63,9 +63,12 @@ public class WxMaConfiguration {
 
     @Bean
     public WxMaService wxMaService(WxMaDefaultConfigImpl wxMaConfig) {
+        WxMaService service = new WxMaServiceImpl();
+             service.setWxMaConfig(wxMaConfig);
+
     // 使用官方提供的云托管服务实现类
-    WxMaService wxMaService = new WxMaCloudServiceImpl();
-    wxMaService.setWxMaConfig(wxMaConfig);
+        WxMaService wxMaService = new WxMaCloudServiceImpl(service);
+        wxMaService.setWxMaConfig(wxMaConfig);
     return wxMaService;
 }
 
