@@ -11,16 +11,16 @@ import java.util.Map;
 @Component
 public class LLM_Client {
 
-    @Value(" $ {llm.api.url:https://api.siliconflow.cn/v1/chat/completions}")
+    @Value(" $ {llm.api.url:https://api.openai.com/v1/chat/completions}")
     private String apiUrl;
 
-    @Value(" $ {llm.api.model:Pro/zai-org/GLM-4.7}")
+    @Value(" $ {llm.api.model:gpt-3.5-turbo}")
     private String modelName;
 
-    @Value(" $ {llm.api.key:sk-pwtinglhtvzmzvbgempceozorwujlepqtxarjfslbzsvmrnx}")
+    @Value(" $ {llm.api.key:sk-vigcsnmtiayvgrwtudutzqvnqzrluppqppgrrrzryynvkmov}")
     private String apiKey;
 
-    private final RestTemplate restTemplate = new RestTemplate(); // Spring 提供的标准 HTTP 请求工具
+    private final RestTemplate restTemplate = new RestTemplate();
 
     public String sendPostRequest(String promptContent) {
         try {
