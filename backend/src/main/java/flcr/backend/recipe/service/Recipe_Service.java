@@ -1,98 +1,77 @@
-import flcr.backend.recipe.entity.RecipeRequest;
-import flcr.backend.recipe.LLMClient;
-import org.json.JSONArray;
-import org.json.JSONObject;
+package flcr.backend.recipe.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import flcr.backend.recipe.DTO.Request.Recipe_Request;
+import flcr.backend.recipe.DTO.Response.Recipe_Response;
+import flcr.backend.recipe.client.LLM_Client;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
 import java.util.List;
 
+@Service
 public class Recipe_Service {
-    private final LLMClient llmClient;
 
-    public RecipeService() {
-        this.llmClient = new LLMClient();
+    private final LLM_Client llmClient;
+    private final ObjectMapper objectMapper;
+
+    public Recipe_Service(LLM_Client llmClient) {
+        this.llmClient = llmClient;
+        this.objectMapper = new ObjectMapper();
     }
 
-    private String askLlm(JSONArray messages) {
-        return llmClient.sendPostRequest(messages);
-    }
-
-    // 对应 Python 的 is_relevant_question 函数
-    private boolean isRelevantQuestion(String ingredientsStr, String preferencesStr) {
-        String checkPrompt = String.format(
-            "判断%s里面是否完全是食材。，%s里面是否完全是与食谱有关的要求。\n" +
-            "只能回答YES或NO。\n" +
-            "只有两个都正确时回答YES，否则回答NO。", 
-            ingredientsStr, preferencesStr
-        );
-        
-        JSONArray messages = new JSONArray();
-        JSONObject message = new JSONObject();
-        message.put("role", "user");
-        message.put("content", checkPrompt);
-        messages.put(message);
-        
-        String result = askLlm(messages);
-        return result != null && result.trim().toUpperCase().equals("YES");
-    }
-
-    // 对应 Python 的 generate_recipe 函数
-    public String generateRecipe(RecipeRequest request) {
-        // 将复杂的对象数据转换为字符串，以便进行合规性校验和拼接 Prompt
-        String ingredientsStr = request.getIngredients().toString();
-        String preferencesStr = request.getPreferences().toString();
-
-        // 业务逻辑：先校验输入是否合规
-        if (!isRelevantQuestion(ingredientsStr, preferencesStr)) {
-            return "食材输入有误或食谱要求有误，请检查后重试。";
-        }
-
-        // 将食材列表格式化为易读的字符串
+    public Recipe_Response generateRecipe(Recipe_Request request) {
+        // 1. 将请求对象格式化为易读的文本，拼接成 Prompt
         StringBuilder ingredientsBuilder = new StringBuilder();
-        for (RecipeRequest.Ingredient ing : request.getIngredients()) {
+        for (Recipe_Request.Ingredient ing : request.getIngredients()) {
             ingredientsBuilder.append(String.format("- %s: %d %s\n", ing.getName(), ing.getQuantity(), ing.getUnit()));
         }
 
-        // 将偏好对象格式化为易读的字符串
-        RecipeRequest.Preferences pref = request.getPreferences();
+        Recipe_Request.Preferences pref = request.getPreferences();
         String preferencesFormatted = String.format(
             "- 口味: %s\n- 饮食限制: %s\n- 烹饪时间: %d分钟\n- 难度: %s",
             pref.getTaste(), pref.getDietary(), pref.getCookTime(), pref.getDifficulty()
         );
 
-        String prompt = String.format(
-            "你是一个专业的食谱问答助手，只回答与flavor creator相关的问题，你的知识范围只包括提供食谱。\n" +
-            "以下给可用食材（已包括调料）和食谱要求，请提供几份食谱。\n" +
-            "注意：\n" +
-            "1.必须严格考虑食材的相冲规则\n" +
-            "2.如果用户的问题与产品无关，礼貌拒绝并引导回正题\n" +
-            "3.不讨论政治、娱乐、编程、其他竞品等无关话题\n" +
-            "4.你的回答不能超过300字\n" +
-            "5.你只能使用已有的食材。如果现有食材不能满足食谱所需，你可以自创食谱，但需要标明该食谱为ai自创仅供参考\n" +
+        // 2. 构造系统提示词，将注意事项放在 JSON 结构模板之后
+        String systemPrompt = String.format(
+            "你是一个专业的食谱问答助手。\n" +
             "可用食材：\n%s\n" +
-            "食谱要求：\n%s\n" +
-            "如果可用食材不足或者可用食材中出现了非食材，请不要提供食谱，只回答“食材输入有误”。\n" +
-            "如果食谱要求与食谱无关，请只回答“食材要求有误”。",
+            "食谱要求：\n%s\n\n" +
+            "请根据以上食材和要求，提供一份最佳食谱。\n\n" +
+            "【极其重要】你必须且只能返回一个纯 JSON 格式的数据，不要包含任何 markdown 标记（如 ```json）或其他多余文字。\n" +
+            "返回的 JSON 必须严格符合以下结构：\n" +
+            "{\"recipe\": {\"name\": \"菜谱名\", \"ingredients\": [{\"name\": \"食材名\", \"quantity\": 数量, \"unit\": \"单位\"}], \"steps\": [{\"order\": 序号, \"description\": \"步骤描述\"}], \"cookTime\": 烹饪时长, \"difficulty\": \"难度\", \"calories\": 卡路里, \"tags\": [\"标签1\", \"标签2\"]}}\n\n" +
+            "【注意事项】\n" +
+            "1. 必须严格考虑食材的相冲规则，避免推荐相克食材的搭配。\n" +
+            "2. 如果用户的问题与食谱产品无关，请礼貌拒绝并引导回正题。\n" +
+            "3. 严禁讨论政治、娱乐、编程、其他竞品等无关话题。\n" +
+            "4. 你的回答（指生成的JSON内容）必须精炼，不要包含冗长的额外说明。\n" +
+            "5. 你只能使用已有的食材。如果现有食材不能满足食谱所需，你可以自创食谱，但需要在 tags 标签中加入 \"AI自创仅供参考\"。\n\n" +
+            "如果食材不足或包含非食材，请返回：{\"recipe\": {\"name\": \"食材输入有误\", \"ingredients\": [], \"steps\": [], \"cookTime\": 0, \"difficulty\": \"\", \"calories\": 0, \"tags\": []}}",
             ingredientsBuilder.toString(), preferencesFormatted
         );
 
-        // 使用 org.json 构造 messages 数组
-        JSONArray messages = new JSONArray();
-        
-        JSONObject sysMsg = new JSONObject();
-        sysMsg.put("role", "system");
-        sysMsg.put("content", prompt);
-        messages.put(sysMsg);
-        
-        JSONObject userMsg1 = new JSONObject();
-        userMsg1.put("role", "user");
-        userMsg1.put("content", ingredientsBuilder.toString());
-        messages.put(userMsg1);
-        
-        JSONObject userMsg2 = new JSONObject();
-        userMsg2.put("role", "user");
-        userMsg2.put("content", preferencesFormatted);
-        messages.put(userMsg2);
+        // 3. 调用大模型客户端，获取返回的 JSON 字符串
+        String llmJsonResponse = llmClient.sendPostRequest(systemPrompt);
 
-        return askLlm(messages);
+        // 4. 将大模型返回的 JSON 字符串解析为 Recipe_Response 对象
+        try {
+            // 处理大模型可能返回的 ```json ... ``` 包裹情况
+            String cleanJson = llmJsonResponse.replace("```json", "").replace("```", "").trim();
+            Recipe_Response response = objectMapper.readValue(cleanJson, Recipe_Response.class);
+            return response;
+        } catch (Exception e) {
+            e.printStackTrace();
+            // 如果解析失败，返回一个兜底的错误响应对象
+            Recipe_Response errorResponse = new Recipe_Response();
+            Recipe_Response.RecipeDetail errorDetail = new Recipe_Response.RecipeDetail();
+            errorDetail.setName("AI生成格式异常，请稍后重试");
+            errorDetail.setIngredients(new ArrayList<>());
+            errorDetail.setSteps(new ArrayList<>());
+            errorDetail.setTags(new ArrayList<>());
+            errorResponse.setRecipe(errorDetail);
+            return errorResponse;
+        }
     }
 }
