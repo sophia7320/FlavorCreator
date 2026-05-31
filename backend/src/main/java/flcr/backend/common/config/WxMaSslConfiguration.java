@@ -23,13 +23,13 @@ public class WxMaSslConfiguration implements BeanPostProcessor {
 
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) {
-        if (bean instanceof BaseWxMaServiceImpl<?> service) {
+        if (bean instanceof BaseWxMaServiceImpl<?, ?> service) {
             configurePermissiveSsl(service);
         }
         return bean;
     }
 
-    private void configurePermissiveSsl(BaseWxMaServiceImpl<?> service) {
+    private void configurePermissiveSsl(BaseWxMaServiceImpl<?, ?> service) {
         try {
             SSLContext sslContext = SSLContext.getInstance("TLSv1.2");
             sslContext.init(null,
