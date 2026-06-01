@@ -11,8 +11,7 @@
     "pages/startGuide/guide",
     "pages/community/community",
     "pages/mine/mine",
-    "pages/settings/settings",
-    "custom-tab-bar/index"
+    "pages/settings/settings"
   ],
   "tabBar": {
     "custom": true,
@@ -40,8 +39,7 @@
     "enablePullDownRefresh": false,
 		"disableScroll": true
   },
-  "style": "v2",
-  "componentFramework": "glass-easel",
+  "usingComponents": {},
   "sitemapLocation": "sitemap.json",
   "lazyCodeLoading": "requiredComponents"
 }

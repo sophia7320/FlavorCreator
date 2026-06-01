@@ -81,6 +81,20 @@ const API_CONFIG = {
       path: '/api/recipe/{id}',
       method: 'GET'
     }
+  },
+
+  // 社区相关
+  community: {
+    // 获取社区菜谱列表
+    list: {
+      path: '/api/community/recipes',
+      method: 'GET'
+    },
+    // 点赞/取消点赞
+    like: {
+      path: '/api/community/recipes/{id}/like',
+      method: 'POST'
+    }
   }
 }
 

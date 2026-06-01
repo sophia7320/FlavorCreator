@@ -575,8 +575,6 @@ Page({
 			if (typeof this.getTabBar === 'function' && this.getTabBar()) {
 				this.getTabBar().updateCreateVisibility(selectedIngredients.length >= 1)
 			}
-			
-			this.playBasketAnimation()
 		}
 	}
 
