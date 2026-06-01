@@ -14,10 +14,11 @@
 	
 	<view class="divider-line"></view>
 
-	<scroll-view class="main" scroll-y>
+	<scroll-view class="main" scroll-y bindscrolltolower="onScrollToLower">
 		<view class="cards-container">
 			<view class="left-cards-list">
 				<block wx:for="{{leftList}}" wx:key="{{item.id}}">
+
 					<view class="card {{index === 0 ? 'first' : ''}}">
 						<view class="card-header">
 							<view class="user-image">
@@ -48,6 +49,7 @@
 
 			<view class="right-cards-list">
 				<block wx:for="{{rightList}}" wx:key="{{item.id}}">
+					
 					<view class="card">
 						<view class="card-header">
 							<view class="user-image">
@@ -76,6 +78,12 @@
 				</block>
 			</view>
 
+		</view>
+
+		<view class="list-status" wx:if="{{loadingStatus}}">
+			<view wx:if="{{loadingStatus === 'loading'}}">加载中...</view>
+			<view wx:if="{{loadingStatus === 'error'}}">加载失败，点击重试</view>
+			<view wx:if="{{loadingStatus === 'noMore'}}">没有更多了</view>
 		</view>
 	</scroll-view>
 </view>

@@ -157,3 +157,11 @@
 	width: 24rpx;
 	height: 24rpx;
 }
+
+.list-status {
+	width: 100%;
+	text-align: center;
+	padding: 40rpx 0;
+	font-size: 24rpx;
+	color: rgba(122, 125, 132, 1);
+}

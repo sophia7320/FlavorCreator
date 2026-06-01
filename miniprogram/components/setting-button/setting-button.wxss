@@ -1,0 +1,17 @@
+.setting {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	width: 80rpx;
+	height: 80rpx;
+	background-color: var(--bg-light-pink);
+	border-radius: 50%;
+
+	box-shadow: 0 4rpx 4rpx 0 var(--shadow-black);
+}
+
+.setting .setting-icon {
+	width: 30rpx;
+	height: 35rpx;
+}

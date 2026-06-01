@@ -24,7 +24,7 @@
 			"list": [
 				{
 					"name": "test",
-					"pathName": "pages/index/index",
+					"pathName": "pages/community/community",
 					"query": "",
 					"scene": null,
 					"launchMode": "default"

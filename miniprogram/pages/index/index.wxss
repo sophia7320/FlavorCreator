@@ -75,7 +75,7 @@
 	z-index: 10;
 }
 
-.tool-bar-container .setting , .tool-bar-container .ingredients-storage {
+.tool-bar-container .ingredients-storage {
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -86,11 +86,6 @@
 	border-radius: 50%;
 
 	box-shadow: 0 4rpx 4rpx 0 var(--shadow-black);
-}
-
-.tool-bar-container .setting .setting-icon {
-	width: 30rpx;
-	height: 35rpx;
 }
 
 .tool-bar-container .ingredients-storage .ingredients-storage-icon {

@@ -1,6 +1,7 @@
 {
   "usingComponents": {
-		"ingredients-choose": "/components/index-swiper-contianer/swiper-ingredients/ingredients-choose"
+		"ingredients-choose": "/components/index-swiper-contianer/swiper-ingredients/ingredients-choose",
+		"setting-button": "/components/setting-button/setting-button"
   },
   "enablePullDownRefresh": false
 }

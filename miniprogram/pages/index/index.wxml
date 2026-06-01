@@ -15,9 +15,7 @@
 	</view>
 
 	<view class="tool-bar-container">
-		<view class="setting" bindtap="onSettingTap">
-			<image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/setting-icon.png" mode="aspectFit" class="setting-icon"/>
-		</view>
+		<setting-button bind:settingtap="onSettingTap"></setting-button>
 		<view class="title">Cooking!</view>
 		<view class="ingredients-storage">
 			<image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/storage-icon.png" mode="aspectFit" class="ingredients-storage-icon"/>
