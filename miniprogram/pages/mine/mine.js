@@ -27,13 +27,18 @@ Page({
    * 生命周期函数--监听页面初次渲染完成
    */
   onReady() {
-
+    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
+      this.getTabBar().onTabPageShow()
+    }
   },
 
   /**
    * 生命周期函数--监听页面显示
    */
   onShow() {
+    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
+      this.getTabBar().onTabPageShow()
+    }
     // 每次显示页面时更新用户信息
     const userInfo = wx.getStorageSync('userInfo')
     if (userInfo) {

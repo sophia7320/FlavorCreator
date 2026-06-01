@@ -101,12 +101,18 @@ Page({
 		this.updateTime()
 		// 初始化时计算selected-line的位置
 		this.updateIndicatorPosition()
-		// 初始化 tab-bar 的 Create 显示状态
+		// 自定义 Tab 多实例：须在本页 onShow 驱动当前页 TabBar 接力（官方 getTabBar 用法）
 		if (typeof this.getTabBar === 'function' && this.getTabBar()) {
-			this.getTabBar().updateCreateVisibility(this.data.selectedIngredients.length >= 1)
+			this.getTabBar().onTabPageShow()
 		}
 		// 初始化食材搜索数据
 		this.initIngredientsList()
+	},
+
+	onReady() {
+		if (typeof this.getTabBar === 'function' && this.getTabBar()) {
+			this.getTabBar().onTabPageShow()
+		}
 	},
 
 	onDefaultModeTap(e) {

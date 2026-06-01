@@ -6,7 +6,7 @@
 	
 	<view class="switch-tag">
 		<block wx:for="{{tags}}" wx:key="index">
-			<view class="tag-item {{item.selected ? 'selected' : ''}}" bindtap="onTagSwitch" data-name="{{item.name}}">
+			<view class="tag-item {{item.selected ? 'selected' : ''}}">
 				{{item.name}}
 			</view>
 		</block>
@@ -14,21 +14,14 @@
 	
 	<view class="divider-line"></view>
 
-	<scroll-view 
-		class="main" 
-		scroll-y 
-		enhanced 
-		show-scrollbar="{{false}}"
-		bindscrolltolower="onScrollToLower"
-		lower-threshold="100"
-	>
+	<scroll-view class="main" scroll-y>
 		<view class="cards-container">
 			<view class="left-cards-list">
-				<block wx:for="{{leftList}}" wx:key="id">
+				<block wx:for="{{leftList}}" wx:key="{{item.id}}">
 					<view class="card {{index === 0 ? 'first' : ''}}">
 						<view class="card-header">
 							<view class="user-image">
-								<image src="{{item.userImg}}" mode="aspectFill" class="user-img"/>
+								<image src="{{item.userImg}}" mode="aspectFit" class="user-img"/>
 							</view>
 							<view class="name-container">
 								<view class="user-name">{{item.userName}}</view>
@@ -37,32 +30,28 @@
 						</view>
 
 						<view class="card-image-contianer">
-							<image src="{{item.recipeImage}}" mode="aspectFill" class="card-img"/>	
+							<image src="{{item.recipeImage}}" mode="aspectFit" class="card-img"/>	
 						</view>
 
 						<view class="tool-bar">
-							<view class="like" bindtap="onLike" data-id="{{item.id}}">
-								<image 
-									src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/{{item.isLiked ? 'like' : 'like'}}.svg" 
-									mode="aspectFit" 
-									class="like-btn {{item.isLiked ? 'liked' : ''}}"
-								/>
-								<text class="like-count" wx:if="{{item.likeCount > 0}}">{{item.likeCount}}</text>
+							<view class="like" bindTap="onLike">
+								<image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/like.svg" mode="aspectFit" class="like-btn"/>
 							</view>
-							<view class="share">
+							<view class="share" bindTap="onShare">
 								<image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/share.svg" mode="aspectFit" class="share-btn"/>
 							</view>
 						</view>
 					</view>
+
 				</block>
 			</view>
 
 			<view class="right-cards-list">
-				<block wx:for="{{rightList}}" wx:key="id">
+				<block wx:for="{{rightList}}" wx:key="{{item.id}}">
 					<view class="card">
 						<view class="card-header">
 							<view class="user-image">
-								<image src="{{item.userImg}}" mode="aspectFill" class="user-img"/>
+								<image src="{{item.userImg}}" mode="aspectFit" class="user-img"/>
 							</view>
 							<view class="name-container">
 								<view class="user-name">{{item.userName}}</view>
@@ -71,42 +60,22 @@
 						</view>
 
 						<view class="card-image-contianer">
-							<image src="{{item.recipeImage}}" mode="aspectFill" class="card-img"/>	
+							<image src="{{item.recipeImage}}" mode="aspectFit" class="card-img"/>	
 						</view>
 
 						<view class="tool-bar">
-							<view class="like" bindtap="onLike" data-id="{{item.id}}">
-								<image 
-									src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/{{item.isLiked ? 'like' : 'like'}}.svg" 
-									mode="aspectFit" 
-									class="like-btn {{item.isLiked ? 'liked' : ''}}"
-								/>
-								<text class="like-count" wx:if="{{item.likeCount > 0}}">{{item.likeCount}}</text>
+							<view class="like" bindTap="onLike">
+								<image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/like.svg" mode="aspectFit" class="like-btn"/>
 							</view>
-							<view class="share">
+							<view class="share" bindTap="onShare">
 								<image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/share.svg" mode="aspectFit" class="share-btn"/>
 							</view>
 						</view>
 					</view>
+
 				</block>
 			</view>
-		</view>
 
-		<!-- 底部加载状态 -->
-		<view class="bottom-status">
-			<view wx:if="{{isLoading}}" class="loading-tip">
-				<view class="loading-spinner"></view>
-				<text>正在加载...</text>
-			</view>
-			<view wx:elif="{{!hasMore && (leftList.length > 0 || rightList.length > 0)}}" class="no-more-tip">
-				— 没有更多了 —
-			</view>
 		</view>
 	</scroll-view>
-
-	<!-- 空状态 -->
-	<view wx:if="{{!isLoading && leftList.length === 0 && rightList.length === 0}}" class="empty-state">
-		<image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/image.svg" mode="aspectFit" class="empty-icon"/>
-		<text class="empty-text">暂无菜谱，快来分享吧</text>
-	</view>
 </view>

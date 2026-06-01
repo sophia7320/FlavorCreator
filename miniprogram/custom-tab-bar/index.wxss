@@ -1,18 +1,18 @@
 /* custom-tab-bar/index.wxss */
 .tab-bar {
-	/* 在组件根元素定义CSS变量 */
 	--radius-xl: 50rpx;
 	--bg-white-transparent: rgba(255, 255, 255, 0.7);
 	--font-size-xs: 12rpx;
 	--color-primary: rgba(186, 91, 33, 1);
+	--create-anim-duration: 0.3s;
+	--create-anim-easing: ease-in-out;
 
 	width: 750rpx;
 	height: 134rpx;
-	
+
 	display: flex;
 	align-items: start;
 	justify-content: center;
-	
 }
 
 .tab-bar .container {
@@ -60,17 +60,15 @@
 .FC-create-icon {
 	width: 130rpx;
 	height: 130rpx;
-	transition: transform 0.3s ease-in-out;
 }
 
-/* 图标显示状态：向上移出容器 */
-.FC-create-icon.show {
-	transform: translateY(-130rpx);
-}
-
-/* 图标隐藏状态：原位显示 */
+/* 终态：图标原位 / 文字在容器外 */
 .FC-create-icon.hide {
 	transform: translateY(0);
+}
+
+.FC-create-icon.show {
+	transform: translateY(-130rpx);
 }
 
 .create-text {
@@ -87,23 +85,87 @@
 	color: rgba(185, 89, 33, 1);
 	font-weight: 700;
 	font-size: 30rpx;
-	transition: transform 0.3s ease-in-out;
-
-	
 }
 
-/* 文字显示状态：原位显示 */
-.create-text.show {
-	transform: translateY(0);
-}
-
-/* 文字隐藏状态：向下移动，完全在容器外 */
 .create-text.hide {
 	transform: translateY(130rpx);
 }
 
-/* 禁用过渡动画（用于瞬间跳转到目标状态） */
+.create-text.show {
+	transform: translateY(0);
+}
+
+/* 选中食材 / 取消最后一个：关键帧动画（与原 transition 0.3s ease-in-out 一致） */
+@keyframes create-icon-show {
+	from {
+		transform: translateY(0);
+	}
+	to {
+		transform: translateY(-130rpx);
+	}
+}
+
+@keyframes create-icon-hide {
+	from {
+		transform: translateY(-130rpx);
+	}
+	to {
+		transform: translateY(0);
+	}
+}
+
+@keyframes create-text-show {
+	from {
+		transform: translateY(130rpx);
+	}
+	to {
+		transform: translateY(0);
+	}
+}
+
+@keyframes create-text-hide {
+	from {
+		transform: translateY(0);
+	}
+	to {
+		transform: translateY(130rpx);
+	}
+}
+
+.FC-create-icon.show.animate {
+	animation: create-icon-show var(--create-anim-duration) var(--create-anim-easing) forwards;
+}
+
+.FC-create-icon.hide.animate {
+	animation: create-icon-hide var(--create-anim-duration) var(--create-anim-easing) forwards;
+}
+
+.create-text.show.animate {
+	animation: create-text-show var(--create-anim-duration) var(--create-anim-easing) forwards;
+}
+
+.create-text.hide.animate {
+	animation: create-text-hide var(--create-anim-duration) var(--create-anim-easing) forwards;
+}
+
+/* 无动画：瞬间落到终态（Tab 接力首帧等） */
 .FC-create-icon.no-transition,
 .create-text.no-transition {
-	transition: none !important;
+	animation: none !important;
+}
+
+.FC-create-icon.no-transition.hide {
+	transform: translateY(0);
+}
+
+.FC-create-icon.no-transition.show {
+	transform: translateY(-130rpx);
+}
+
+.create-text.no-transition.hide {
+	transform: translateY(130rpx);
+}
+
+.create-text.no-transition.show {
+	transform: translateY(0);
 }
