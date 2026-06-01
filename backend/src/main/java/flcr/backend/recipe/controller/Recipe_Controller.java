@@ -1,5 +1,5 @@
-import flcr.backend.recipe.dto.Recipe_Request;
-import flcr.backend.recipe.dto.Recipe_Response; 
+import flcr.backend.recipe.DTO.Recipe_Request;
+import flcr.backend.recipe.DTO.Recipe_Response; 
 import flcr.backend.recipe.service.Recipe_Service;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
