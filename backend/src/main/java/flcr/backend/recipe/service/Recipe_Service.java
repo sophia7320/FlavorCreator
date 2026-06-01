@@ -1,9 +1,10 @@
+package flcr.backend.recipe.service;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import flcr.backend.recipe.DTO.Recipe_Request;
 import flcr.backend.recipe.DTO.Recipe_Response;
 import flcr.backend.recipe.client.LLM_Client;
 import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.List;
 
