@@ -3,6 +3,7 @@ package flcr.backend.recipe.controller;
 import flcr.backend.recipe.DTO.request.Recipe_Request;
 import flcr.backend.recipe.DTO.response.Recipe_Response; 
 import flcr.backend.recipe.service.Recipe_Service;
+import flcr.backend.recipe.common.Result;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,6 +15,7 @@ public class Recipe_Controller {
     
     private final Recipe_Service recipe_service;
 
+    @RequiredArgsConstructor
     public Recipe_Controller(Recipe_Service recipe_service) {
         this.recipe_service = recipe_service;
     }
