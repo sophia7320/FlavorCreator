@@ -5,6 +5,9 @@ import lombok.Data;
 import java.util.List;
 
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Schema(description = "菜谱生成响应数据实体")
 public class Recipe_Response {
 
