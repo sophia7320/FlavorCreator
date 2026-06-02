@@ -13,8 +13,9 @@ import java.util.List;
 public class Recipe_Request {
 
     @NotEmpty(message = "食材列表不能为空")
+    @Valid
     @Schema(description = "食材列表")
-    private List<Ingredient> ingredients;
+    private List<@Valid Ingredient> ingredients;
 
     @Valid
     @Schema(description = "用户的口味和偏好设置")

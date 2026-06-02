@@ -1,5 +1,7 @@
 package flcr.backend.recipe.client;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
@@ -9,7 +11,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Component
+@RequiredArgsConstructor
 public class LLM_Client {
 
     @Value("${llm.api.url}")
@@ -21,7 +25,7 @@ public class LLM_Client {
     @Value("${llm.api.key}")
     private String apiKey;
 
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
 
     public String sendPostRequest(String promptContent) {
         try {
@@ -56,7 +60,7 @@ public class LLM_Client {
             return "{\"recipe\": {\"name\": \"大模型接口调用失败\", \"ingredients\": [], \"steps\": [], \"cookTime\": 0, \"difficulty\": \"\", \"calories\": 0, \"tags\": []}}";
 
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("LLM API call failed", e);
             return "{\"recipe\": {\"name\": \"网络请求异常\", \"ingredients\": [], \"steps\": [], \"cookTime\": 0, \"difficulty\": \"\", \"calories\": 0, \"tags\": []}}";
         }
     }

@@ -1,26 +1,26 @@
-package flcr.backend.recipe.service;
+package flcr.backend.recipe.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import flcr.backend.common.constants.ResultCode;
+import flcr.backend.common.exception.BusinessException;
 import flcr.backend.recipe.DTO.request.Recipe_Request;
 import flcr.backend.recipe.DTO.response.Recipe_Response;
 import flcr.backend.recipe.client.LLM_Client;
+import flcr.backend.recipe.service.RecipeGenerateService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import java.util.ArrayList;
-import java.util.List;
 
+@Slf4j
 @Service
-public class Recipe_Service {
+@RequiredArgsConstructor
+public class Recipe_Service implements RecipeGenerateService {
 
     private final LLM_Client llmClient;
     private final ObjectMapper objectMapper;
 
-    @RequiredArgsConstructor
-    public Recipe_Service(LLM_Client llmClient, ObjectMapper objectMapper) {
-        this.llmClient = llmClient;
-        this.objectMapper = objectMapper;
-    }
-
-    public Recipe_Response generate_Recipe(Recipe_Request request) {
+    @Override
+    public Recipe_Response generateRecipe(Recipe_Request request) {
         StringBuilder ingredientsBuilder = new StringBuilder();
         for (Recipe_Request.Ingredient ing : request.getIngredients()) {
             ingredientsBuilder.append(String.format("- %s: %d %s\n", ing.getName(), ing.getQuantity(), ing.getUnit()));
@@ -54,18 +54,10 @@ public class Recipe_Service {
 
         try {
             String cleanJson = llmJsonResponse.replace("```json", "").replace("```", "").trim();
-            Recipe_Response response = objectMapper.readValue(cleanJson, Recipe_Response.class);
-            return response;
+            return objectMapper.readValue(cleanJson, Recipe_Response.class);
         } catch (Exception e) {
-            e.printStackTrace();
-            Recipe_Response errorResponse = new Recipe_Response();
-            Recipe_Response.RecipeDetail errorDetail = new Recipe_Response.RecipeDetail();
-            errorDetail.setName("AI生成格式异常，请稍后重试");
-            errorDetail.setIngredients(new ArrayList<>());
-            errorDetail.setSteps(new ArrayList<>());
-            errorDetail.setTags(new ArrayList<>());
-            errorResponse.setRecipe(errorDetail);
-            return errorResponse;
+            log.error("Failed to parse LLM JSON response", e);
+            throw new BusinessException(ResultCode.SYSTEM_ERROR, "AI生成格式解析失败");
         }
     }
 }
