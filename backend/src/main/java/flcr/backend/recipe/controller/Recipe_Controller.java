@@ -8,14 +8,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/recipe")
+@RequiredArgsConstructor
 public class Recipe_Controller {
     
     private final Recipe_Service recipe_service;
 
-    @RequiredArgsConstructor
     public Recipe_Controller(Recipe_Service recipe_service) {
         this.recipe_service = recipe_service;
     }
