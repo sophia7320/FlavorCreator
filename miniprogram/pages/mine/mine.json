@@ -1,3 +1,5 @@
 {
-  "usingComponents": {}
+  "usingComponents": {
+    "recipe-card": "/components/recipe-card/recipe-card"
+  }
 }

@@ -1,0 +1,126 @@
+<!--pages/detail/detail.wxml-->
+<view class="page" wx:if="{{!loading && recipe}}">
+  <!-- 顶部封面图 -->
+  <view class="cover-section">
+    <image src="{{recipe.cover}}" mode="aspectFill" class="cover-img"/>
+    <view class="cover-overlay">
+      <view class="back-btn" bindtap="onBack">
+        <text class="back-icon">‹</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 基本信息 -->
+  <view class="info-section">
+    <view class="recipe-name">{{recipe.name}}</view>
+
+    <!-- 作者信息 -->
+    <view class="author-row">
+      <view class="author-avatar-wrap">
+        <image src="{{recipe.author.avatar}}" mode="aspectFill" class="author-avatar"/>
+      </view>
+      <text class="author-name">{{recipe.author.nickname}}</text>
+    </view>
+
+    <!-- 统计数据 -->
+    <view class="stats-row">
+      <view class="stat-item">
+        <text class="stat-num">{{recipe.stats.likes || 0}}</text>
+        <text class="stat-label">点赞</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-num">{{recipe.stats.collections || 0}}</text>
+        <text class="stat-label">收藏</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-num">{{recipe.stats.comments || 0}}</text>
+        <text class="stat-label">评论</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-num">{{recipe.stats.views || 0}}</text>
+        <text class="stat-label">浏览</text>
+      </view>
+    </view>
+
+    <!-- 标签 -->
+    <view class="tags-row" wx:if="{{recipe.tags.length}}">
+      <view class="tag" wx:for="{{recipe.tags}}" wx:key="*this">{{item}}</view>
+    </view>
+
+    <!-- 烹饪信息条 -->
+    <view class="meta-row">
+      <view class="meta-item">
+        <text class="meta-icon">⏱</text>
+        <text class="meta-text">{{recipe.cookTime}} 分钟</text>
+      </view>
+      <view class="meta-item">
+        <text class="meta-icon">📊</text>
+        <text class="meta-text">{{recipe.difficulty}}</text>
+      </view>
+      <view class="meta-item" wx:if="{{recipe.calories}}">
+        <text class="meta-icon">🔥</text>
+        <text class="meta-text">{{recipe.calories}} 千卡</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 分隔线 -->
+  <view class="divider"></view>
+
+  <!-- 食材列表 -->
+  <view class="section">
+    <view class="section-title">🥬 所需食材</view>
+    <view class="ingredients-list">
+      <view class="ingredient-item" wx:for="{{recipe.ingredients}}" wx:key="name">
+        <text class="ing-name">{{item.name}}</text>
+        <text class="ing-qty">{{item.quantity}}{{item.unit}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 分隔线 -->
+  <view class="divider"></view>
+
+  <!-- 烹饪步骤 -->
+  <view class="section">
+    <view class="section-title">👨‍🍳 烹饪步骤</view>
+    <view class="steps-list">
+      <view class="step-item" wx:for="{{recipe.steps}}" wx:key="order">
+        <view class="step-num">{{item.order}}</view>
+        <text class="step-desc">{{item.description}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 小贴士 -->
+  <view class="section" wx:if="{{recipe.tips}}">
+    <view class="section-title">💡 小贴士</view>
+    <view class="tips-box">
+      <text class="tips-text">{{recipe.tips}}</text>
+    </view>
+  </view>
+
+  <!-- 底部占位 -->
+  <view class="bottom-placeholder"></view>
+</view>
+
+<!-- 加载中 -->
+<view class="loading-wrap" wx:if="{{loading}}">
+  <text class="loading-text">加载中...</text>
+</view>
+
+<!-- 底部操作栏 -->
+<view class="bottom-bar" wx:if="{{!loading && recipe}}">
+  <button class="bar-btn like-btn {{isLiked ? 'active' : ''}}" bindtap="onLike">
+    <text class="bar-icon">{{isLiked ? '❤️' : '🤍'}}</text>
+    <text class="bar-label">收藏</text>
+  </button>
+  <button class="bar-btn collect-btn {{isCollected ? 'active' : ''}}" bindtap="onCollect">
+    <text class="bar-icon">{{isCollected ? '⭐' : '☆'}}</text>
+    <text class="bar-label">收藏</text>
+  </button>
+  <button class="bar-btn share-btn" open-type="share">
+    <text class="bar-icon">↗</text>
+    <text class="bar-label">分享</text>
+  </button>
+</view>

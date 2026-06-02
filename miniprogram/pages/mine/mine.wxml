@@ -15,22 +15,30 @@
 
 	<view class="main">
 		<view class="switch-tags">
-			<view class="shared">
+			<view class="tag-item {{tagIndex === 0 ? 'active' : ''}}" bindtap="onSwitchTag" data-index="0">
 				<text>已发布</text>
 			</view>
-			<view class="like">
+			<view class="tag-item {{tagIndex === 1 ? 'active' : ''}}" bindtap="onSwitchTag" data-index="1">
 				<text>收藏</text>
 			</view>
 		</view>
 
 		<view class="divider-line"></view>
 
-		<view class="cards-contianer">
-			<block wx:for="{{tagIndex == 0 ? sharedCards : likeCards}}" wx:key="id">
-				<view class="card">
-					
+		<scroll-view class="cards-container" scroll-y>
+			<block wx:for="{{currentCards}}" wx:key="id">
+				<view class="card-wrapper">
+					<recipe-card
+						cardData="{{item}}"
+						isLiked="{{tagIndex === 1}}"
+						bind:liketap="onLike"
+						bind:sharetap="onShare"
+					/>
 				</view>
 			</block>
-		</view>
+			<view wx:if="{{currentCards.length === 0}}" class="empty-tip">
+				暂无内容
+			</view>
+		</scroll-view>
 	</view>
 </view>

@@ -1,0 +1,26 @@
+<!--components/recipe-card/recipe-card.wxml-->
+<view class="card {{isFirst ? 'first' : ''}}" bindtap="onCardTap">
+  <view class="card-header" catchtap="onUserTap">
+    <view class="user-image">
+      <image src="{{cardData.userImg}}" mode="aspectFit" class="user-img"/>
+    </view>
+    <view class="name-container">
+      <view class="user-name">{{cardData.userName}}</view>
+      <view class="recipe-name">{{cardData.recipeName}}</view>
+    </view>
+  </view>
+
+  <view class="card-image-contianer">
+    <image src="{{cardData.recipeImage}}" mode="aspectFit" class="card-img"/>  
+  </view>
+
+  <view class="tool-bar">
+    <view class="like {{isLiked ? 'liked' : ''}}" bindtap="onLikeTap">
+      <image src="{{isLiked ? 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/red-heart.svg' : 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/like.svg'}}" mode="aspectFit" class="like-btn"/>
+      <text class="like-count">{{cardData.likeCount || ''}}</text>
+    </view>
+    <button class="share" open-type="share" bindtap="onShareTap">
+      <image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/share.svg" mode="aspectFit" class="share-btn"/>
+    </button>
+  </view>
+</view>

@@ -11,7 +11,9 @@
     "pages/startGuide/guide",
     "pages/community/community",
     "pages/mine/mine",
-    "pages/settings/settings"
+    "pages/settings/settings",
+    "pages/detail/detail",
+    "pages/user/user"
   ],
   "tabBar": {
     "custom": true,

@@ -83,17 +83,41 @@ const API_CONFIG = {
     }
   },
 
+  // 用户个人中心相关
+  userCenter: {
+    // 获取已发布菜谱
+    published: {
+      path: '/api/user/published',
+      method: 'GET'
+    },
+    // 获取收藏列表
+    collections: {
+      path: '/api/user/collections',
+      method: 'GET'
+    }
+  },
+
   // 社区相关
   community: {
     // 获取社区菜谱列表
     list: {
-      path: '/api/community/recipes',
+      path: '/api/recipe/list',
       method: 'GET'
     },
     // 点赞/取消点赞
     like: {
       path: '/api/community/recipes/{id}/like',
       method: 'POST'
+    },
+    // 收藏菜谱
+    collect: {
+      path: '/api/community/recipe/{id}/collect',
+      method: 'POST'
+    },
+    // 取消收藏
+    uncollect: {
+      path: '/api/community/recipe/{id}/collect',
+      method: 'DELETE'
     }
   }
 }
