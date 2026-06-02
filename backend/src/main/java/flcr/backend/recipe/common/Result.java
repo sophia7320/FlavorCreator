@@ -5,6 +5,7 @@ public class Result<T> {
     private String message;    
     private T data;            
 
+    @Builder
     public static <T> Result<T> success(T data) {
         Result<T> result = new Result<>(); 
         result.setCode(200);               
@@ -13,6 +14,7 @@ public class Result<T> {
         return result;                     
     }
 
+    @Builder
     public static <T> Result<T> error(String message) {
         Result<T> result = new Result<>(); 
         result.setCode(500);               
