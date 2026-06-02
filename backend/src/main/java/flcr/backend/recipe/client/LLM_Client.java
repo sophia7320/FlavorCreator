@@ -12,13 +12,13 @@ import java.util.Map;
 @Component
 public class LLM_Client {
 
-    @Value(" ${llm.api.url:https://api.openai.com/v1/chat/completions}")
+    @Value("${llm.api.url}")
     private String apiUrl;
 
-    @Value(" ${llm.api.model:gpt-3.5-turbo}")
+    @Value("${llm.api.model}")
     private String modelName;
 
-    @Value(" ${llm.api.key:sk-vigcsnmtiayvgrwtudutzqvnqzrluppqppgrrrzryynvkmov}")
+    @Value("${llm.api.key}")
     private String apiKey;
 
     private final RestTemplate restTemplate = new RestTemplate();
