@@ -15,6 +15,9 @@ public class Recipe_Response {
     private RecipeDetail recipe;
 
     @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     @Schema(description = "菜谱详细详情")
     public static class RecipeDetail {
         
@@ -41,6 +44,9 @@ public class Recipe_Response {
     }
 
     @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     @Schema(description = "菜谱中的食材项")
     public static class IngredientItem {
         @Schema(description = "食材名称", example = "鸡蛋")
@@ -54,6 +60,9 @@ public class Recipe_Response {
     }
 
     @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     @Schema(description = "菜谱中的步骤项")
     public static class StepItem {
         @Schema(description = "步骤序号", example = "1")
