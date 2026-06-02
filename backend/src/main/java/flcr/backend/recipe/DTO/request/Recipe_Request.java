@@ -7,6 +7,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
+@NoArgsConstructor
 @Schema(description = "菜谱生成请求参数实体")
 public class Recipe_Request {
 
