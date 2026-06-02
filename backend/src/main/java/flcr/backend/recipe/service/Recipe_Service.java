@@ -14,12 +14,13 @@ public class Recipe_Service {
     private final LLM_Client llmClient;
     private final ObjectMapper objectMapper;
 
+    @RequiredArgsConstructor
     public Recipe_Service(LLM_Client llmClient, ObjectMapper objectMapper) {
         this.llmClient = llmClient;
         this.objectMapper = objectMapper;
     }
 
-    public Recipe_Response generateRecipe(Recipe_Request request) {
+    public Recipe_Response generate_Recipe(Recipe_Request request) {
         StringBuilder ingredientsBuilder = new StringBuilder();
         for (Recipe_Request.Ingredient ing : request.getIngredients()) {
             ingredientsBuilder.append(String.format("- %s: %d %s\n", ing.getName(), ing.getQuantity(), ing.getUnit()));
