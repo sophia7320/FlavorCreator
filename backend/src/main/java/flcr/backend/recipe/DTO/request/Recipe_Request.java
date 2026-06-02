@@ -21,6 +21,7 @@ public class Recipe_Request {
     private Preferences preferences;
 
     @Data
+    @NoArgsConstructor
     @Schema(description = "食材详情")
     public static class Ingredient {
         @Schema(description = "食材名称", example = "鸡蛋")
@@ -34,6 +35,7 @@ public class Recipe_Request {
     }
 
     @Data
+    @NoArgsConstructor
     @Schema(description = "口味与偏好")
     public static class Preferences {
         @Schema(description = "口味要求", example = "[\"清淡\", \"少油\"]")
