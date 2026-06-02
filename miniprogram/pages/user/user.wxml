@@ -1,0 +1,50 @@
+<!--pages/user/user.wxml-->
+<view class="page">
+  <!-- 用户信息头部 -->
+  <view class="user-header">
+    <view class="avatar-wrap">
+      <image src="{{userInfo.avatar}}" mode="aspectFill" class="avatar" wx:if="{{userInfo.avatar}}"/>
+      <image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/user.svg" mode="aspectFit" class="avatar placeholder" wx:else/>
+    </view>
+    <view class="user-name">{{userInfo.nickname || '匿名用户'}}</view>
+  </view>
+
+  <!-- 分隔 -->
+  <view class="section-title">
+    <text>Ta 的菜谱</text>
+  </view>
+
+  <!-- 菜谱列表 -->
+  <scroll-view class="recipe-scroll" scroll-y bindscrolltolower="onReachBottom">
+    <view class="recipe-list" wx:if="{{recipes.length}}">
+      <block wx:for="{{recipes}}" wx:key="id">
+        <recipe-card
+          cardData="{{item}}"
+          isLiked="{{item.isLiked}}"
+          bind:cardtap="onCardTap"
+          bind:liketap="onLike"
+          bind:sharetap="onShare"
+        />
+      </block>
+    </view>
+
+    <!-- 空状态 -->
+    <view class="empty" wx:if="{{!loading && !recipes.length}}">
+      <text class="empty-text">Ta 还没有发布菜谱</text>
+    </view>
+
+    <!-- 加载状态 -->
+    <view class="list-status" wx:if="{{loadingStatus}}">
+      <view wx:if="{{loadingStatus === 'loading'}}">加载中...</view>
+      <view wx:if="{{loadingStatus === 'error'}}">加载失败，点击重试</view>
+      <view wx:if="{{loadingStatus === 'noMore'}}">没有更多了</view>
+    </view>
+
+    <view class="bottom-safe"></view>
+  </scroll-view>
+
+  <!-- 加载中 -->
+  <view class="loading-wrap" wx:if="{{loading}}">
+    <text class="loading-text">加载中...</text>
+  </view>
+</view>

@@ -1,8 +1,14 @@
 // app.js
-const { BASE_URL } = require('./config/api') // 引入 API 配置
+const { API_CONFIG, CLOUD_CONFIG } = require('./config/api')
+const { request } = require('./utils/request')
 
 App({
   onLaunch() {
+    // 初始化云开发
+    wx.cloud.init({
+      env: CLOUD_CONFIG.env,
+      traceUser: true
+    })
     // 从本地存储同步登录状态
     this.syncFromStorage()
   },
@@ -72,29 +78,21 @@ App({
     const refreshToken = this.getRefreshToken()
     if (!refreshToken) return Promise.resolve(false)
 
-    return new Promise((resolve) => {
-      wx.request({
-        url: BASE_URL + '/api/auth/refresh',
-        method: 'POST',
-        data: { refreshToken },
-        success: (res) => {
-          if (res.data.code === 200) {
-            const data = res.data.data
-            // 接口返回: token, refreshToken, expiresIn
-            this.saveLoginInfo(data.token, data.refreshToken, this.getUserInfo())
-            resolve(true)
-          } else {
-            // refreshToken 也过期了，清除登录状态
-            this.clearLoginState()
-            resolve(false)
-          }
-        },
-        fail: () => {
+    return request(API_CONFIG.auth.refresh, { refreshToken }, { showLoading: false })
+      .then((res) => {
+        if (res.code === 0 || res.code === 200) {
+          const data = res.data
+          this.saveLoginInfo(data.token, data.refreshToken, this.getUserInfo())
+          return true
+        } else {
           this.clearLoginState()
-          resolve(false)
+          return false
         }
       })
-    })
+      .catch(() => {
+        this.clearLoginState()
+        return false
+      })
   },
 
   globalData: {

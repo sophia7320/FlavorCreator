@@ -63,8 +63,23 @@ Page({
 				taste: [],
 				cookTime: null,
 				difficulty: null
-			}
+			},
+
+			// basket 相关
+			showBasketAnimation: false,
+			showBasketTip: false,
+			basketTipText: '',
+			showBasketPanel: false
   },
+
+	timerId: null,
+
+	// 点击设置
+	onSettingTap() {
+		wx.navigateTo({
+			url: '/pages/settings/settings'
+		})
+	},
 
 	// 时间更新 
 	updateTime() {
@@ -86,12 +101,18 @@ Page({
 		this.updateTime()
 		// 初始化时计算selected-line的位置
 		this.updateIndicatorPosition()
-		// 初始化 tab-bar 的 Create 显示状态
+		// 自定义 Tab 多实例：须在本页 onShow 驱动当前页 TabBar 接力（官方 getTabBar 用法）
 		if (typeof this.getTabBar === 'function' && this.getTabBar()) {
-			this.getTabBar().updateCreateVisibility(this.data.selectedIngredients.length >= 1)
+			this.getTabBar().onTabPageShow()
 		}
 		// 初始化食材搜索数据
 		this.initIngredientsList()
+	},
+
+	onReady() {
+		if (typeof this.getTabBar === 'function' && this.getTabBar()) {
+			this.getTabBar().onTabPageShow()
+		}
 	},
 
 	onDefaultModeTap(e) {
@@ -176,6 +197,8 @@ Page({
 	// 监听食材选择变化
 	onIngredientsChange(e) {
 		const selectedIngredients = e.detail.selectedIngredients
+		const changedIngredient = e.detail.changedIngredient
+		
 		this.setData({
 			selectedIngredients: selectedIngredients
 		})
@@ -183,6 +206,20 @@ Page({
 		// 更新 tab-bar 的 Create 显示状态
 		if (typeof this.getTabBar === 'function' && this.getTabBar()) {
 			this.getTabBar().updateCreateVisibility(selectedIngredients.length >= 1)
+		}
+
+		// 如果有食材变化，触发 basket 动画
+		if (changedIngredient) {
+			// 判断是添加还是取消
+			const isAdded = selectedIngredients.some(item => item.name === changedIngredient.name)
+			const message = isAdded ? `已添加${changedIngredient.name}` : `已取消${changedIngredient.name}`
+			
+			this.setData({
+				basketTipText: message,
+				showBasketTip: true
+			})
+			
+			this.playBasketAnimation()
 		}
 	},
 
@@ -433,9 +470,11 @@ Page({
 			item.name === ingredient.name
 		)
 
+		let message = ''
 		if (existingIndex !== -1) {
-			// 已存在，增加数量
-			selectedIngredients[existingIndex].quantity += 1
+			// 已存在，取消选中
+			selectedIngredients.splice(existingIndex, 1)
+			message = `已取消${ingredient.name}`
 		} else {
 			// 不存在，添加新项
 			selectedIngredients.push({
@@ -443,13 +482,16 @@ Page({
 				quantity: 1,
 				unit: ingredient.unit || '份'
 			})
+			message = `已添加${ingredient.name}`
 		}
 
 		this.setData({ 
 			selectedIngredients,
 			searchText: '',
 			autocompleteList: [],
-			showDropdown: false
+			showDropdown: false,
+			basketTipText: message,
+			showBasketTip: true
 		})
 
 		// 更新 tab-bar 的 Create 显示状态
@@ -457,11 +499,89 @@ Page({
 			this.getTabBar().updateCreateVisibility(selectedIngredients.length >= 1)
 		}
 
-		// 显示成功提示
-		wx.showToast({
-			title: `已添加${ingredient.name}`,
-			icon: 'success'
+		// 播放 basket 动画
+		this.playBasketAnimation()
+	},
+
+	// 播放 basket 动画
+	playBasketAnimation() {
+		this.setData({ showBasketAnimation: true })
+		
+		setTimeout(() => {
+			this.setData({ showBasketAnimation: false })
+		}, 400)
+		
+		// 清除旧的定时器
+		if (this.timerId) {
+			clearTimeout(this.timerId)
+		}
+		
+		// 1.5秒后隐藏提示
+		this.timerId = setTimeout(() => {
+			this.setData({ showBasketTip: false })
+			this.timerId = null
+		}, 1500)
+	},
+
+	// 点击 basket 打开面板
+	onBasketTap() {
+		this.setData({
+			showBasketPanel: true
 		})
+	},
+
+	// 关闭 basket 面板
+	onCloseBasketPanel() {
+		this.setData({
+			showBasketPanel: false
+		})
+	},
+
+	// 清空已选食材
+	onClearSelectedIngredients() {
+		wx.showModal({
+			title: '确认清空',
+			content: '确定要清空所有已选食材吗？',
+			success: (res) => {
+				if (res.confirm) {
+					this.setData({
+						selectedIngredients: []
+					})
+					
+					// 更新 tab-bar 的 Create 显示状态
+					if (typeof this.getTabBar === 'function' && this.getTabBar()) {
+						this.getTabBar().updateCreateVisibility(false)
+					}
+					
+					wx.showToast({
+						title: '已清空',
+						icon: 'success'
+					})
+				}
+			}
+		})
+	},
+
+	// 移除单个食材
+	onRemoveIngredient(e) {
+		const ingredient = e.currentTarget.dataset.item
+		const selectedIngredients = [...this.data.selectedIngredients]
+		const index = selectedIngredients.findIndex(item => item.name === ingredient.name)
+		
+		if (index !== -1) {
+			selectedIngredients.splice(index, 1)
+			
+			this.setData({
+				selectedIngredients,
+				basketTipText: `已取消${ingredient.name}`,
+				showBasketTip: true
+			})
+			
+			// 更新 tab-bar 的 Create 显示状态
+			if (typeof this.getTabBar === 'function' && this.getTabBar()) {
+				this.getTabBar().updateCreateVisibility(selectedIngredients.length >= 1)
+			}
+		}
 	}
 
 })

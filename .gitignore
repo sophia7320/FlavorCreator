@@ -2,3 +2,4 @@
 .opencode
 logs/
 backend/logs/
+.codegraph

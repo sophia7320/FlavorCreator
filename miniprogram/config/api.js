@@ -1,32 +1,41 @@
 // 配置文件
-const BASE_URL = 'http://127.0.0.1:8080' // TODO: 替换为你的实际后端地址
+const CLOUD_CONFIG = {
+  env: 'prod-1g8rulbw951115e9',
+  service: 'flcr2'
+}
+
+// 直连请求配置
+const REQUEST_CONFIG = {
+  baseUrl: 'http://localhost:8080'
+}
+
 
 const API_CONFIG = {
   // 认证相关
   auth: {
     // 发送验证码
     sendCode: {
-      url: '/api/auth/send-code',
+      path: '/api/auth/send-code',
       method: 'POST'
     },
     // 手机号登录
     loginPhone: {
-      url: '/api/auth/login-phone',
+      path: '/api/auth/login-phone',
       method: 'POST'
     },
     // 微信一键登录
     loginWx: {
-      url: '/api/auth/login-wx',
+      path: '/api/auth/login-wx',
       method: 'POST'
     },
     // 刷新 Token
     refresh: {
-      url: '/api/auth/refresh',
+      path: '/api/auth/refresh',
       method: 'POST'
     },
     // 退出登录
     logout: {
-      url: '/api/auth/logout',
+      path: '/api/auth/logout',
       method: 'POST'
     }
   },
@@ -35,22 +44,22 @@ const API_CONFIG = {
   user: {
     // 获取用户信息
     info: {
-      url: '/api/user/info',
+      path: '/api/user/info',
       method: 'GET'
     },
     // 更新用户信息
     update: {
-      url: '/api/user/info',
+      path: '/api/user/info',
       method: 'POST'
     },
     // 上传头像
     uploadAvatar: {
-      url: '/api/user/avatar',
+      path: '/api/user/avatar',
       method: 'POST'
     },
     // 上传背景图
     uploadBackground: {
-      url: '/api/user/background',
+      path: '/api/user/background',
       method: 'POST'
     }
   },
@@ -59,13 +68,62 @@ const API_CONFIG = {
   recipe: {
     // 提交食材获取菜谱
     apply: {
-      url: '/api/recipe/apply',
+      path: '/api/recipe/apply',
       method: 'POST'
+    },
+    // AI 生成菜谱
+    aiGenerate: {
+      path: '/api/recipe/ai-generate',
+      method: 'POST'
+    },
+    // 获取菜谱详情
+    getDetail: {
+      path: '/api/recipe/{id}',
+      method: 'GET'
+    }
+  },
+
+  // 用户个人中心相关
+  userCenter: {
+    // 获取已发布菜谱
+    published: {
+      path: '/api/user/published',
+      method: 'GET'
+    },
+    // 获取收藏列表
+    collections: {
+      path: '/api/user/collections',
+      method: 'GET'
+    }
+  },
+
+  // 社区相关
+  community: {
+    // 获取社区菜谱列表
+    list: {
+      path: '/api/recipe/list',
+      method: 'GET'
+    },
+    // 点赞/取消点赞
+    like: {
+      path: '/api/community/recipes/{id}/like',
+      method: 'POST'
+    },
+    // 收藏菜谱
+    collect: {
+      path: '/api/community/recipe/{id}/collect',
+      method: 'POST'
+    },
+    // 取消收藏
+    uncollect: {
+      path: '/api/community/recipe/{id}/collect',
+      method: 'DELETE'
     }
   }
 }
 
 module.exports = {
-  BASE_URL,
+  CLOUD_CONFIG,
+  REQUEST_CONFIG,
   API_CONFIG
 }

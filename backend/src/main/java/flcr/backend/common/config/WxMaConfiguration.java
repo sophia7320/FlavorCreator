@@ -10,7 +10,10 @@ import org.springframework.context.annotation.Configuration;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Configuration
@@ -19,44 +22,78 @@ public class WxMaConfiguration {
     @Value("${wx.app-id}")
     private String appId;
 
-    @Value("${wx.secret}")
+    @Value("${wx.secret:}")
     private String secret;
 
     @Bean
     public WxMaDefaultConfigImpl wxMaConfig() {
-        return new WxMaDefaultConfigImpl() {
-            // 1. 【注入】注入 WxMaConfig 对象
-            {
-                this.setAppid(appId);
-                this.setSecret(secret); // 虽然免Token，但配置里最好还是填上，库内部可能需要
-            }
+        // 启动时诊断：打印 token 文件是否存在
+        List<String> tokenPaths = List.of(
+                "/wx/cloudbase_access_token",
+                "/.tencentcloudbase/wx/cloudbase_access_token"
+        );
+        for (String path : tokenPaths) {
+            java.io.File f = new java.io.File(path);
+            log.info("云托管 token 文件检查: path={}, exists={}, readable={}, size={}",
+                    path, f.exists(), f.canRead(), f.exists() ? f.length() : 0);
+        }
 
-            // 2. 【核心】重写 getAccessToken 方法
+        WxMaDefaultConfigImpl config = new WxMaDefaultConfigImpl() {
             @Override
             public String getAccessToken() {
-                // 微信云托管会将 token 推送到这个固定路径
-                String tokenPath = "/.tencentcloudbase/wx/cloudbase_access_token";
-                try {
-                    // 直接读取文件内容
-                    String token = new String(Files.readAllBytes(Paths.get(tokenPath)));
-                    // 注意：读取到的内容可能包含换行符，建议 trim()
-                    return token.trim();
-                } catch (IOException e) {
-                    // 如果读取失败（比如本地没部署这个文件），可以选择 fallback 到普通模式
-                    // 或者抛出异常提醒你检查环境
-                    log.warn("云托管环境未检测到访问令牌文件，使用普通模式: {}", tokenPath);
-                    // 这里为了演示，如果读不到文件，就返回 null 或调用父类方法（父类会尝试去请求微信接口）
-                    return super.getAccessToken();
+                // 每次调用时动态读取，因为文件可能在容器启动后才被注入
+                Optional<String> cloudToken = readCloudBaseToken();
+                if (cloudToken.isPresent()) {
+                    return cloudToken.get();
                 }
+                // fallback 到父类（可能返回 null，触发 SDK 自动刷新）
+                return super.getAccessToken();
+            }
+
+            @Override
+            public boolean isAccessTokenExpired() {
+                // 如果能读到云托管文件，认为永不过期（由平台自动刷新）
+                if (readCloudBaseToken().isPresent()) {
+                    return false;
+                }
+                return super.isAccessTokenExpired();
             }
         };
+        config.setAppid(appId);
+        config.setSecret(secret);
+        return config;
     }
 
     @Bean
     public WxMaService wxMaService(WxMaDefaultConfigImpl wxMaConfig) {
-        WxMaService wxMaService = new WxMaServiceImpl();
-        wxMaService.setWxMaConfig(wxMaConfig);
-        return wxMaService;
+        WxMaService service = new WxMaServiceImpl();
+        service.setWxMaConfig(wxMaConfig);
+        return service;
+    }
+
+    private Optional<String> readCloudBaseToken() {
+        // 云托管可能使用不同路径注入 token，尝试多个路径
+        List<String> tokenPaths = List.of(
+                "/wx/cloudbase_access_token",
+                "/.tencentcloudbase/wx/cloudbase_access_token"
+        );
+
+        for (String path : tokenPaths) {
+            try {
+                Path tokenFile = Paths.get(path);
+                if (Files.exists(tokenFile)) {
+                    String token = Files.readString(tokenFile).trim();
+                    if (!token.isEmpty()) {
+                        log.debug("从 {} 读取到云托管 access_token", path);
+                        return Optional.of(token);
+                    }
+                }
+            } catch (IOException e) {
+                log.debug("读取云托管 token 文件失败: {} - {}", path, e.getMessage());
+            }
+        }
+
+        return Optional.empty();
     }
 
 }

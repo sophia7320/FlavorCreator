@@ -1,5 +1,58 @@
 <!--pages/community/community.wxml-->
 <view class="community-page">
-	<view class="title">社区页面</view>
-	<view class="empty-text">社区功能正在开发中...</view>
+	<view class="top-title">
+		<view class="top-title-text">社区</view>
+	</view>
+	
+	<view class="switch-tag">
+		<block wx:for="{{tags}}" wx:key="index">
+			<view 
+				class="tag-item {{item.selected ? 'selected' : ''}}"
+				bindtap="onSwitchTag"
+				data-index="{{index}}"
+			>
+				{{item.name}}
+			</view>
+		</block>
+	</view>
+	
+	<view class="divider-line"></view>
+
+	<scroll-view class="main" scroll-y bindscrolltolower="onScrollToLower">
+		<view class="cards-container">
+			<view class="left-cards-list">
+				<block wx:for="{{leftList}}" wx:key="{{item.id}}">
+					<recipe-card
+						cardData="{{item}}"
+						isFirst="{{index === 0}}"
+						isLiked="{{item.isLiked}}"
+						bind:cardtap="onCardTap"
+						bind:usertap="onUserTap"
+						bind:liketap="onLike"
+						bind:sharetap="onShare"
+					/>
+				</block>
+			</view>
+
+			<view class="right-cards-list">
+				<block wx:for="{{rightList}}" wx:key="{{item.id}}">
+					<recipe-card
+						cardData="{{item}}"
+						isLiked="{{item.isLiked}}"
+						bind:cardtap="onCardTap"
+						bind:usertap="onUserTap"
+						bind:liketap="onLike"
+						bind:sharetap="onShare"
+					/>
+				</block>
+			</view>
+
+		</view>
+
+		<view class="list-status" wx:if="{{loadingStatus}}">
+			<view wx:if="{{loadingStatus === 'loading'}}">加载中...</view>
+			<view wx:if="{{loadingStatus === 'error'}}">加载失败，点击重试</view>
+			<view wx:if="{{loadingStatus === 'noMore'}}">没有更多了</view>
+		</view>
+	</scroll-view>
 </view>

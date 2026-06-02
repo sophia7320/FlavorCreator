@@ -1,19 +1,17 @@
 <!--pages/settings/settings.wxml-->
 <view class="settings-page">
-  <!-- 顶部遮罩 -->
-  <view class="top-mask"></view>
+<!-- 顶部导航栏 -->
+  <view class="top-mask">
+		<view class="nav-bar">
+			<view class="back-btn" bindtap="goBack">
+				<image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/back-icon.svg" mode="aspectFit" class="back-icon"/>
+			</view>
+			<view class="nav-title">设置</view>
+  	</view>
+	</view>
   
-  <!-- 顶部导航栏 -->
-  <view class="nav-bar">
-    <view class="back-btn" bindtap="goBack">
-      <image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/back.png" mode="aspectFit" class="back-icon"/>
-    </view>
-    <view class="nav-title">设置</view>
-    <view class="nav-placeholder"></view>
-  </view>
-
   <!-- 内容区域 -->
-  <view class="content">
+  <scroll-view class="content" scroll-y="true" enhanced="true" show-scrollbar="false">
     <!-- 设置选项网格 -->
     <view class="settings-grid">
       <view class="setting-item" wx:for="{{settingsList}}" wx:key="id" data-id="{{item.id}}" bindtap="onSettingTap">
@@ -31,7 +29,7 @@
     <!-- 底部按钮区域 -->
     <view class="bottom-buttons">
       <view class="switch-btn" bindtap="switchAccount">
-        <image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/switch.png" mode="aspectFit" class="btn-icon"/>
+        <image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/switch.svg" mode="aspectFit" class="btn-icon"/>
         <text class="btn-text">切换账号</text>
       </view>
       <view class="logout-btn" bindtap="logout">
@@ -39,5 +37,5 @@
         <text class="btn-text">退出登录</text>
       </view>
     </view>
-  </view>
+  </scroll-view>
 </view>

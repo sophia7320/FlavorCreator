@@ -1,0 +1,9 @@
+<svg viewBox="0 0 31.5454 29.5" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="31.545410" height="29.500000" fill="none" customFrame="#000000">
+	<g id="icon">
+		<g id="Logout">
+			<path id="Stroke 1" d="M0 0L11.0957 0" stroke="rgb(255,255,255)" stroke-linecap="butt" stroke-linejoin="round" stroke-dasharray="0 0 " stroke-width="1.500000" transform="matrix(-1,0,0,-1,30.748,14.9326)" />
+			<path id="Stroke 3" d="M26.2529 10.5195L28.9511 13.1991L26.2529 15.8787" fill-rule="evenodd" stroke="rgb(255,255,255)" stroke-linecap="butt" stroke-linejoin="round" stroke-dasharray="0 0 " stroke-width="1.500000" />
+			<path id="Stroke 4" d="M0 4.48432C0.304093 1.19459 1.5389 0 6.45046 0C12.994 0 12.994 2.1227 12.994 8.5C12.994 14.8773 12.994 17 6.45046 17C1.5389 17 0.304093 15.8054 0 12.5157" fill-rule="evenodd" stroke="rgb(255,255,255)" stroke-linecap="butt" stroke-linejoin="round" stroke-dasharray="0 0 " stroke-width="1.500000" transform="matrix(-1,0,0,1,22.4067,0.75)" />
+		</g>
+	</g>
+</svg>

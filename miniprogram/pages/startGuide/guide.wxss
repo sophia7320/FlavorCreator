@@ -3,9 +3,9 @@
 /*变量设置 - 引用全局变量*/
 .guide-page {
 	/* 色彩 */
-	--color-primary: var(--color-primary);
+	/* --color-primary: var(--color-primary);
 	--color-text-primary: var(--text-white);
-	--color-text-secondary: var(--text-black);
+	--color-text-secondary: var(--text-black); */
 
 	/* 字体 */
 	--font-size-title: var(--font-size-8xl);
@@ -96,7 +96,7 @@
 
 	background-color: var(--color-primary);
 	border-radius: 31px;
-	color: var(--color-text-primary);
+	color: var(--text-white);
 
 	position: absolute;
 	bottom: 470rpx;

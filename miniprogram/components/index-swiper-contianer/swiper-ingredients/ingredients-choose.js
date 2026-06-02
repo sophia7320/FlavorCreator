@@ -174,7 +174,9 @@ Component({
 		onSelectedIngredients(e) {
 			const index = e.currentTarget.dataset.index
 			const list = [...this.data.ingredientsData]
-			list[index].selected = !list[index].selected
+			const ingredient = list[index]
+			const isSelected = !list[index].selected
+			list[index].selected = isSelected
 
 			const allIngredientsData = { ...this.data.allIngredientsData }
 			allIngredientsData[this.data.currentTab] = list
@@ -184,10 +186,10 @@ Component({
 				allIngredientsData
 			})
 
-			this.sendSelectedIngredients()
+			this.sendSelectedIngredients(isSelected ? ingredient : null)
 		},
 
-		sendSelectedIngredients() {
+		sendSelectedIngredients(changedIngredient) {
 			const allList = Object.values(this.data.allIngredientsData).flat()
 			const selectedIngredients = allList
 				.filter(item => item.selected)
@@ -197,7 +199,13 @@ Component({
 					unit: item.unit
 				}))
 
-			this.triggerEvent('ingredientsChange', { selectedIngredients })
+			this.triggerEvent('ingredientsChange', { 
+				selectedIngredients,
+				changedIngredient: changedIngredient ? {
+					name: changedIngredient.name,
+					unit: changedIngredient.unit
+				} : null
+			})
 		},
 		
 		updateShowList() {

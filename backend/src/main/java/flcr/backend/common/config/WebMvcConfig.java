@@ -5,6 +5,7 @@ import flcr.backend.common.aop.AdminAuthInterceptor;
 import flcr.backend.common.aop.AuthInterceptor;
 import flcr.backend.common.util.JwtTokenUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
@@ -16,7 +17,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class WebMvcConfig implements WebMvcConfigurer {
 
     private final JwtTokenUtil jwtTokenUtil;
-    private final AdminAuthServiceImpl adminAuthService;
+
+    @Autowired(required = false)
+    private AdminAuthServiceImpl adminAuthService;
 
     @Bean
     public RestTemplate restTemplate() {
@@ -29,10 +32,12 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .addPathPatterns("/api/**")
                 .order(1);
 
-        registry.addInterceptor(new AdminAuthInterceptor(adminAuthService))
-                .addPathPatterns("/api/admin/**")
-                .excludePathPatterns("/api/admin/auth/login")
-                .excludePathPatterns("/api/admin/auth/refresh")
-                .order(0);
+        if (adminAuthService != null) {
+            registry.addInterceptor(new AdminAuthInterceptor(adminAuthService))
+                    .addPathPatterns("/api/admin/**")
+                    .excludePathPatterns("/api/admin/auth/login")
+                    .excludePathPatterns("/api/admin/auth/refresh")
+                    .order(0);
+        }
     }
 }

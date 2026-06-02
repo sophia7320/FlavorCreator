@@ -1,15 +1,15 @@
 <!--custom-tab-bar/index.wxml-->
 <view class="tab-bar">
 	<view class="container">
-		<view class="community">
+		<view class="community" data-path="/pages/community/community" bindtap="switchTab">
 			<image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community.png" mode="aspectFit" class="community-icon"/>
 			<text class="description">社区</text>
 		</view>
 		<view class="FC-create" bindtap="onCreateClick">
-			<image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/small-logo.png" mode="aspectFit" class="FC-create-icon {{showCreate ? 'show' : 'hide'}}"/>
-			<view class="create-text {{showCreate ? 'show' : 'hide'}}">Create</view>
+			<image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/small-logo.png" mode="aspectFit" class="FC-create-icon {{showCreate ? 'show' : 'hide'}} {{noTransition ? 'no-transition' : ''}} {{createAnimate ? 'animate' : ''}}"/>
+			<view class="create-text {{showCreate ? 'show' : 'hide'}} {{noTransition ? 'no-transition' : ''}} {{createAnimate ? 'animate' : ''}}">Create</view>
 		</view>
-		<view class="ME">
+		<view class="ME" data-path="/pages/mine/mine" bindtap="switchTab">
 			<image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/mine.png" mode="aspectFit" class="ME-icon"/>
 			<text class="description">我的</text>
 		</view>

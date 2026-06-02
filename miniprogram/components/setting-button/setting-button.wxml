@@ -1,0 +1,3 @@
+<view class="setting" bindtap="onTap">
+	<image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/setting-icon.png" mode="aspectFit" class="setting-icon"/>
+</view>

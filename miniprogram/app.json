@@ -1,4 +1,5 @@
 {
+  "cloud": true,
   "pages": [
     "pages/index/index",
     "pages/welcome/welcome",
@@ -11,8 +12,8 @@
     "pages/community/community",
     "pages/mine/mine",
     "pages/settings/settings",
-    "custom-tab-bar/index",
-    "components/index-swiper-contianer/swiper-ingredients/ingredients-choose"
+    "pages/detail/detail",
+    "pages/user/user"
   ],
   "tabBar": {
     "custom": true,
@@ -36,10 +37,11 @@
     "navigationBarTextStyle": "black",
     "navigationBarTitleText": "Weixin",
     "navigationStyle": "custom",
-    "navigationBarBackgroundColor": "#ffffff"
+    "navigationBarBackgroundColor": "#ffffff",
+    "enablePullDownRefresh": false,
+		"disableScroll": true
   },
-  "style": "v2",
-  "componentFramework": "glass-easel",
+  "usingComponents": {},
   "sitemapLocation": "sitemap.json",
   "lazyCodeLoading": "requiredComponents"
 }

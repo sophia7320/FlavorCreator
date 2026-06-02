@@ -1,14 +1,25 @@
 // custom-tab-bar/index.js
+const { API_CONFIG } = require('../config/api')
+const { request } = require('../utils/request')
+const tabBarCreateState = require('../utils/tabBarCreateState')
+
+const INDEX_ROUTE = 'pages/index/index'
+const COMMUNITY_ROUTE = 'pages/community/community'
+const MINE_ROUTE = 'pages/mine/mine'
+const CREATE_ANIM_MS = 300
+
 Component({
 
-  data: {
+	data: {
 		selected: 0,
 		showCreate: false,
+		noTransition: true,
+		createAnimate: false,
 		list: [
 			{
-				pagePath: '/pages/index/index', 
+				pagePath: '/pages/index/index',
 				text: '首页',
-				iconPath: '待改', 
+				iconPath: '待改',
 				selectedIconPath: '待改'
 			},
 			{
@@ -24,21 +35,220 @@ Component({
 				selectedIconPath: '待改'
 			}
 		]
-  },
+	},
+
+	lifetimes: {
+		/**
+		 * 新实例首帧：仅 priming，不消费 handoff（消费在页面 onShow → onTabPageShow）
+		 * 自定义 Tab 各页是独立实例，首次进入时 pageLifetimes.show 可能晚于/不触发
+		 */
+		attached() {
+			this.primeHandoffFirstFrame()
+		}
+	},
 
 	methods: {
-		switchTab(e) {
-			const data = e.currentTarget.dataset
-			const url = data.path
+		parseTargetTab(url) {
+			if (!url) return ''
+			if (url.indexOf('community') !== -1) return 'community'
+			if (url.indexOf('mine') !== -1) return 'mine'
+			if (url.indexOf('index') !== -1) return 'index'
+			return ''
+		},
+
+		getCurrentTabKey() {
+			const pages = getCurrentPages()
+			const route = pages.length ? pages[pages.length - 1].route : ''
+			if (route === INDEX_ROUTE) return 'index'
+			if (route === COMMUNITY_ROUTE) return 'community'
+			if (route === MINE_ROUTE) return 'mine'
+			return ''
+		},
+
+		isIndexPage() {
+			return this.getCurrentTabKey() === 'index'
+		},
+
+		getIndexCreateVisualState() {
+			const pages = getCurrentPages()
+			const indexPage = pages.find((p) => p.route === INDEX_ROUTE)
+			if (!indexPage) {
+				return tabBarCreateState.getShowCreate()
+			}
+			const ingredients = indexPage.data.selectedIngredients
+			return Array.isArray(ingredients) && ingredients.length >= 1
+		},
+
+		getTargetShowCreate() {
+			if (!this.isIndexPage()) {
+				return false
+			}
+			return this.getIndexCreateVisualState()
+		},
+
+		shouldPlayHandoffAnimation(entryFrame, target) {
+			if (this.isIndexPage()) {
+				return target === true
+			}
+			return entryFrame === true
+		},
+
+		/** attached：与当前页匹配的接力目标 Tab 才 priming */
+		primeHandoffFirstFrame() {
+			const handoff = tabBarCreateState.peekHandoff()
+			if (!handoff) {
+				return
+			}
+			const currentTab = this.getCurrentTabKey()
+			if (!currentTab || handoff.targetTab !== currentTab) {
+				return
+			}
+			this.setData({
+				showCreate: handoff.snapshot,
+				noTransition: true,
+				createAnimate: false
+			})
+		},
+
+		/**
+		 * 官方推荐：由各 Tab 页 onShow 里 getTabBar().onTabPageShow() 调用
+		 * 确保「当前可见页」对应 TabBar 实例消费 handoff 并播动画
+		 */
+		onTabPageShow() {
+			const currentTab = this.getCurrentTabKey()
+			if (!currentTab) {
+				return
+			}
+
+			const target = this.getTargetShowCreate()
+			const handoff = tabBarCreateState.peekHandoff()
+
+			if (handoff) {
+				if (handoff.targetTab !== currentTab) {
+					return
+				}
+				if (this._lastHandoffId === handoff.id) {
+					return
+				}
+				const payload = tabBarCreateState.consumeHandoff()
+				if (!payload) {
+					return
+				}
+				this._lastHandoffId = payload.id
+				this._runHandoffSequence(payload.snapshot, target)
+				return
+			}
+
+			tabBarCreateState.setShowCreate(target)
+			this._setCreateVisualState(target, {
+				noTransition: false,
+				createAnimate: false
+			})
+		},
+
+		_playCreateKeyframeAnimation(showCreate, callback) {
+			if (typeof showCreate === 'function') {
+				callback = showCreate
+				showCreate = undefined
+			}
+			const patch = {
+				createAnimate: true,
+				noTransition: false
+			}
+			if (showCreate !== undefined) {
+				patch.showCreate = !!showCreate
+			}
+			this.setData(patch, () => {
+				if (this._createAnimTimer) {
+					clearTimeout(this._createAnimTimer)
+				}
+				this._createAnimTimer = setTimeout(() => {
+					this._createAnimTimer = null
+					this.setData({ createAnimate: false })
+					if (typeof callback === 'function') {
+						callback()
+					}
+				}, CREATE_ANIM_MS)
+			})
+		},
+
+		_setCreateVisualState(showCreate, { noTransition, createAnimate }, callback) {
+			this.setData({
+				showCreate: !!showCreate,
+				noTransition: !!noTransition,
+				createAnimate: !!createAnimate
+			}, callback)
+		},
+
+		_finishHandoff(target) {
+			tabBarCreateState.resetHandoff(target)
+		},
+
+		_runHandoffSequence(entryFrame, target) {
+			const shouldAnimate = this.shouldPlayHandoffAnimation(entryFrame, target)
+
+			this._setCreateVisualState(entryFrame, {
+				noTransition: true,
+				createAnimate: false
+			}, () => {
+				const runTargetPhase = () => {
+					if (!shouldAnimate) {
+						this._setCreateVisualState(target, {
+							noTransition: false,
+							createAnimate: false
+						}, () => this._finishHandoff(target))
+						return
+					}
+					this._playCreateKeyframeAnimation(target, () => this._finishHandoff(target))
+				}
+				wx.nextTick(() => {
+					wx.nextTick(runTargetPhase)
+				})
+			})
+		},
+
+		captureSnapshotBeforeSwitch(targetTab) {
+			if (targetTab === 'community' || targetTab === 'mine') {
+				return this.getIndexCreateVisualState()
+			}
+			if (targetTab === 'index') {
+				return !!this.data.showCreate
+			}
+			return !!this.data.showCreate
+		},
+
+		navigateTab(url) {
+			const targetTab = this.parseTargetTab(url)
+			const snapshot = this.captureSnapshotBeforeSwitch(targetTab)
+			tabBarCreateState.beginHandoff(snapshot, targetTab)
 			wx.switchTab({ url })
 		},
 
+		switchTab(e) {
+			const url = e.currentTarget.dataset.path
+			this.navigateTab(url)
+		},
+
 		updateCreateVisibility(show) {
-			this.setData({ showCreate: show })
+			const value = !!show
+			if (value === this.data.showCreate) {
+				return
+			}
+			tabBarCreateState.setShowCreate(value)
+			this.setData({ showCreate: value }, () => {
+				this._playCreateKeyframeAnimation()
+			})
 		},
 
 		onCreateClick() {
-			// 检查是否有选中的食材
+			const pages = getCurrentPages()
+			const currentPage = pages[pages.length - 1]
+
+			if (currentPage.route !== INDEX_ROUTE) {
+				this.navigateTab('/pages/index/index')
+				return
+			}
+
 			if (!this.data.showCreate) {
 				wx.showToast({
 					title: '请先选择食材',
@@ -47,23 +257,8 @@ Component({
 				return
 			}
 
-			// 获取当前页面栈
-			const pages = getCurrentPages()
-			const currentPage = pages[pages.length - 1]
-
-			// 检查是否在 index 页面
-			if (currentPage.route !== 'pages/index/index') {
-				wx.showToast({
-					title: '请在首页选择食材',
-					icon: 'none'
-				})
-				return
-			}
-
-			// 获取 index 页面的数据
 			const { selectedIngredients, selectedPreferences } = currentPage.data
 
-			// 构建请求数据
 			const requestData = {
 				ingredients: selectedIngredients,
 				preferences: {
@@ -73,21 +268,21 @@ Component({
 				}
 			}
 
-			// 显示加载
-			wx.showLoading({ title: '提交中...' })
-
-			// 模拟请求成功
-			setTimeout(() => {
-				wx.hideLoading()
-				
-				// 将数据存储到本地，传递到 create 页面
-				wx.setStorageSync('recipeData', requestData)
-				
-				// 跳转到 choose-recipes 页面
-				wx.navigateTo({
-					url: '/pages/choose-recipes/choose-recipes'
+			request(API_CONFIG.recipe.apply, requestData)
+				.then(res => {
+					wx.setStorageSync('recipeRequest', requestData)
+					wx.setStorageSync('recipeResult', res)
+					wx.navigateTo({
+						url: '/pages/choose-recipes/choose-recipes'
+					})
 				})
-			}, 500)
+				.catch(err => {
+					console.error('菜谱匹配失败:', err)
+					wx.showToast({
+						title: '匹配失败，请重试',
+						icon: 'none'
+					})
+				})
 		}
 	}
 })
