@@ -30,4 +30,5 @@ public final class ResultCode {
     public static final int IMAGE_SIZE_ERROR = 2002;
     public static final int IMAGE_MODERATION_FAILED = 2003;
     public static final int IMAGE_UPLOAD_ERROR = 2004;
+    public static final int IMAGE_SCENE_ERROR = 2005;
 }

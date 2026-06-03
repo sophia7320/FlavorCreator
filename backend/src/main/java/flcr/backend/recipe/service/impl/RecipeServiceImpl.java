@@ -12,14 +12,16 @@ import flcr.backend.common.constants.ResultCode;
 import flcr.backend.common.constants.SourceConstants;
 import flcr.backend.common.context.UserContext;
 import flcr.backend.common.exception.BusinessException;
-import flcr.backend.common.service.FileStorageService;
-import flcr.backend.common.service.ImageModerationService;
+import flcr.backend.common.constants.ImageScene;
+import flcr.backend.common.service.ImageUploadService;
 import flcr.backend.community.entity.Collection;
 import flcr.backend.community.entity.Like;
 import flcr.backend.community.mapper.CollectionMapper;
 import flcr.backend.community.mapper.LikeMapper;
+import flcr.backend.recipe.DTO.request.ApplyRecipeRequestDTO;
 import flcr.backend.recipe.DTO.request.PublishRecipeRequestDTO;
 import flcr.backend.recipe.DTO.request.RecipeListRequestDTO;
+import flcr.backend.recipe.DTO.response.ApplyRecipeResponseDTO;
 import flcr.backend.recipe.DTO.response.RecipeDetailDTO;
 import flcr.backend.recipe.DTO.response.RecipeListItemDTO;
 import flcr.backend.recipe.entity.Recipe;
@@ -30,11 +32,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
+
 
 @Service
 @RequiredArgsConstructor
@@ -45,8 +48,7 @@ public class RecipeServiceImpl implements RecipeService {
     private final CollectionMapper collectionMapper;
     private final UserMapper userMapper;
     private final ObjectMapper objectMapper;
-    private final FileStorageService fileStorageService;
-    private final ImageModerationService imageModerationService;
+    private final ImageUploadService imageUploadService;
 
     @Override
     @Transactional
@@ -54,55 +56,24 @@ public class RecipeServiceImpl implements RecipeService {
                               List<MultipartFile> images) {
         Long userId = UserContext.getUserId();
 
-        // Phase 1: Validate all files (format + size, no side effects)
+        // Upload cover (validate + store + moderate, auto-cleanup on failure)
+        String coverUrl = "";
         if (cover != null) {
-            imageModerationService.validate(cover, "recipe-cover");
+            coverUrl = imageUploadService.upload(cover, ImageScene.RECIPE_COVER);
         }
+
+        // Upload images (each independently atomic)
+        List<String> imageUrls = new ArrayList<>();
         if (images != null) {
             for (MultipartFile image : images) {
-                imageModerationService.validate(image, "recipe-image");
+                imageUrls.add(imageUploadService.upload(image, ImageScene.RECIPE_IMAGE));
             }
         }
 
-        // Phase 2: Store cover
-        String coverUrl = "";
-        List<String> storedUrls = new ArrayList<>();
-        try {
-            if (cover != null) {
-                coverUrl = fileStorageService.store(cover, "recipe-cover");
-                storedUrls.add(coverUrl);
-            }
-
-            // Phase 3: Store all images
-            List<String> imageUrls = new ArrayList<>();
-            if (images != null) {
-                for (MultipartFile image : images) {
-                    String imageUrl = fileStorageService.store(image, "recipe-image");
-                    imageUrls.add(imageUrl);
-                    storedUrls.add(imageUrl);
-                }
-            }
-
-            // Phase 4: Moderate all (content check, all must pass)
-            if (cover != null) {
-                imageModerationService.moderate(coverUrl, "recipe-cover");
-            }
-            for (String imageUrl : imageUrls) {
-                imageModerationService.moderate(imageUrl, "recipe-image");
-            }
-
-            // Phase 5: Build and save recipe (only if all checks pass)
-            Recipe recipe = buildRecipe(request, coverUrl, imageUrls, userId);
-            recipeMapper.insert(recipe);
-            storedUrls.clear(); // success, don't clean up
-            return recipe.getId();
-
-        } finally {
-            // Compensation: if anything went wrong, clean up stored files
-            for (String url : storedUrls) {
-                fileStorageService.delete(url);
-            }
-        }
+        // Build and save recipe
+        Recipe recipe = buildRecipe(request, coverUrl, imageUrls, userId);
+        recipeMapper.insert(recipe);
+        return recipe.getId();
     }
 
     private Recipe buildRecipe(PublishRecipeRequestDTO request, String coverUrl,
@@ -185,6 +156,118 @@ public class RecipeServiceImpl implements RecipeService {
         }
 
         return dto;
+    }
+
+    @Override
+    public ApplyRecipeResponseDTO apply(ApplyRecipeRequestDTO request) {
+        Long userId = UserContext.getUserId();
+
+        // Collect user ingredient names
+        Set<String> userIngredientNames = new HashSet<>();
+        if (request.getIngredients() != null) {
+            for (ApplyRecipeRequestDTO.IngredientItem item : request.getIngredients()) {
+                if (item.getName() != null && !item.getName().isBlank()) {
+                    userIngredientNames.add(item.getName().trim());
+                }
+            }
+        }
+
+        // No ingredients → return empty
+        if (userIngredientNames.isEmpty()) {
+            return ApplyRecipeResponseDTO.builder()
+                    .matchDegree(0)
+                    .recipes(Collections.emptyList())
+                    .needAiGenerate(true)
+                    .build();
+        }
+
+        // Get all recipes
+        List<Recipe> allRecipes = recipeMapper.selectList(null);
+
+        // Match each recipe
+        List<MatchedRecipe> matchedRecipes = new ArrayList<>();
+        for (Recipe recipe : allRecipes) {
+            if (recipe.getIngredients() == null || recipe.getIngredients().isBlank()) continue;
+            if (recipe.getAuthorId() != null && recipe.getAuthorId().equals(userId)) continue; // skip own recipes
+
+            Set<String> recipeIngredientNames = parseIngredientNames(recipe.getIngredients());
+            if (recipeIngredientNames.isEmpty()) continue;
+
+            // Calculate match degree
+            Set<String> matchedNames = new HashSet<>(userIngredientNames);
+            matchedNames.retainAll(recipeIngredientNames);
+            int matchDegree = matchedNames.size() * 100 / recipeIngredientNames.size();
+
+            // Preference filtering
+            ApplyRecipeRequestDTO.Preferences prefs = request.getPreferences();
+            if (prefs != null) {
+                if (prefs.getCookTime() != null) {
+                    Integer recipeCookTime = parseCookTime(recipe.getCookTime());
+                    if (recipeCookTime != null && recipeCookTime > prefs.getCookTime()) continue;
+                }
+                if (prefs.getDifficulty() != null && recipe.getDifficulty() != null) {
+                    if (recipe.getDifficulty() > prefs.getDifficulty()) continue;
+                }
+            }
+
+            matchedRecipes.add(new MatchedRecipe(recipe, matchDegree));
+        }
+
+        // Sort: matchDegree desc, then cookTime asc
+        matchedRecipes.sort(Comparator
+                .comparingInt(MatchedRecipe::matchDegree).reversed()
+                .thenComparingInt(m -> {
+                    Integer ct = parseCookTime(m.recipe().getCookTime());
+                    return ct != null ? ct : Integer.MAX_VALUE;
+                }));
+
+        int bestMatchDegree = matchedRecipes.isEmpty() ? 0 : matchedRecipes.get(0).matchDegree();
+        boolean needAiGenerate = bestMatchDegree < 85;
+
+        // Top 5 if below threshold, all if above
+        List<MatchedRecipe> resultList = needAiGenerate
+                ? matchedRecipes.stream().limit(5).toList()
+                : matchedRecipes;
+
+        List<RecipeListItemDTO> recipeDTOs = resultList.stream()
+                .map(m -> convertToListItemDTO(m.recipe()))
+                .collect(Collectors.toList());
+
+        return ApplyRecipeResponseDTO.builder()
+                .matchDegree(bestMatchDegree)
+                .recipes(recipeDTOs)
+                .needAiGenerate(needAiGenerate)
+                .build();
+    }
+
+    // ==================== 匹配辅助方法 ====================
+
+    private static record MatchedRecipe(Recipe recipe, int matchDegree) {}
+
+    private Set<String> parseIngredientNames(String ingredientsJson) {
+        try {
+            List<Map<String, Object>> list = objectMapper.readValue(ingredientsJson,
+                    new TypeReference<List<Map<String, Object>>>() {});
+            Set<String> names = new HashSet<>();
+            for (Map<String, Object> item : list) {
+                Object name = item.get("name");
+                if (name != null) {
+                    names.add(name.toString().trim());
+                }
+            }
+            return names;
+        } catch (JsonProcessingException e) {
+            return Collections.emptySet();
+        }
+    }
+
+    private Integer parseCookTime(String cookTime) {
+        if (cookTime == null || cookTime.isBlank()) return null;
+        try {
+            return Integer.parseInt(cookTime.trim());
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 
     // ==================== 私有辅助方法 ====================
