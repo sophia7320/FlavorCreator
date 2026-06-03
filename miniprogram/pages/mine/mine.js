@@ -9,9 +9,9 @@ Page({
    */
   data: {
     userInfo: {
-      nickname: '默认用户',
+      nickName: '默认用户',
       avatar: '',
-      username: 'user001'
+      userName: 'user001'
     },
     tagIndex: 0,
     sharedCards: [],
@@ -31,10 +31,8 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad(options) {
-    const userInfo = wx.getStorageSync('userInfo')
-    if (userInfo) {
-      this.setData({ userInfo })
-    }
+    const userInfo = this.normalizeUserInfo(wx.getStorageSync('userInfo'))
+    this.setData({ userInfo })
     this.loadData(true)
   },
 
@@ -54,10 +52,8 @@ Page({
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
       this.getTabBar().onTabPageShow()
     }
-    const userInfo = wx.getStorageSync('userInfo')
-    if (userInfo) {
-      this.setData({ userInfo })
-    }
+    const userInfo = this.normalizeUserInfo(wx.getStorageSync('userInfo'))
+    this.setData({ userInfo })
     // 同步收藏状态（从其他页面回来后更新 isLiked）
     this.syncLikedStatus()
   },
@@ -124,8 +120,9 @@ Page({
     )
       .then(res => {
         const list = res.data.list || res.data || []
+        const transformed = list.map(item => this.transformCardData(item))
         const hasMore = list.length >= this.data.pageSize
-        const newCards = isRefresh ? list : [...this.data.sharedCards, ...list]
+        const newCards = isRefresh ? transformed : [...this.data.sharedCards, ...transformed]
         const cardsWithLiked = this.applyLikedStatus(newCards)
 
         this.setData({
@@ -137,7 +134,9 @@ Page({
         }, () => this.updateCurrentCards())
       })
       .catch(() => {
-        this.setData({ loadingStatus: 'error', isRequesting: false })
+        // 后端不可用时，降级到本地存储
+        console.warn('已发布 API 暂不可用，使用本地数据')
+        this.loadPublishedFromLocal(isRefresh)
       })
   },
 
@@ -156,8 +155,9 @@ Page({
     )
       .then(res => {
         const list = res.data.list || res.data || []
+        const transformed = list.map(item => this.transformCardData(item))
         const hasMore = list.length >= this.data.pageSize
-        const newCards = isRefresh ? list : [...this.data.likeCards, ...list]
+        const newCards = isRefresh ? transformed : [...this.data.likeCards, ...transformed]
         const cardsWithLiked = this.applyLikedStatus(newCards, true)
 
         this.setData({
@@ -180,10 +180,10 @@ Page({
    */
   loadCollectionsFromLocal(isRefresh) {
     const favorites = wx.getStorageSync('favorites') || []
-    const cardsWithLiked = favorites.map(c => ({ ...c, isLiked: true }))
+    const transformed = favorites.map(c => this.transformCardData({ ...c, isLiked: true }))
 
     this.setData({
-      likeCards: cardsWithLiked,
+      likeCards: transformed,
       collectionsPage: 1,
       hasMore: false,
       loadingStatus: '',
@@ -201,6 +201,55 @@ Page({
     const favorites = wx.getStorageSync('favorites') || []
     const likedIds = new Set(favorites.map(f => f.id))
     return cards.map(c => ({ ...c, isLiked: likedIds.has(c.id) }))
+  },
+
+  /**
+   * 规范化用户信息：将后端字段映射到 WXML 绑定字段
+   * 后端: { nickname, avatar } → 前端: { nickName, avatarUrl }
+   */
+  normalizeUserInfo(raw) {
+    if (!raw) {
+      return { nickName: '默认用户', avatarUrl: '' }
+    }
+    return {
+      ...raw,
+      nickName: raw.nickName || raw.nickname || '默认用户',
+      avatarUrl: raw.avatarUrl || raw.avatar || ''
+    }
+  },
+
+  /**
+   * 将后端卡片数据转换为 recipe-card 组件所需格式
+   * 后端: { name, cover, author: { nickname, avatar } }
+   * 组件: { recipeName, recipeImage, userName, userImg }
+   */
+  transformCardData(item) {
+    return {
+      id: item.id || item._id,
+      authorId: item.author?.id || item.authorId || '',
+      userName: item.author?.nickname || item.userName || '匿名用户',
+      userImg: item.author?.avatar || item.userImg || 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/user.svg',
+      recipeName: item.name || item.recipeName || '',
+      recipeImage: item.cover || item.recipeImage || 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/image.svg',
+      likeCount: item.likeCount || 0
+    }
+  },
+
+  /**
+   * 降级方案：从本地存储加载已发布菜谱
+   */
+  loadPublishedFromLocal(isRefresh) {
+    const published = wx.getStorageSync('published') || []
+    const transformed = published.map(c => this.transformCardData(c))
+    const cardsWithLiked = this.applyLikedStatus(transformed)
+
+    this.setData({
+      sharedCards: cardsWithLiked,
+      publishedPage: 1,
+      hasMore: false,
+      loadingStatus: '',
+      isRequesting: false
+    }, () => this.updateCurrentCards())
   },
 
   /**

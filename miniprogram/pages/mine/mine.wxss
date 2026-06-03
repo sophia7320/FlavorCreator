@@ -2,36 +2,23 @@
 .mine-page {
   width: 750rpx;
   height: 100vh;
-  background: linear-gradient(180deg, #FFE8D2 0%, #FFE5BE 100%);
-  padding: 40rpx 50rpx 120rpx;
-  box-sizing: border-box;
+  background: var(--bg-primary);
+
   position: relative;
+
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
 
-/* 顶部遮罩 */
-.top-mask {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 300rpx;
-  background: rgba(255, 225, 207, 1);
-  border-bottom-left-radius: 60rpx;
-  border-bottom-right-radius: 60rpx;
-  z-index: 1;
-}
-
 /* 用户信息容器 */
-.top-background-img-container {
+.top-container {
   width: 100%;
-  height: 200rpx;
-  border-radius: 32rpx;
+  height: 500rpx;
+  
   overflow: hidden;
+
   position: relative;
-  z-index: 10;
 }
 
 .bg-img {
@@ -39,32 +26,25 @@
   height: 100%;
 }
 
-.mask {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 0;
-}
-
 .user-info-container {
   display: flex;
-  align-items: center;
-  gap: 20rpx;
-  margin-top: -60rpx;
-  padding: 0 20rpx;
-  position: relative;
+  align-items: flex-end;
+	gap: 20rpx;
+  
+	left: 45rpx;
+	bottom: 105rpx;
+  position: absolute;
   z-index: 10;
 }
 
 .user-avatar-container {
-  width: 120rpx;
-  height: 120rpx;
-  border-radius: 50%;
+  width: 135rpx;
+  height: 135rpx;
+  border-radius: 30rpx;
   background: #E0E0E0;
   flex-shrink: 0;
   overflow: hidden;
+	border: 2rpx solid rgba(24, 25, 31, 1);
 }
 
 .user-avatar-img {
@@ -74,46 +54,72 @@
 
 .user-name {
   font-size: 36rpx;
-  font-weight: 600;
-  color: #3E2723;
+  font-weight: 700;
+  color: #000;
 }
 
 /* 内容区域 */
 .main {
-  flex: 1;
+	background-color: rgba(255, 225, 207, 1);
   display: flex;
+	flex: 1;
   flex-direction: column;
-  margin-top: 30rpx;
   position: relative;
-  z-index: 10;
   overflow: hidden;
+	border-radius: 50rpx 50rpx 0 0;
+	padding: 34rpx 69rpx;
+	z-index: 10;
 }
 
 /* 标签切换 */
 .switch-tags {
   display: flex;
-  gap: 40rpx;
-  padding: 0 10rpx;
+
+	width: 327rpx;
+	height: 52rpx;
+
+	background-color: #fff;
+
+	position: relative;
+	align-items: center;
+
+	font-size: 21rpx;
+	font-weight: 700;
+
+	border-radius: 26rpx;
+}
+
+.switch-tags .selected-mark {
+	position: absolute;
+	left: 0;
+	width: 163rpx;
+	height: 100%;
+	background-color: rgba(232, 167, 167, 1);
+	border-radius: 26rpx;
+	transition: left 0.3s ease;
 }
 
 .tag-item {
-  font-size: 28rpx;
-  color: rgba(122, 125, 132, 1);
-  padding-bottom: 8rpx;
+	width: 163rpx;
+	height: 100%;
+  font-size: 22rpx;
+  color: rgba(24, 25, 31, 1);
+	z-index: 1;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	transition: color 0.3s ease;
 }
 
 .tag-item.active {
-  font-size: 32rpx;
-  font-weight: 600;
-  color: rgba(87, 30, 0, 1);
-  border-bottom: 4rpx solid rgba(185, 89, 33, 1);
+  color: rgba(255, 255, 255, 1);
 }
 
 .divider-line {
   background-color: #BFBFBF;
   width: 100%;
   height: 1px;
-  margin-top: 0;
+  margin-top: 16rpx;
 }
 
 /* 卡片列表 */
@@ -133,4 +139,13 @@
   padding: 80rpx 0;
   font-size: 28rpx;
   color: rgba(122, 125, 132, 1);
+}
+
+.mask {
+	width: 100%;
+	height: 300rpx;
+	position: fixed;
+	top: 210rpx;
+	background-image: linear-gradient(to top, rgba(255, 238, 209, 1), rgba(225,225,225,.1));
+	z-index: 5;
 }
