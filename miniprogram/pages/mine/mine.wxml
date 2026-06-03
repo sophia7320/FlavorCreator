@@ -1,26 +1,30 @@
 <!--pages/mine/mine.wxml-->
 <view class="mine-page">
-	<view class="top-background-img-container">
-		<image src="" mode="aspectFill" class="bg-img"/>
+	<view class="top-container">
+		<image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/bg/mine-background.png" mode="aspectFit" class="bg-img"/>
+
+		<view class="user-info-container">
+			<view class="user-avatar-container">
+				<image src="{{userInfo.avatarUrl}}" mode="aspectFit" class="user-avatar-img"/>
+			</view>
+			<view class="user-name">{{userInfo.nickName === '默认用户' ? 'Bill Rizer' : userInfo.nickName}}</view>
+		</view>
 	</view>
 
 	<view class="mask"></view>
 
-	<view class="user-info-container">
-		<view class="user-avatar-container">
-			<image src="{{userInfo.avatarUrl}}" mode="aspectFit" class="user-avatar-img"/>
-		</view>
-		<view class="user-name">{{userInfo.nickName}}</view>
-	</view>
+	
 
 	<view class="main">
 		<view class="switch-tags">
+			
 			<view class="tag-item {{tagIndex === 0 ? 'active' : ''}}" bindtap="onSwitchTag" data-index="0">
 				<text>已发布</text>
 			</view>
 			<view class="tag-item {{tagIndex === 1 ? 'active' : ''}}" bindtap="onSwitchTag" data-index="1">
 				<text>收藏</text>
 			</view>
+			<view class="selected-mark" style="left: {{tagIndex === 0 ? '0' : '163rpx'}};"></view>
 		</view>
 
 		<view class="divider-line"></view>
@@ -36,6 +40,7 @@
 					/>
 				</view>
 			</block>
+
 			<view wx:if="{{currentCards.length === 0}}" class="empty-tip">
 				暂无内容
 			</view>

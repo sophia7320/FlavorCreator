@@ -25,8 +25,11 @@
 | 管理员认证 | `common/aop/AdminAuthInterceptor.java` | 拦截 `/api/admin/**`，独立 JWT |
 | 错误码 | `common/constants/ResultCode.java` | 所有业务错误码常量 |
 | 统一响应 | `common/response/Response.java` | `Response.success(data)` / `Response.error(code, msg)` |
-| 图片上传/审核 | `common/service/ImageModerationService.java` | 三步校验: validate → store → moderate |
+| 图片上传/审核（底层） | `common/service/ImageModerationService.java` | validate(格式+大小) → moderate(内容审核) |
+| 图片上传（统一入口） | `common/service/ImageUploadService.java` | 封装 validate→store→moderate，失败自动清理 |
 | 文件存储 | `common/service/FileStorageService.java` | Local/COS/OSS 三套实现 |
+| 图片上传场景 | `common/constants/ImageScene.java` | AVATAR / BACKGROUND / RECIPE_COVER / RECIPE_IMAGE |
+| 通用图片上传接口 | `common/controller/ImageController.java` | `POST /api/image/upload?scene=` |
 | JWT Token | `common/util/JwtTokenUtil.java` | 用户 JWT（userId+openid） |
 | 用户上下文 | `common/context/UserContext.java` | ThreadLocal，拦截器自动清理 |
 | 全局异常处理 | `common/exception/GlobalExceptionHandler.java` | `@RestControllerAdvice` |
@@ -209,15 +212,17 @@ Response.error("服务器错误");  // 默认 code=500
 
 ## 已知限制
 
-- 菜谱批量图片上传时，若第 N 张审核失败，前 N-1 张已上传的 COS 文件会成为孤儿（DB事务回滚但文件无法回滚）。当前可接受，长期应将 upload 延后到全部图片审核通过后统一执行。
+- 菜谱 publishRecipe 中 cover 和 images 分属不同 scene，各调用 ImageUploadService.upload() 独立原子化。若 cover 上传成功但后续某张 image 失败，cover 文件会成为孤儿。跨 scene 非原子性可接受。
 - `buildSingleCommentDTO()` N+1 查询：流中每层调 `userMapper.selectById`（不同于批量的 `buildCommentDTO`）
 
 ## 图片上传与审核
 
-- 所有图片上传入口（`/api/user/avatar`、`/api/user/background`、`/api/recipe`）均调用 `ImageModerationService` 三步校验
-- 三步流程：`validate(file, scene)` → `FileStorageService.store()` → `moderate(url, scene)`
+- **统一入口**：`ImageUploadService.upload(file, scene)` 封装三步流程，失败自动清理已存储文件
+- **通用接口**：`POST /api/image/upload`（`file` + `scene`），需登录
+- 业务端点（`/api/user/avatar`、`/api/user/background`、`/api/recipe`）内部委托给 `ImageUploadService`
+- 三步流程：`ImageModerationService.validate(file, scene)` → `FileStorageService.store()` → `ImageModerationService.moderate(url, scene)`
 - dev 环境：`NoOpModerationServiceImpl`（仅类型+大小校验，跳过内容审核）
 - cloud/prod 环境：`CosModerationServiceImpl`（类型+大小校验 + 腾讯云 COS CI 内容审核）
 - 审核不通过自动删除 COS 对象后抛 `BusinessException`
-- 错误码：2001(格式) / 2002(大小) / 2003(内容违规) / 2004(审核异常)
+- 错误码：2001(格式) / 2002(大小) / 2003(内容违规) / 2004(审核异常) / 2005(无效场景)
 - 配置前缀：`flcr.moderation`（`enabled`、`allowed-types`、`max-size.{scene}`）

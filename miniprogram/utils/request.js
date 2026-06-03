@@ -31,7 +31,7 @@ function hideLoading() {
  * 获取 Authorization header
  */
 function getAuthorization() {
-  const token = wx.getStorageSync('accessToken')
+  const token = wx.getStorageSync('token')
   return token ? `Bearer ${token}` : ''
 }
 

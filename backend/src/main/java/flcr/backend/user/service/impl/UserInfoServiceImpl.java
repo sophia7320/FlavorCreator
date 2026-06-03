@@ -9,8 +9,8 @@ import flcr.backend.auth.mapper.UserMapper;
 import flcr.backend.common.constants.ResultCode;
 import flcr.backend.common.context.UserContext;
 import flcr.backend.common.exception.BusinessException;
-import flcr.backend.common.service.FileStorageService;
-import flcr.backend.common.service.ImageModerationService;
+import flcr.backend.common.constants.ImageScene;
+import flcr.backend.common.service.ImageUploadService;
 import flcr.backend.community.entity.Collection;
 import flcr.backend.community.entity.Like;
 import flcr.backend.community.mapper.CollectionMapper;
@@ -37,8 +37,7 @@ public class UserInfoServiceImpl implements UserInfoService {
     private final LikeMapper likeMapper;
     private final CollectionMapper collectionMapper;
     private final ObjectMapper objectMapper;
-    private final FileStorageService fileStorageService;
-    private final ImageModerationService imageModerationService;
+    private final ImageUploadService imageUploadService;
 
     @Override
     public UserInfoResponseDTO getInfo() {
@@ -88,9 +87,7 @@ public class UserInfoServiceImpl implements UserInfoService {
     @Override
     public String uploadAvatar(MultipartFile file) {
         Long userId = UserContext.getUserId();
-        imageModerationService.validate(file, "avatar");
-        String avatarUrl = fileStorageService.store(file, "avatar");
-        imageModerationService.moderate(avatarUrl, "avatar");
+        String avatarUrl = imageUploadService.upload(file, ImageScene.AVATAR);
 
         User user = userMapper.selectById(userId);
         if (user != null) {
@@ -105,9 +102,7 @@ public class UserInfoServiceImpl implements UserInfoService {
     @Override
     public String uploadBackground(MultipartFile file) {
         Long userId = UserContext.getUserId();
-        imageModerationService.validate(file, "background");
-        String backgroundUrl = fileStorageService.store(file, "background");
-        imageModerationService.moderate(backgroundUrl, "background");
+        String backgroundUrl = imageUploadService.upload(file, ImageScene.BACKGROUND);
 
         User user = userMapper.selectById(userId);
         if (user != null) {
