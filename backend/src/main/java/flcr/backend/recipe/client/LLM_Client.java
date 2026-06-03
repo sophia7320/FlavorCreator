@@ -41,6 +41,10 @@ public class LLM_Client {
             payload.put("messages", messages);
             payload.put("temperature", 0.7);
 
+            Map<String, String> responseFormat = new HashMap<>();
+            responseFormat.put("type", "json_object");
+            payload.put("response_format", responseFormat);
+
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.setBearerAuth(apiKey);
