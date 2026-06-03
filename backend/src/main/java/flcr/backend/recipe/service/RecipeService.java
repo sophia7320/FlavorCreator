@@ -1,8 +1,10 @@
 package flcr.backend.recipe.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import flcr.backend.recipe.DTO.request.ApplyRecipeRequestDTO;
 import flcr.backend.recipe.DTO.request.PublishRecipeRequestDTO;
 import flcr.backend.recipe.DTO.request.RecipeListRequestDTO;
+import flcr.backend.recipe.DTO.response.ApplyRecipeResponseDTO;
 import flcr.backend.recipe.DTO.response.RecipeDetailDTO;
 import flcr.backend.recipe.DTO.response.RecipeListItemDTO;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,4 +18,6 @@ public interface RecipeService {
     Page<RecipeListItemDTO> getRecipeList(RecipeListRequestDTO request);
 
     RecipeDetailDTO getRecipeDetail(Long recipeId);
+
+    ApplyRecipeResponseDTO apply(ApplyRecipeRequestDTO request);
 }

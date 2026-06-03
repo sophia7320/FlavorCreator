@@ -3,8 +3,10 @@ package flcr.backend.recipe.controller;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import flcr.backend.common.aop.Public;
 import flcr.backend.common.response.Response;
+import flcr.backend.recipe.DTO.request.ApplyRecipeRequestDTO;
 import flcr.backend.recipe.DTO.request.PublishRecipeRequestDTO;
 import flcr.backend.recipe.DTO.request.RecipeListRequestDTO;
+import flcr.backend.recipe.DTO.response.ApplyRecipeResponseDTO;
 import flcr.backend.recipe.DTO.response.RecipeDetailDTO;
 import flcr.backend.recipe.DTO.response.RecipeListItemDTO;
 import flcr.backend.recipe.service.RecipeService;
@@ -45,5 +47,11 @@ public class RecipeController {
     public Response<RecipeDetailDTO> getRecipeDetail(@PathVariable Long id) {
         RecipeDetailDTO detail = recipeService.getRecipeDetail(id);
         return Response.success(detail);
+    }
+
+    @PostMapping("/apply")
+    public Response<ApplyRecipeResponseDTO> apply(@Valid @RequestBody ApplyRecipeRequestDTO request) {
+        ApplyRecipeResponseDTO result = recipeService.apply(request);
+        return Response.success(result);
     }
 }

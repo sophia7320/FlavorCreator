@@ -6,12 +6,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import flcr.backend.auth.entity.User;
 import flcr.backend.auth.mapper.UserMapper;
 import flcr.backend.common.context.UserContext;
-import flcr.backend.common.service.FileStorageService;
-import flcr.backend.common.service.ImageModerationService;
+import flcr.backend.common.constants.ImageScene;
+import flcr.backend.common.service.ImageUploadService;
 import flcr.backend.community.mapper.CollectionMapper;
 import flcr.backend.community.mapper.LikeMapper;
+import flcr.backend.recipe.DTO.request.ApplyRecipeRequestDTO;
 import flcr.backend.recipe.DTO.request.PublishRecipeRequestDTO;
 import flcr.backend.recipe.DTO.request.RecipeListRequestDTO;
+import flcr.backend.recipe.DTO.response.ApplyRecipeResponseDTO;
 import flcr.backend.recipe.DTO.response.RecipeDetailDTO;
 import flcr.backend.recipe.DTO.response.RecipeListItemDTO;
 import flcr.backend.recipe.entity.Recipe;
@@ -21,6 +23,8 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
@@ -29,6 +33,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 @ExtendWith(MockitoExtension.class)
 class RecipeServiceImplTest {
 
@@ -46,8 +51,7 @@ class RecipeServiceImplTest {
     @Mock private CollectionMapper collectionMapper;
     @Mock private UserMapper userMapper;
     @Mock private ObjectMapper objectMapper;
-    @Mock private FileStorageService fileStorageService;
-    @Mock private ImageModerationService imageModerationService;
+    @Mock private ImageUploadService imageUploadService;
     @InjectMocks private RecipeServiceImpl recipeService;
 
     private static final Long USER_ID = 1001L;
@@ -66,7 +70,7 @@ class RecipeServiceImplTest {
     @DisplayName("publishRecipe成功返回recipeId")
     void testPublishRecipe_Success() throws Exception {
         MultipartFile cover = mock(MultipartFile.class);
-        when(fileStorageService.store(cover, "recipe-cover")).thenReturn("/uploads/test.jpg");
+        when(imageUploadService.upload(cover, ImageScene.RECIPE_COVER)).thenReturn("/uploads/test.jpg");
         when(objectMapper.writeValueAsString(any())).thenReturn("[]");
         when(recipeMapper.insert(any(Recipe.class))).thenAnswer(inv -> {
             Recipe r = inv.getArgument(0);
@@ -81,7 +85,6 @@ class RecipeServiceImplTest {
         Long id = recipeService.publishRecipe(request, cover, null);
         assertEquals(1L, id);
     }
-
     @Test
     @DisplayName("publishRecipe封面为空")
     void testPublishRecipe_NoCover() throws Exception {
@@ -202,6 +205,150 @@ class RecipeServiceImplTest {
                 () -> recipeService.getRecipeDetail(99L));
     }
 
+    // ==================== apply 测试 ====================
+
+    @Test
+    @DisplayName("apply - 全匹配(100%)返回菜谱")
+    void testApply_FullMatch() throws Exception {
+        Recipe recipe = buildRecipe(1L);
+        recipe.setIngredients("[{\"name\":\"鸡蛋\",\"quantity\":2,\"unit\":\"个\"}]");
+        recipe.setAuthorId(999L); // different from USER_ID
+        when(recipeMapper.selectList(null)).thenReturn(List.of(recipe));
+        when(userMapper.selectById(999L)).thenReturn(buildUser());
+        when(objectMapper.readValue(eq(recipe.getIngredients()), any(com.fasterxml.jackson.core.type.TypeReference.class)))
+                .thenReturn(List.of(java.util.Map.of("name", "鸡蛋", "quantity", java.math.BigDecimal.valueOf(2), "unit", "个")));
+
+
+        ApplyRecipeRequestDTO request = new ApplyRecipeRequestDTO();
+        ApplyRecipeRequestDTO.IngredientItem item = new ApplyRecipeRequestDTO.IngredientItem();
+        item.setName("鸡蛋");
+        item.setQuantity(java.math.BigDecimal.valueOf(3));
+        item.setUnit("个");
+        request.setIngredients(List.of(item));
+
+        ApplyRecipeResponseDTO result = recipeService.apply(request);
+
+        assertEquals(100, result.getMatchDegree());
+        assertFalse(result.getNeedAiGenerate());
+        assertEquals(1, result.getRecipes().size());
+    }
+
+    @Test
+    @DisplayName("apply - 部分匹配(50%)低于阈值返回needAiGenerate")
+    void testApply_PartialMatch_BelowThreshold() throws Exception {
+        Recipe recipe = buildRecipe(1L);
+        recipe.setIngredients("[{\"name\":\"鸡蛋\",\"quantity\":2,\"unit\":\"个\"},{\"name\":\"西红柿\",\"quantity\":1,\"unit\":\"个\"}]");
+        recipe.setAuthorId(999L);
+        when(recipeMapper.selectList(null)).thenReturn(List.of(recipe));
+        when(userMapper.selectById(999L)).thenReturn(buildUser());
+        when(objectMapper.readValue(eq(recipe.getIngredients()), any(com.fasterxml.jackson.core.type.TypeReference.class)))
+                .thenReturn(List.of(
+                        java.util.Map.of("name", "鸡蛋", "quantity", java.math.BigDecimal.valueOf(2), "unit", "个"),
+                        java.util.Map.of("name", "西红柿", "quantity", java.math.BigDecimal.valueOf(1), "unit", "个")));
+        when(objectMapper.readValue(eq(recipe.getTags()), eq(String[].class))).thenReturn(new String[]{"家常菜"});
+
+        ApplyRecipeRequestDTO request = new ApplyRecipeRequestDTO();
+        ApplyRecipeRequestDTO.IngredientItem item = new ApplyRecipeRequestDTO.IngredientItem();
+        item.setName("鸡蛋");
+        request.setIngredients(List.of(item));
+
+        ApplyRecipeResponseDTO result = recipeService.apply(request);
+
+        assertEquals(50, result.getMatchDegree());
+        assertTrue(result.getNeedAiGenerate());
+        assertEquals(1, result.getRecipes().size());
+    }
+
+    @Test
+    @DisplayName("apply - 烹饪时间偏好过滤")
+    void testApply_CookTimeFilter() throws Exception {
+        Recipe recipe1 = buildRecipe(1L);
+        recipe1.setIngredients("[{\"name\":\"鸡蛋\",\"quantity\":2,\"unit\":\"个\"}]");
+        recipe1.setCookTime("15");
+        recipe1.setAuthorId(999L);
+
+        Recipe recipe2 = buildRecipe(2L);
+        recipe2.setIngredients("[{\"name\":\"鸡蛋\",\"quantity\":2,\"unit\":\"个\"}]");
+        recipe2.setCookTime("45");
+        recipe2.setAuthorId(999L);
+
+        when(recipeMapper.selectList(null)).thenReturn(List.of(recipe1, recipe2));
+        when(userMapper.selectById(999L)).thenReturn(buildUser());
+        when(objectMapper.readValue(anyString(), any(com.fasterxml.jackson.core.type.TypeReference.class)))
+                .thenReturn(List.of(java.util.Map.of("name", "鸡蛋", "quantity", java.math.BigDecimal.valueOf(2), "unit", "个")));
+        when(objectMapper.readValue(anyString(), eq(String[].class))).thenReturn(new String[]{"快手菜"});
+        ApplyRecipeRequestDTO request = new ApplyRecipeRequestDTO();
+        ApplyRecipeRequestDTO.IngredientItem item = new ApplyRecipeRequestDTO.IngredientItem();
+        item.setName("鸡蛋");
+        request.setIngredients(List.of(item));
+        ApplyRecipeRequestDTO.Preferences prefs = new ApplyRecipeRequestDTO.Preferences();
+        prefs.setCookTime(30);
+        request.setPreferences(prefs);
+        ApplyRecipeResponseDTO result = recipeService.apply(request);
+        assertEquals(100, result.getMatchDegree());
+        assertEquals(1, result.getRecipes().size());
+        assertEquals(1L, result.getRecipes().get(0).getId()); // recipe1 (15min) passes, recipe2 (45min > 30) filtered
+    }
+
+    @Test
+    @DisplayName("apply - 难度偏好过滤")
+    void testApply_DifficultyFilter() throws Exception {
+        Recipe recipe1 = buildRecipe(1L);
+        recipe1.setIngredients("[{\"name\":\"鸡蛋\",\"quantity\":2,\"unit\":\"个\"}]");
+        recipe1.setDifficulty(1);
+        recipe1.setAuthorId(999L);
+
+        Recipe recipe2 = buildRecipe(2L);
+        recipe2.setIngredients("[{\"name\":\"鸡蛋\",\"quantity\":2,\"unit\":\"个\"}]");
+        recipe2.setDifficulty(3);
+        recipe2.setAuthorId(999L);
+
+        when(recipeMapper.selectList(null)).thenReturn(List.of(recipe1, recipe2));
+        when(userMapper.selectById(999L)).thenReturn(buildUser());
+        when(objectMapper.readValue(anyString(), any(com.fasterxml.jackson.core.type.TypeReference.class)))
+                .thenReturn(List.of(java.util.Map.of("name", "鸡蛋", "quantity", java.math.BigDecimal.valueOf(2), "unit", "个")));
+        when(objectMapper.readValue(anyString(), eq(String[].class))).thenReturn(new String[]{"快手菜"});
+        ApplyRecipeRequestDTO request = new ApplyRecipeRequestDTO();
+        ApplyRecipeRequestDTO.IngredientItem item = new ApplyRecipeRequestDTO.IngredientItem();
+        item.setName("鸡蛋");
+        request.setIngredients(List.of(item));
+        ApplyRecipeRequestDTO.Preferences prefs = new ApplyRecipeRequestDTO.Preferences();
+        prefs.setDifficulty(1);
+        request.setPreferences(prefs);
+        ApplyRecipeResponseDTO result = recipeService.apply(request);
+        assertEquals(100, result.getMatchDegree());
+        assertEquals(1, result.getRecipes().size());
+    }
+
+    @Test
+    @DisplayName("apply - 空食材输入返回空")
+    void testApply_EmptyIngredients() {
+        ApplyRecipeRequestDTO request = new ApplyRecipeRequestDTO();
+        request.setIngredients(List.of());
+        ApplyRecipeResponseDTO result = recipeService.apply(request);
+        assertEquals(0, result.getMatchDegree());
+        assertTrue(result.getNeedAiGenerate());
+        assertTrue(result.getRecipes().isEmpty());
+    }
+
+    @Test
+    @DisplayName("apply - 跳过本人菜谱")
+    void testApply_SkipOwnRecipe() throws Exception {
+        Recipe recipe = buildRecipe(1L);
+        recipe.setIngredients("[{\"name\":\"鸡蛋\",\"quantity\":2,\"unit\":\"个\"}]");
+        // authorId == USER_ID (1001L)
+        when(recipeMapper.selectList(null)).thenReturn(List.of(recipe));
+        ApplyRecipeRequestDTO request = new ApplyRecipeRequestDTO();
+        ApplyRecipeRequestDTO.IngredientItem item = new ApplyRecipeRequestDTO.IngredientItem();
+        item.setName("鸡蛋");
+        request.setIngredients(List.of(item));
+        ApplyRecipeResponseDTO result = recipeService.apply(request);
+        assertTrue(result.getRecipes().isEmpty());
+        assertTrue(result.getNeedAiGenerate());
+    }
+
+    // ==================== 辅助方法 ====================
+
     private Recipe buildRecipe(Long id) {
         Recipe recipe = new Recipe();
         recipe.setId(id);
@@ -209,7 +356,7 @@ class RecipeServiceImplTest {
         recipe.setCover("/uploads/test.jpg");
         recipe.setAuthorId(USER_ID);
         recipe.setCategory("家常菜");
-        recipe.setCookTime("简单");
+        recipe.setCookTime("15");
         recipe.setDifficulty(1);
         recipe.setCalories(300);
         recipe.setLikeCount(10);

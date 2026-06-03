@@ -6,8 +6,8 @@ import flcr.backend.auth.mapper.UserMapper;
 import flcr.backend.common.constants.ResultCode;
 import flcr.backend.common.context.UserContext;
 import flcr.backend.common.exception.BusinessException;
-import flcr.backend.common.service.FileStorageService;
-import flcr.backend.common.service.ImageModerationService;
+import flcr.backend.common.constants.ImageScene;
+import flcr.backend.common.service.ImageUploadService;
 import flcr.backend.community.mapper.CollectionMapper;
 import flcr.backend.community.mapper.LikeMapper;
 import flcr.backend.recipe.mapper.RecipeMapper;
@@ -33,8 +33,7 @@ class UserInfoServiceImplTest {
     @Mock private LikeMapper likeMapper;
     @Mock private CollectionMapper collectionMapper;
     @Mock private ObjectMapper objectMapper;
-    @Mock private FileStorageService fileStorageService;
-    @Mock private ImageModerationService imageModerationService;
+    @Mock private ImageUploadService imageUploadService;
     @InjectMocks private UserInfoServiceImpl userInfoService;
 
     private static final Long USER_ID = 1001L;
@@ -114,19 +113,18 @@ class UserInfoServiceImplTest {
     @DisplayName("uploadAvatar成功返回URL")
     void testUploadAvatar_Success() {
         org.springframework.web.multipart.MultipartFile file = mock(org.springframework.web.multipart.MultipartFile.class);
-        when(fileStorageService.store(file, "avatar")).thenReturn("/uploads/avatar/202604/uuid.jpg");
+        when(imageUploadService.upload(file, ImageScene.AVATAR)).thenReturn("/uploads/avatar/202604/uuid.jpg");
         when(userMapper.selectById(USER_ID)).thenReturn(buildUser());
         when(userMapper.updateById(any(User.class))).thenReturn(1);
 
         String url = userInfoService.uploadAvatar(file);
         assertEquals("/uploads/avatar/202604/uuid.jpg", url);
     }
-
     @Test
     @DisplayName("uploadBackground成功返回URL")
     void testUploadBackground_Success() {
         org.springframework.web.multipart.MultipartFile file = mock(org.springframework.web.multipart.MultipartFile.class);
-        when(fileStorageService.store(file, "background")).thenReturn("/uploads/background/202604/uuid.jpg");
+        when(imageUploadService.upload(file, ImageScene.BACKGROUND)).thenReturn("/uploads/background/202604/uuid.jpg");
         when(userMapper.selectById(USER_ID)).thenReturn(buildUser());
         when(userMapper.updateById(any(User.class))).thenReturn(1);
 
