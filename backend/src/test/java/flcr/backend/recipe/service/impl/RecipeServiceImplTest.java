@@ -195,6 +195,7 @@ class RecipeServiceImplTest {
         RecipeDetailResponseDTO result = recipeService.getRecipeDetail(1L);
         assertNotNull(result);
         assertEquals("测试菜谱", result.getName());
+        assertEquals(101, result.getStats().getViews());
         assertFalse(result.getIsLiked());
     }
 

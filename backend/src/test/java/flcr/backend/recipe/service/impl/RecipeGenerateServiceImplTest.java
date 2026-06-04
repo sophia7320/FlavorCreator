@@ -220,4 +220,17 @@ class RecipeGenerateServiceImplTest {
         assertNotNull(result);
         assertEquals("番茄炒蛋", result.getRecipe().getName());
     }
+
+    @Test
+    @DisplayName("LLM 返回空 recipe 抛 BusinessException")
+    void testGenerateRecipe_NullRecipe() throws Exception {
+        RecipeGenerateRequestDTO request = buildBasicRequest();
+        String emptyRecipeJson = "{\"recipe\":null}";
+        RecipeGenerateResponseDTO parsed = RecipeGenerateResponseDTO.builder().recipe(null).build();
+
+        when(llmClient.generateRecipeJson(anyString())).thenReturn(emptyRecipeJson);
+        when(objectMapper.readValue(emptyRecipeJson, RecipeGenerateResponseDTO.class)).thenReturn(parsed);
+
+        assertThrows(BusinessException.class, () -> service.generateRecipe(request));
+    }
 }
