@@ -18,7 +18,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.util.List;
 
 @Slf4j
@@ -47,7 +46,7 @@ public class RecipeController {
 
     @Public
     @GetMapping("/list")
-    public Response<Page<RecipeListItemResponseDTO>> getRecipeList(RecipeListRequestDTO request) {
+    public Response<Page<RecipeListItemResponseDTO>> getRecipeList(@Valid RecipeListRequestDTO request) {
         Page<RecipeListItemResponseDTO> result = recipeService.getRecipeList(request);
         return Response.success(result);
     }

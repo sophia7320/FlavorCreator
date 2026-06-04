@@ -22,13 +22,13 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class LlmClient {
 
-    @Value("${llm.api.url}")
+    @Value("${llm.api.url:https://api.siliconflow.cn/v1/chat/completions}")
     private String apiUrl;
 
-    @Value("${llm.api.model}")
+    @Value("${llm.api.model:Pro/zai-org/GLM-4.7}")
     private String modelName;
 
-    @Value("${llm.api.key}")
+    @Value("${llm.api.key:}")
     private String apiKey;
 
     private final RestTemplate restTemplate;

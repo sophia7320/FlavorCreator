@@ -43,4 +43,4 @@ llm:
   api:
     url: "https://api.siliconflow.cn/v1/chat/completions"
     model: "Pro/zai-org/GLM-4.7"
-    key: "Bearer sk-pwtinglhtvzmzvbgempceozorwujlepqtxarjfslbzsvmrnx"
+    key: "sk-pwtinglhtvzmzvbgempceozorwujlepqtxarjfslbzsvmrnx"

@@ -1,6 +1,7 @@
 package flcr.backend.common.service.impl;
 
 import flcr.backend.common.constants.ImageScene;
+import flcr.backend.common.constants.ResultCode;
 import flcr.backend.common.exception.BusinessException;
 import flcr.backend.common.service.FileStorageService;
 import flcr.backend.common.service.ImageModerationService;
@@ -36,9 +37,8 @@ public class ImageUploadServiceImpl implements ImageUploadService {
             url = fileStorageService.store(file, sceneValue);
         } catch (Exception e) {
             log.error("文件存储失败: scene={}", sceneValue, e);
-            throw e instanceof BusinessException
-                    ? (BusinessException) e
-                    : new BusinessException(e.getMessage());
+            throw e instanceof BusinessException ? (BusinessException) e
+                    : new BusinessException(ResultCode.SYSTEM_ERROR, "文件存储失败: " + e.getMessage());
         }
 
         // Step 3: Moderate (content check)
@@ -52,9 +52,8 @@ public class ImageUploadServiceImpl implements ImageUploadService {
             } catch (Exception delEx) {
                 log.error("清理失败文件异常: url={}", url, delEx);
             }
-            throw e instanceof BusinessException
-                    ? (BusinessException) e
-                    : new BusinessException(e.getMessage());
+            throw e instanceof BusinessException ? (BusinessException) e
+                    : new BusinessException(ResultCode.SYSTEM_ERROR, "内容审核失败: " + e.getMessage());
         }
 
         return url;

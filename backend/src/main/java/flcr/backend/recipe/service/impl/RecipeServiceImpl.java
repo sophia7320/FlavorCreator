@@ -28,6 +28,7 @@ import flcr.backend.recipe.entity.Recipe;
 import flcr.backend.recipe.mapper.RecipeMapper;
 import flcr.backend.recipe.service.RecipeService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,6 +40,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class RecipeServiceImpl implements RecipeService {
@@ -257,6 +259,7 @@ public class RecipeServiceImpl implements RecipeService {
             }
             return names;
         } catch (JsonProcessingException e) {
+            log.warn("解析食材JSON失败", e);
             return Collections.emptySet();
         }
     }
@@ -266,6 +269,7 @@ public class RecipeServiceImpl implements RecipeService {
         try {
             return Integer.parseInt(cookTime.trim());
         } catch (NumberFormatException e) {
+            log.warn("解析烹饪时间失败: {}", cookTime);
             return null;
         }
     }
