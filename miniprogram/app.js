@@ -16,10 +16,17 @@ App({
   // 创建标准方法完成对本地存储内容的读写
 
 	//存储登录信息
-  saveLoginInfo(token, refreshToken, userInfo) {
+  saveLoginInfo(token, refreshToken, userInfo, expiresIn) {
     wx.setStorageSync('token', token)
     wx.setStorageSync('refreshToken', refreshToken)
     wx.setStorageSync('userInfo', userInfo)
+
+    // 记录 token 过期时间，提前 60 秒视为过期留缓冲
+    if (expiresIn) {
+      const expiresAt = Date.now() + (expiresIn - 60) * 1000
+      wx.setStorageSync('tokenExpiresAt', expiresAt)
+      this.globalData.tokenExpiresAt = expiresAt
+    }
 
     this.globalData.token = token
     this.globalData.refreshToken = refreshToken
@@ -53,9 +60,11 @@ App({
     wx.removeStorageSync('token')
     wx.removeStorageSync('refreshToken')
     wx.removeStorageSync('userInfo')
+    wx.removeStorageSync('tokenExpiresAt')
     this.globalData.token = ''
     this.globalData.refreshToken = ''
     this.globalData.userInfo = null
+    this.globalData.tokenExpiresAt = 0
     this.globalData.isLoggedIn = false
   },
 
@@ -64,16 +73,18 @@ App({
     const token = wx.getStorageSync('token') || ''
     const refreshToken = wx.getStorageSync('refreshToken') || ''
     const userInfo = wx.getStorageSync('userInfo') || null
+    const tokenExpiresAt = wx.getStorageSync('tokenExpiresAt') || 0
 
     if (token) {
       this.globalData.token = token
       this.globalData.refreshToken = refreshToken
       this.globalData.userInfo = userInfo
+      this.globalData.tokenExpiresAt = tokenExpiresAt
       this.globalData.isLoggedIn = true
     }
   },
 
-  // 用 refreshToken 刷新 token
+  // 用 refreshToken 刷新 token（被动兜底，允许弹 toast）
   refreshAccessToken() {
     const refreshToken = this.getRefreshToken()
     if (!refreshToken) return Promise.resolve(false)
@@ -82,7 +93,7 @@ App({
       .then((res) => {
         if (res.code === 0 || res.code === 200) {
           const data = res.data
-          this.saveLoginInfo(data.token, data.refreshToken, this.getUserInfo())
+          this.saveLoginInfo(data.token, data.refreshToken, this.getUserInfo(), data.expiresIn)
           return true
         } else {
           this.clearLoginState()
@@ -95,10 +106,31 @@ App({
       })
   },
 
+  // 静默刷新 token（主动预刷新，失败不弹 toast、不清除登录态）
+  silentRefreshToken() {
+    const refreshToken = this.getRefreshToken()
+    if (!refreshToken) return Promise.resolve(false)
+
+    return request(API_CONFIG.auth.refresh, { refreshToken }, {
+      showLoading: false,
+      showError: false
+    })
+      .then((res) => {
+        if ((res.code === 0 || res.code === 200) && res.data) {
+          const data = res.data
+          this.saveLoginInfo(data.token, data.refreshToken, this.getUserInfo(), data.expiresIn)
+          return true
+        }
+        return false
+      })
+      .catch(() => false)
+  },
+
   globalData: {
     userInfo: null,
     token: '',
     refreshToken: '',
+    tokenExpiresAt: 0,
     isLoggedIn: false
   }
 })

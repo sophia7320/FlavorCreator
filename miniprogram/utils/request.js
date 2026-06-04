@@ -76,7 +76,7 @@ function processRefreshQueue(success) {
   if (!success) {
     wx.showToast({ title: '登录已过期', icon: 'none' })
     setTimeout(() => {
-      wx.reLaunch({ url: '/pages/phoneNumberLogin/login' })
+      wx.reLaunch({ url: '/pages/phone-number-login/login' })
     }, 1500)
   }
 }
@@ -90,6 +90,18 @@ function getAuthorization() {
 }
 
 /**
+ * 检查 token 是否即将过期
+ * 在过期时间前主动触发刷新，避免请求发出后收到 401
+ */
+function isTokenExpiringSoon() {
+  const app = getApp()
+  const expiresAt = app.globalData.tokenExpiresAt
+                 || wx.getStorageSync('tokenExpiresAt')
+                 || 0
+  return expiresAt > 0 && Date.now() >= expiresAt
+}
+
+/**
  * 使用 callContainer 的请求方法
  * @param {Object} apiConfig API 配置对象 { path, method }
  * @param {Object} data 请求数据
@@ -97,6 +109,25 @@ function getAuthorization() {
  */
 function cloudRequest(apiConfig, data = {}, options = {}) {
   const { showLoading: needLoading = true, showError = true } = options
+
+  // 主动刷新：非刷新请求本身，且 token 即将过期时静默刷新
+  if (!isRefreshPath(apiConfig) && isTokenExpiringSoon()) {
+    if (!isRefreshing) {
+      isRefreshing = true
+      const app = getApp()
+      app.silentRefreshToken()
+        .then((success) => {
+          if (success) {
+            processRefreshQueue(true)
+          } else {
+            isRefreshing = false
+          }
+        })
+        .catch(() => {
+          isRefreshing = false
+        })
+    }
+  }
 
   return new Promise((resolve, reject) => {
     if (needLoading) {
@@ -109,7 +140,7 @@ function cloudRequest(apiConfig, data = {}, options = {}) {
     }
 
     const token = getAuthorization()
-    if (token) {
+    if (token && !isRefreshPath(apiConfig)) {
       headers['Authorization'] = token
     }
 
@@ -186,7 +217,7 @@ function handleResponse(res, resolve, reject, showError, apiConfig, data, option
       }
       setTimeout(() => {
         wx.reLaunch({
-          url: '/pages/phoneNumberLogin/login'
+          url: '/pages/phone-number-login/login'
         })
       }, 1500)
       reject(res)
@@ -244,7 +275,7 @@ function directRequest(apiConfig, data = {}, options = {}) {
     }
 
     const token = getAuthorization()
-    if (token) {
+    if (token && !isRefreshPath(apiConfig)) {
       headers['Authorization'] = token
     }
 

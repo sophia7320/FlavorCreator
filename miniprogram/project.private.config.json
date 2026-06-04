@@ -24,7 +24,7 @@
 			"list": [
 				{
 					"name": "test",
-					"pathName": "pages/profile-setting/profile",
+					"pathName": "pages/index/index",
 					"query": "",
 					"scene": null,
 					"launchMode": "default"

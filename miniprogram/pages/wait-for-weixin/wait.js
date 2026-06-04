@@ -17,7 +17,7 @@ Page({
         request(API_CONFIG.auth.loginWx, loginParams).then((resp) => {
           if (resp.code === 200 || resp.code === 0) {
             const data = resp.data
-            app.saveLoginInfo(data.token, data.refreshToken, data.user)
+            app.saveLoginInfo(data.token, data.refreshToken, data.user, data.expiresIn)
 
             wx.showToast({
               title: resp.message || "登录成功",

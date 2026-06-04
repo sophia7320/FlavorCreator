@@ -1,4 +1,7 @@
 // pages/settings/settings.js
+const { request } = require('../../utils/request')
+const { API_CONFIG } = require('../../config/api')
+
 Page({
 
   /**
@@ -182,20 +185,26 @@ Page({
       content: '确定要退出当前账号吗？',
       success: (res) => {
         if (res.confirm) {
-          // 清除登录状态
-          wx.removeStorageSync('token')
-          wx.removeStorageSync('userInfo')
-          
-          wx.showToast({
-            title: '已退出登录',
-            icon: 'success'
-          })
-          
-          setTimeout(() => {
-            wx.reLaunch({
-              url: '/pages/welcome/welcome'
+          const app = getApp()
+
+          // 调用后端登出接口，使服务端 token 失效
+          request(API_CONFIG.auth.logout, {}, { showLoading: false, showError: false })
+            .catch(() => {})
+            .finally(() => {
+              // 无论后端请求成功与否，都清除本地登录状态
+              app.clearLoginState()
+
+              wx.showToast({
+                title: '已退出登录',
+                icon: 'success'
+              })
+              
+              setTimeout(() => {
+                wx.reLaunch({
+                  url: '/pages/welcome/welcome'
+                })
+              }, 1500)
             })
-          }, 1500)
         }
       }
     })

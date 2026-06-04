@@ -1,12 +1,14 @@
 // index.js
 const app = getApp()
+const { request } = require('../../utils/request')
+const { API_CONFIG } = require('../../config/api')
 
 Page({
   data: {
-    dishName: '西红柿炒蛋',
+    dishName: '加载中...',
 		weekDay: '',
 		solarDate: '',
-		description: '西红柿2个、鸡蛋3个、盐、葱花、食用油。西红柿酸甜多汁，鸡蛋鲜嫩松软，家常经典菜，色泽鲜亮，鲜香开胃，做法简单，老少皆宜。',
+		description: '',
 
 		steps: [
 			{ stepId: 1, name:'食材', selected: true },
@@ -95,6 +97,25 @@ Page({
 
 	},
 
+	// 拉取每日推荐
+	fetchDailyRecommend() {
+		request(API_CONFIG.recipe.recommend, {}, { showLoading: false, showError: false })
+			.then((res) => {
+				const data = res.data || res
+				this.setData({
+					dishName: data.name || data.dishName || '今日推荐',
+					description: data.description || ''
+				})
+			})
+			.catch(() => {
+				// 接口失败时使用默认文案
+				this.setData({
+					dishName: '今日推荐',
+					description: '今天不知道吃什么？选选食材，让AI帮你搭配吧！'
+				})
+			})
+	},
+
 	onShow() {
 		// 调用时间更新函数 
 		this.updateTime()
@@ -106,6 +127,8 @@ Page({
 		}
 		// 初始化食材搜索数据
 		this.initIngredientsList()
+		// 拉取每日推荐
+		this.fetchDailyRecommend()
 	},
 
 	onReady() {
