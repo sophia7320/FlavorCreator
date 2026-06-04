@@ -6,3 +6,4 @@ backend/logs/
 .omp/
 .lsp.json
 lsp.json
+.sisyphus
