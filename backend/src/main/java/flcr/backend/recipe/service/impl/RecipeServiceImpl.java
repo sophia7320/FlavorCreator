@@ -146,6 +146,7 @@ public class RecipeServiceImpl implements RecipeService {
         viewWrapper.eq(Recipe::getId, recipeId)
                 .setSql("view_count = view_count + 1");
         recipeMapper.update(null, viewWrapper);
+        recipe.setViewCount(recipe.getViewCount() + 1);
 
         RecipeDetailResponseDTO dto = convertToDetailDTO(recipe);
 

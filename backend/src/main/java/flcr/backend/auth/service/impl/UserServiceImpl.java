@@ -158,10 +158,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 } catch (NumberFormatException e) {
                     throw new BusinessException(ResultCode.PARAM_ERROR, "性别格式错误");
                 }
+            } else {
+                user.setGender(GenderConstants.UNKNOWN);
             }
-        } else {
-            user.setNickname("创味机用户");
-            user.setGender(GenderConstants.UNKNOWN);
         }
 
         user.setCreatedAt(LocalDateTime.now());

@@ -13,7 +13,6 @@ import java.util.List;
 @AllArgsConstructor
 public class UserInfoResponseDTO {
     private Long id;
-    private String openid;
     private String nickname;
     private String avatar;
     private String background;

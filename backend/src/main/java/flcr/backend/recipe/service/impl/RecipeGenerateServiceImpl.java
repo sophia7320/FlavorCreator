@@ -28,7 +28,11 @@ public class RecipeGenerateServiceImpl implements RecipeGenerateService {
     public RecipeGenerateResponseDTO generateRecipe(RecipeGenerateRequestDTO request) {
         String systemPrompt = buildSystemPrompt(request);
         String llmJsonResponse = llmClient.generateRecipeJson(systemPrompt);
-        return parseResponse(llmJsonResponse);
+        RecipeGenerateResponseDTO result = parseResponse(llmJsonResponse);
+        if (result == null || result.getRecipe() == null) {
+            throw new BusinessException(ResultCode.SYSTEM_ERROR, "AI生成内容为空");
+        }
+        return result;
     }
 
     private String buildSystemPrompt(RecipeGenerateRequestDTO request) {
