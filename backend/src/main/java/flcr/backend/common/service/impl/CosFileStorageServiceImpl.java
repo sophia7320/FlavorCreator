@@ -74,9 +74,13 @@ public class CosFileStorageServiceImpl implements FileStorageService {
                     cos.getBucket(), key,
                     file.getInputStream(), metadata
             );
+            try {
+                putRequest.setCannedAcl(CannedAccessControlList.PublicRead);
+                cosClient.putObject(putRequest);
+            } finally {
+                putRequest.getInputStream().close();
+            }
 
-            putRequest.setCannedAcl(CannedAccessControlList.PublicRead);
-            cosClient.putObject(putRequest);
 
             String url = String.format("https://%s.cos.%s.myqcloud.com/%s",
                     cos.getBucket(), cos.getRegion(), key);

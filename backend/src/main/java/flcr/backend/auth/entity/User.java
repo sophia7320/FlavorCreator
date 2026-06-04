@@ -16,7 +16,6 @@ public class User {
     private Integer gender;
 
     private String nickname;
-    private String phoneNumber;
 
     private String openid;
     private String unionid;

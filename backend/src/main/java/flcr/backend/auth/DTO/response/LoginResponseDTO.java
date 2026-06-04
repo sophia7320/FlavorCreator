@@ -29,9 +29,6 @@ public class LoginResponseDTO {
     private Long expiresIn;
 
     /**
-     * 是否需要绑定手机号
-     */
-    private Boolean needBindPhone;
 
     /**
      * 是否为新注册用户
@@ -51,7 +48,6 @@ public class LoginResponseDTO {
         private Long id;
         private String nickname;
         private String avatar;
-        private String phone;
         private Integer gender;
     }
 }

@@ -79,7 +79,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                         .id((long) user.getId())
                         .nickname(user.getNickname())
                         .avatar(user.getAvatar())
-                        .phone(user.getPhoneNumber())
                         .gender(user.getGender())
                         .build())
                 .build();
@@ -115,13 +114,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 .token(newToken)
                 .refreshToken(newRefreshToken)
                 .expiresIn(jwtTokenUtil.getExpiration() / 1000)
-                .needBindPhone(false)
                 .isNewUser(false)
                 .user(LoginResponseDTO.UserInfo.builder()
                         .id(data.userId())
                         .nickname(user.getNickname())
                         .avatar(user.getAvatar())
-                        .phone(user.getPhoneNumber())
                         .gender(user.getGender())
                         .build())
                 .build();

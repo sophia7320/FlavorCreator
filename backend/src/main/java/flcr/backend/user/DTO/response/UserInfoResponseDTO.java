@@ -19,7 +19,6 @@ public class UserInfoResponseDTO {
     private String background;
     private String signature;
     private Integer gender;
-    private String phone;
     private PreferencesInfo preferences;
     private StatsInfo stats;
 

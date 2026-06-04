@@ -117,14 +117,6 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     private UserInfoResponseDTO buildResponse(User user, Long userId) {
-        // 手机号脱敏
-        String phone = null;
-        if (user.getPhoneNumber() != null && user.getPhoneNumber().length() == 11) {
-            phone = user.getPhoneNumber().replaceAll("(\\d{3})\\d{4}(\\d{4})", "$1****$2");
-        }
-        if (user.getPhoneNumber() != null && user.getPhoneNumber().length() != 11) {
-            phone = user.getPhoneNumber();
-        }
 
         // 解析偏好设置
         UserInfoResponseDTO.PreferencesInfo preferences = null;
@@ -163,7 +155,6 @@ public class UserInfoServiceImpl implements UserInfoService {
                 .background(user.getBackground())
                 .signature(user.getSignature())
                 .gender(user.getGender())
-                .phone(phone)
                 .preferences(preferences)
                 .stats(UserInfoResponseDTO.StatsInfo.builder()
                         .followingCount(0)
