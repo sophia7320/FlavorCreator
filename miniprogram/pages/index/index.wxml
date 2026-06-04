@@ -157,10 +157,10 @@
 			<view class="basket-panel-header">
 				<view class="basket-panel-title">已选</view>
 				<view class="basket-panel-close" bindtap="onCloseBasketPanel">
-					<image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/close-arrow.png" mode="aspectFit" class="close-icon"/>
+					<image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/down.svg" mode="aspectFit" class="close-icon"/>
 				</view>
 				<view class="basket-panel-clear" bindtap="onClearSelectedIngredients">
-					<image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/clear-icon.png" mode="aspectFit" class="clear-icon"/>
+					<image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/clear-all.svg" mode="aspectFit" class="clear-icon"/>
 					<text class="clear-text">清空</text>
 				</view>
 			</view>

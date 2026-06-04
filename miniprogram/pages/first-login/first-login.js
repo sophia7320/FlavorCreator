@@ -1,4 +1,4 @@
-// pages/fistLogin/firstLogin.js
+// pages/first-login/first-login.js
 Page({
 
   //页面数据
@@ -15,7 +15,7 @@ Page({
 		}
 
 		wx.navigateTo({
-			url: '/pages/phoneNumberLogin/login',
+			url: '/pages/phone-number-login/login',
 		})
 	},
 
@@ -27,7 +27,7 @@ Page({
 		}
 
 		wx.navigateTo({
-			url: '/pages/waitForWeixin/wait',
+			url: '/pages/wait-for-weixin/wait',
 		})
 	},
 

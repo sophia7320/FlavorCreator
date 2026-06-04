@@ -1,6 +1,5 @@
 // index.js
 const app = getApp()
-const { BASE_URL } = require('../../config/api')
 
 Page({
   data: {

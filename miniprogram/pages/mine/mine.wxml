@@ -11,6 +11,8 @@
 		</view>
 	</view>
 
+	<setting-button class="setting-button"  bind:settingtap="goToSettings"></setting-button>
+
 	<view class="mask"></view>
 
 	

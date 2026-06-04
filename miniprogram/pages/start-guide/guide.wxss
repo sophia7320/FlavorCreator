@@ -1,4 +1,4 @@
-/* pages/startGuide/guide.wxss */
+/* pages/start-guide/guide.wxss */
 
 /*变量设置 - 引用全局变量*/
 .guide-page {

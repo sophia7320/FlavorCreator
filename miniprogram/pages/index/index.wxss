@@ -434,7 +434,7 @@ swiper {
 	left: 0;
 	right: 0;
 	bottom: 0;
-	z-index: 999;
+	z-index: 10000;
 	opacity: 0;
 	pointer-events: none;
 	transition: opacity 0.3s ease-out;
@@ -466,12 +466,13 @@ swiper {
 	bottom: 0;
 	left: 0;
 	right: 0;
-	background-color: #FFF1E6;
-	border-radius: 40rpx 40rpx 0 0;
-	padding: 30rpx;
+	background-color: rgba(254, 199, 165, 1);
+	border-radius: 80rpx 80rpx 0 0;
+	padding: 27rpx 57rpx;
 	height: 50vh;
 	display: flex;
 	flex-direction: column;
+	/* 居中 */
 	transform: translateY(100%);
 	transition: transform 0.3s ease-out;
 }
@@ -489,11 +490,9 @@ swiper {
 }
 
 .basket-panel-title {
-	font-size: 32rpx;
-	font-weight: 600;
+	font-size: 30rpx;
 	color: #5D4037;
-	flex: 1;
-	text-align: center;
+	text-shadow: 0 4rpx 4rpx rgba(0, 0, 0, 0.25);
 }
 
 .basket-panel-close {
@@ -503,9 +502,12 @@ swiper {
 	align-items: center;
 	justify-content: center;
 	border-radius: 50%;
-	background-color: #FFE8D2;
+	background-color: rgba(253, 239, 237, 1);
+	box-shadow: 0 4rpx 4rpx 0 rgba(0, 0, 0, 0.25);
 	position: absolute;
-	left: 0;
+	left: 50%;
+	transform: translateX(-50%);
+	z-index: 10;
 }
 
 .basket-panel-close .close-icon {
@@ -514,15 +516,15 @@ swiper {
 }
 
 .basket-panel-clear {
+	width: 115rpx;
+	height: 57rpx;
 	display: flex;
 	align-items: center;
 	gap: 8rpx;
-	padding: 12rpx 24rpx;
+	padding: 12rpx 18rpx;
 	border-radius: 50rpx;
-	background-color: #FFF;
-	box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
-	position: absolute;
-	right: 0;
+	background-color: rgba(253, 239, 237, 1);
+	box-shadow: 0 4rpx 4rpx 0 rgba(0, 0, 0, 0.25);
 }
 
 .basket-panel-clear .clear-icon {
@@ -531,8 +533,8 @@ swiper {
 }
 
 .basket-panel-clear .clear-text {
-	font-size: 24rpx;
-	color: #8D6E63;
+	font-size: 20rpx;
+	color: #000;
 }
 
 .basket-panel-content {

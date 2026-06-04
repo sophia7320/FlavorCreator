@@ -9,20 +9,9 @@ const REQUEST_CONFIG = {
   baseUrl: 'http://localhost:8080'
 }
 
-
 const API_CONFIG = {
   // 认证相关
   auth: {
-    // 发送验证码
-    sendCode: {
-      path: '/api/auth/send-code',
-      method: 'POST'
-    },
-    // 手机号登录
-    loginPhone: {
-      path: '/api/auth/login-phone',
-      method: 'POST'
-    },
     // 微信一键登录
     loginWx: {
       path: '/api/auth/login-wx',
@@ -64,8 +53,21 @@ const API_CONFIG = {
     }
   },
 
+  // 图片上传
+  image: {
+    upload: {
+      path: '/api/image/upload',
+      method: 'POST'
+    }
+  },
+
   // 菜谱相关
   recipe: {
+    // 发布菜谱
+    publish: {
+      path: '/api/recipe',
+      method: 'POST'
+    },
     // 提交食材获取菜谱
     apply: {
       path: '/api/recipe/apply',
@@ -80,6 +82,21 @@ const API_CONFIG = {
     getDetail: {
       path: '/api/recipe/{id}',
       method: 'GET'
+    },
+    // 菜谱分类列表
+    list: {
+      path: '/api/recipe/list',
+      method: 'GET'
+    },
+    // 搜索菜谱
+    search: {
+      path: '/api/recipe/search',
+      method: 'GET'
+    },
+    // 今日推荐
+    recommend: {
+      path: '/api/recipe/recommend',
+      method: 'GET'
     }
   },
 
@@ -87,13 +104,38 @@ const API_CONFIG = {
   userCenter: {
     // 获取已发布菜谱
     published: {
-      path: '/api/user/published',
+      path: '/api/user/recipes',
       method: 'GET'
     },
     // 获取收藏列表
     collections: {
       path: '/api/user/collections',
       method: 'GET'
+    },
+    // 获取点赞列表
+    likes: {
+      path: '/api/user/likes',
+      method: 'GET'
+    },
+    // 浏览历史
+    history: {
+      path: '/api/user/history',
+      method: 'GET'
+    },
+    // 清除浏览历史
+    deleteHistory: {
+      path: '/api/user/history',
+      method: 'DELETE'
+    },
+    // 删除已发布菜谱
+    deleteRecipe: {
+      path: '/api/user/recipe/{id}',
+      method: 'DELETE'
+    },
+    // 编辑已发布菜谱
+    editRecipe: {
+      path: '/api/user/recipe/{id}',
+      method: 'PUT'
     }
   },
 
@@ -104,10 +146,15 @@ const API_CONFIG = {
       path: '/api/recipe/list',
       method: 'GET'
     },
-    // 点赞/取消点赞
+    // 点赞
     like: {
-      path: '/api/community/recipes/{id}/like',
+      path: '/api/community/recipe/{id}/like',
       method: 'POST'
+    },
+    // 取消点赞
+    unlike: {
+      path: '/api/community/recipe/{id}/like',
+      method: 'DELETE'
     },
     // 收藏菜谱
     collect: {
@@ -118,6 +165,113 @@ const API_CONFIG = {
     uncollect: {
       path: '/api/community/recipe/{id}/collect',
       method: 'DELETE'
+    },
+    // 评论列表
+    comments: {
+      path: '/api/community/recipe/{id}/comment',
+      method: 'GET'
+    },
+    // 发表评论
+    addComment: {
+      path: '/api/community/recipe/{id}/comment',
+      method: 'POST'
+    },
+    // 删除评论
+    deleteComment: {
+      path: '/api/community/comment/{id}',
+      method: 'DELETE'
+    },
+    // 评论点赞
+    likeComment: {
+      path: '/api/community/comment/{id}/like',
+      method: 'POST'
+    },
+    // 取消评论点赞
+    unlikeComment: {
+      path: '/api/community/comment/{id}/like',
+      method: 'DELETE'
+    }
+  },
+
+  // 食材管理相关
+  ingredient: {
+    // 食材列表
+    list: {
+      path: '/api/ingredient/list',
+      method: 'GET'
+    },
+    // 添加食材
+    add: {
+      path: '/api/ingredient',
+      method: 'POST'
+    },
+    // 更新食材
+    update: {
+      path: '/api/ingredient/{id}',
+      method: 'PUT'
+    },
+    // 删除食材
+    delete: {
+      path: '/api/ingredient/{id}',
+      method: 'DELETE'
+    },
+    // 批量添加食材
+    batchAdd: {
+      path: '/api/ingredient/batch',
+      method: 'POST'
+    },
+    // 常用食材列表
+    common: {
+      path: '/api/ingredient/common',
+      method: 'GET'
+    },
+    // 临期提醒
+    expiringNotice: {
+      path: '/api/ingredient/expiring-notice',
+      method: 'GET'
+    }
+  },
+
+  // 调味品管理相关
+  condiment: {
+    // 添加调味品
+    add: {
+      path: '/api/condiment',
+      method: 'POST'
+    },
+    // 调味品列表
+    list: {
+      path: '/api/condiment/list',
+      method: 'GET'
+    },
+    // 更新调味品
+    update: {
+      path: '/api/condiment/{id}',
+      method: 'PUT'
+    },
+    // 删除调味品
+    delete: {
+      path: '/api/condiment/{id}',
+      method: 'DELETE'
+    }
+  },
+
+  // 系统相关
+  system: {
+    // 帮助中心
+    help: {
+      path: '/api/help',
+      method: 'GET'
+    },
+    // 提交反馈
+    feedback: {
+      path: '/api/feedback',
+      method: 'POST'
+    },
+    // 检查更新
+    checkUpdate: {
+      path: '/api/system/check-update',
+      method: 'GET'
     }
   }
 }

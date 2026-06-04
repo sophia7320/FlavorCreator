@@ -27,6 +27,60 @@ function hideLoading() {
   }
 }
 
+// Token 刷新相关状态
+let isRefreshing = false
+let refreshQueue = []
+
+/**
+ * 检查是否是刷新 token 的请求路径
+ */
+function isRefreshPath(apiConfig) {
+  return apiConfig && apiConfig.path === '/api/auth/refresh'
+}
+
+/**
+ * 执行 token 刷新
+ */
+function doRefreshToken() {
+  if (isRefreshing) return
+  isRefreshing = true
+
+  const app = getApp()
+  app.refreshAccessToken()
+    .then((success) => {
+      processRefreshQueue(success)
+    })
+    .catch(() => {
+      processRefreshQueue(false)
+    })
+}
+
+/**
+ * 处理刷新后的请求队列
+ */
+function processRefreshQueue(success) {
+  refreshQueue.forEach(({ apiConfig, data, options, resolve, reject, isCloud }) => {
+    if (success) {
+      const requestFn = isCloud ? cloudRequest : directRequest
+      requestFn(apiConfig, data, options)
+        .then(resolve)
+        .catch(reject)
+    } else {
+      reject({ code: 401, message: '登录已过期' })
+    }
+  })
+
+  refreshQueue = []
+  isRefreshing = false
+
+  if (!success) {
+    wx.showToast({ title: '登录已过期', icon: 'none' })
+    setTimeout(() => {
+      wx.reLaunch({ url: '/pages/phoneNumberLogin/login' })
+    }, 1500)
+  }
+}
+
 /**
  * 获取 Authorization header
  */
@@ -71,7 +125,7 @@ function cloudRequest(apiConfig, data = {}, options = {}) {
         if (needLoading) {
           hideLoading()
         }
-        handleResponse(res, resolve, reject, showError)
+        handleResponse(res, resolve, reject, showError, apiConfig, data, options, true)
       },
       fail: (err) => {
         if (needLoading) {
@@ -108,7 +162,7 @@ function request(apiConfig, data = {}, options = {}) {
 /**
  * 处理响应
  */
-function handleResponse(res, resolve, reject, showError) {
+function handleResponse(res, resolve, reject, showError, apiConfig, data, options, isCloud) {
   if (res.statusCode === 200) {
     if (res.data.code === 0 || res.data.code === 200) {
       resolve(res.data)
@@ -122,16 +176,30 @@ function handleResponse(res, resolve, reject, showError) {
       reject(res.data)
     }
   } else if (res.statusCode === 401) {
-    wx.showToast({
-      title: '登录已过期',
-      icon: 'none'
-    })
-    setTimeout(() => {
-      wx.reLaunch({
-        url: '/pages/phoneNumberLogin/login'
-      })
-    }, 1500)
-    reject(res)
+    // 如果是刷新 token 请求本身返回 401，说明 refreshToken 也过期了
+    if (isRefreshPath(apiConfig)) {
+      if (showError) {
+        wx.showToast({
+          title: '登录已过期',
+          icon: 'none'
+        })
+      }
+      setTimeout(() => {
+        wx.reLaunch({
+          url: '/pages/phoneNumberLogin/login'
+        })
+      }, 1500)
+      reject(res)
+      return
+    }
+
+    // 将当前请求加入重试队列，等待 token 刷新后重试
+    refreshQueue.push({ apiConfig, data, options, resolve, reject, isCloud })
+
+    if (!isRefreshing) {
+      doRefreshToken()
+    }
+    // 不调用 reject/resolve，等待刷新完成后处理
   } else {
     if (showError) {
       wx.showToast({
@@ -189,7 +257,7 @@ function directRequest(apiConfig, data = {}, options = {}) {
         if (needLoading) {
           hideLoading()
         }
-        handleResponse(res, resolve, reject, showError)
+        handleResponse(res, resolve, reject, showError, apiConfig, data, options, false)
       },
       fail: (err) => {
         if (needLoading) {

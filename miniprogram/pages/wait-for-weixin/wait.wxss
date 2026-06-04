@@ -1,4 +1,4 @@
-/* pages/waitForWeixin/wait.wxss */
+/* pages/wait-for-weixin/wait.wxss */
 .wait-page {
 	--radius: var(--radius-xl);
 	--img-container-bg-color: var(--wechat-success);

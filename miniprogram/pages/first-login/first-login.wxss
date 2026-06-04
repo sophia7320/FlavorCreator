@@ -1,4 +1,4 @@
-/* pages/fistLogin/firstLogin.wxss */
+/* pages/first-login/first-login.wxss */
 .first-login-page {
 	--name-font-size: var(--font-size-6xl);
 	--name-font-weight: var(--font-weight-bold);

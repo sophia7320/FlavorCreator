@@ -1,0 +1,48 @@
+<!--pages/profile-setting/profile.wxml-->
+<view class="profile-page">
+	<view class="top-title">
+		 <back-btn bind:onTap="goBack"></back-btn>
+		<view class="title">个人资料设置</view>
+	</view>
+
+	<view class="user-info-container">
+		<image src="{{userInfo.avatarUrl}}" mode="aspectFit" class="user-avatar" bindtap="onChooseAvatar"/>
+		<view class="decoration-tick"></view>
+		<view class="user-name">{{userInfo.nickName}}</view>
+	</view>
+
+	<view class="info-list">
+		<block wx:for="{{infoList}}" wx:key="field">
+			<!-- 地区使用 picker -->
+			<picker wx:if="{{item.field === 'region'}}" mode="region" bindchange="onRegionChange">
+				<view class="info-item">
+					<view class="main-item">
+						<view class="left">
+							<view class="point {{item.pointClass}}"></view>
+							<view class="info-title">{{item.title}}</view>
+						</view>
+						<view class="right">
+							<view class="info-value">{{userInfo[item.field] || '未设置'}}</view>
+							<view class="right-arrow"></view>
+						</view>
+					</view>
+					<view class="divider-line"></view>
+				</view>
+			</picker>
+			<!-- 其他字段使用 bindtap -->
+			<view wx:else class="info-item" bindtap="onEditField" data-field="{{item.field}}">
+				<view class="main-item">
+					<view class="left">
+						<view class="point {{item.pointClass}}"></view>
+						<view class="info-title">{{item.title}}</view>
+					</view>
+					<view class="right">
+						<view class="info-value">{{userInfo[item.field] || '未设置'}}</view>
+						<view class="right-arrow"></view>
+					</view>
+				</view>
+				<view class="divider-line"></view>
+			</view>
+		</block>
+	</view>
+</view>

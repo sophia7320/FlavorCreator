@@ -1,4 +1,4 @@
-// pages/waitForWeixin/wait.js
+// pages/wait-for-weixin/wait.js
 const app = getApp()
 const { API_CONFIG } = require('../../config/api')
 const { request } = require('../../utils/request')
@@ -27,7 +27,7 @@ Page({
             setTimeout(() => {
               const hasSeenGuide = wx.getStorageSync('hasSeenGuide')
               if (data.isNewUser && !hasSeenGuide) {
-                wx.reLaunch({ url: '/pages/startGuide/guide' })
+                wx.reLaunch({ url: '/pages/start-guide/guide' })
               } else {
                 wx.switchTab({ url: '/pages/index/index' })
               }
@@ -38,7 +38,7 @@ Page({
               icon: "none"
             })
             setTimeout(() => {
-              wx.reLaunch({ url: '/pages/phoneNumberLogin/login' })
+              wx.reLaunch({ url: '/pages/phone-number-login/login' })
             }, 2000)
           }
         }).catch(() => {
@@ -47,7 +47,7 @@ Page({
             icon: "none"
           })
           setTimeout(() => {
-            wx.reLaunch({ url: '/pages/phoneNumberLogin/login' })
+            wx.reLaunch({ url: '/pages/phone-number-login/login' })
           }, 2000)
         })
       },
@@ -57,7 +57,7 @@ Page({
           icon: "none"
         })
         setTimeout(() => {
-          wx.reLaunch({ url: '/pages/phoneNumberLogin/login' })
+          wx.reLaunch({ url: '/pages/phone-number-login/login' })
         }, 2000)
       }
     })

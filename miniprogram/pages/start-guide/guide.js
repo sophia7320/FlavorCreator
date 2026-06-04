@@ -1,4 +1,4 @@
-// pages/startGuide/guide.js
+// pages/start-guide/guide.js
 Page({
 
   /**

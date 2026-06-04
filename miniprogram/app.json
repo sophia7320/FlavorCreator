@@ -3,17 +3,18 @@
   "pages": [
     "pages/index/index",
     "pages/welcome/welcome",
-    "pages/phoneNumberLogin/login",
+    "pages/phone-number-login/login",
     "pages/agreement/agreement",
-    "pages/firstLogin/firstLogin",
-    "pages/waitForWeixin/wait",
+    "pages/first-login/first-login",
+    "pages/wait-for-weixin/wait",
     "pages/choose-recipes/choose-recipes",
-    "pages/startGuide/guide",
+    "pages/start-guide/guide",
     "pages/community/community",
     "pages/mine/mine",
     "pages/settings/settings",
     "pages/detail/detail",
-    "pages/user/user"
+    "pages/user/user",
+    "pages/profile-setting/profile"
   ],
   "tabBar": {
     "custom": true,
@@ -39,7 +40,7 @@
     "navigationStyle": "custom",
     "navigationBarBackgroundColor": "#ffffff",
     "enablePullDownRefresh": false,
-		"disableScroll": true
+    "disableScroll": true
   },
   "usingComponents": {},
   "sitemapLocation": "sitemap.json",

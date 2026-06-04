@@ -1,4 +1,4 @@
-/* pages/login/login.wxss */
+/* pages/phone-number-login/login.wxss */
 
 /*定义登录界面变量 - 引用全局变量*/
 .login-page {

@@ -1,4 +1,4 @@
-<!--pages/startGuide/guide.wxml-->
+<!--pages/start-guide/guide.wxml-->
 <view class="guide-page">
 	<swiper class="swiper-container" indicator-dots bindchange="onChange">
 		<swiper-item>

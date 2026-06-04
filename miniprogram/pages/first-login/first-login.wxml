@@ -1,4 +1,4 @@
-<!--pages/fistLogin/firstLogin.wxml-->
+<!--pages/first-login/first-login.wxml-->
 <view class="first-login-page">
 
 	<view class="title-container">

@@ -10,7 +10,7 @@ Page({
 
       if (!hasRefreshToken) {
         // 没有 refreshToken，直接去登录
-        wx.reLaunch({ url: '/pages/firstLogin/firstLogin' })
+        wx.reLaunch({ url: '/pages/first-login/first-login' })
         return
       }
 
@@ -19,12 +19,12 @@ Page({
         if (success) {
           const hasSeenGuide = wx.getStorageSync('hasSeenGuide')
           if (!hasSeenGuide) {
-            wx.reLaunch({ url: '/pages/startGuide/guide' })
+            wx.reLaunch({ url: '/pages/start-guide/guide' })
           } else {
             wx.switchTab({ url: '/pages/index/index' })
           }
         } else {
-          wx.reLaunch({ url: '/pages/firstLogin/firstLogin' })
+          wx.reLaunch({ url: '/pages/first-login/first-login' })
         }
       })
     }, 800)

@@ -3,9 +3,7 @@
 <!-- 顶部导航栏 -->
   <view class="top-mask">
 		<view class="nav-bar">
-			<view class="back-btn" bindtap="goBack">
-				<image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/back-icon.svg" mode="aspectFit" class="back-icon"/>
-			</view>
+			<back-btn bind:back="goBack"/>
 			<view class="nav-title">设置</view>
   	</view>
 	</view>

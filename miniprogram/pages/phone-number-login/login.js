@@ -1,4 +1,4 @@
-// pages/login/login.js
+// pages/phone-number-login/login.js
 
 //正则判断手机号码合理
 const reg = /^1[3-9]\d{9}$/
@@ -80,7 +80,7 @@ Page({
 		}
 
 		wx.redirectTo({
-			url: '/pages/startGuide/guide'
+			url: '/pages/start-guide/guide'
 		})
     },
 
@@ -93,7 +93,7 @@ Page({
         }
 
         wx.navigateTo({
-            url: '/pages/waitForWeixin/wait'
+            url: '/pages/wait-for-weixin/wait'
         })
     },
 

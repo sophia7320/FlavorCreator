@@ -1,4 +1,4 @@
-<!--pages/login/login.wxml-->
+<!--pages/phone-number-login/login.wxml-->
 <view class="login-page" >
 
 	<view class="toast" wx:if="{{showToast}}">

@@ -149,3 +149,10 @@
 	background-image: linear-gradient(to top, rgba(255, 238, 209, 1), rgba(225,225,225,.1));
 	z-index: 5;
 }
+
+.setting-button {
+	position: fixed;
+	top: 180rpx;
+	right: 30rpx;
+	z-index: 99;
+}

@@ -1,5 +1,7 @@
 {
   "navigationStyle": "custom",
-  "usingComponents": {},
+  "usingComponents": {
+    "back-btn": "/components/back-btn/back-btn"
+  },
   "enablePullDownRefresh": false
 }

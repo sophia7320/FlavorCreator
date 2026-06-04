@@ -126,9 +126,8 @@ Page({
     
     switch(id) {
       case 'profile':
-        wx.showToast({
-          title: '个人资料功能开发中',
-          icon: 'none'
+        wx.navigateTo({
+          url: '/pages/profile-setting/profile'
         })
         break
       case 'taste':
