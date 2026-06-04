@@ -22,7 +22,7 @@ class IngredientControllerTest {
     @Test
     @DisplayName("list返回食材列表")
     void testList() {
-        IngredientListQueryDTO query = new IngredientListQueryDTO();
+        IngredientListRequestDTO query = new IngredientListRequestDTO();
         IngredientListResponseDTO rsp = IngredientListResponseDTO.builder().build();
         when(ingredientService.list(query)).thenReturn(rsp);
 

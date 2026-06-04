@@ -9,7 +9,7 @@ import flcr.backend.community.entity.Collection;
 import flcr.backend.community.entity.Like;
 import flcr.backend.community.mapper.CollectionMapper;
 import flcr.backend.community.mapper.LikeMapper;
-import flcr.backend.recipe.DTO.response.RecipeListItemDTO;
+import flcr.backend.recipe.DTO.response.RecipeListItemResponseDTO;
 import flcr.backend.recipe.entity.Recipe;
 import flcr.backend.recipe.mapper.RecipeMapper;
 import flcr.backend.user.DTO.response.MyCollectionResponseDTO;
@@ -140,7 +140,7 @@ class UserCenterServiceImplTest {
                 .thenReturn(pageResult);
         when(userMapper.selectById(USER_ID)).thenReturn(buildUser(USER_ID));
 
-        Page<RecipeListItemDTO> result = userCenterService.getMyRecipes(1, 20);
+        Page<RecipeListItemResponseDTO> result = userCenterService.getMyRecipes(1, 20);
         assertEquals(1, result.getRecords().size());
         assertEquals("我的菜谱", result.getRecords().get(0).getName());
     }

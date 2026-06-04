@@ -10,7 +10,7 @@ import flcr.backend.community.entity.Collection;
 import flcr.backend.community.entity.Like;
 import flcr.backend.community.mapper.CollectionMapper;
 import flcr.backend.community.mapper.LikeMapper;
-import flcr.backend.recipe.DTO.response.RecipeListItemDTO;
+import flcr.backend.recipe.DTO.response.RecipeListItemResponseDTO;
 import flcr.backend.recipe.entity.Recipe;
 import flcr.backend.recipe.mapper.RecipeMapper;
 import flcr.backend.user.DTO.response.MyCollectionResponseDTO;
@@ -155,7 +155,7 @@ public class UserCenterServiceImpl implements UserCenterService {
     }
 
     @Override
-    public Page<RecipeListItemDTO> getMyRecipes(Integer page, Integer size) {
+    public Page<RecipeListItemResponseDTO> getMyRecipes(Integer page, Integer size) {
         Long userId = UserContext.getUserId();
 
         LambdaQueryWrapper<Recipe> wrapper = new LambdaQueryWrapper<>();
@@ -171,12 +171,12 @@ public class UserCenterServiceImpl implements UserCenterService {
 
         User user = userMapper.selectById(userId);
 
-        List<RecipeListItemDTO> dtos = result.getRecords().stream()
-                .map(recipe -> RecipeListItemDTO.builder()
+        List<RecipeListItemResponseDTO> dtos = result.getRecords().stream()
+                .map(recipe -> RecipeListItemResponseDTO.builder()
                         .id(recipe.getId())
                         .name(recipe.getName())
                         .cover(recipe.getCover())
-                        .author(RecipeListItemDTO.AuthorInfo.builder()
+                        .author(RecipeListItemResponseDTO.AuthorInfo.builder()
                                 .id(userId)
                                 .nickname(user != null ? user.getNickname() : null)
                                 .avatar(user != null ? user.getAvatar() : null)
@@ -185,7 +185,7 @@ public class UserCenterServiceImpl implements UserCenterService {
                         .difficulty(recipe.getDifficulty() != null ? String.valueOf(recipe.getDifficulty()) : null)
                         .calories(recipe.getCalories())
                         .tags(recipe.getTags() != null ? recipe.getTags().split(",") : new String[0])
-                        .stats(RecipeListItemDTO.RecipeStats.builder()
+                        .stats(RecipeListItemResponseDTO.RecipeStats.builder()
                                 .likes(recipe.getLikeCount())
                                 .collections(recipe.getCollectionCount())
                                 .comments(recipe.getCommentCount())
@@ -195,7 +195,7 @@ public class UserCenterServiceImpl implements UserCenterService {
                         .build())
                 .collect(Collectors.toList());
 
-        Page<RecipeListItemDTO> dtoPage = new Page<>(result.getCurrent(), result.getSize(), result.getTotal());
+        Page<RecipeListItemResponseDTO> dtoPage = new Page<>(result.getCurrent(), result.getSize(), result.getTotal());
         dtoPage.setRecords(dtos);
         return dtoPage;
     }

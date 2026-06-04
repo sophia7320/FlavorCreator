@@ -4,8 +4,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import flcr.backend.common.response.Response;
 import flcr.backend.recipe.DTO.request.PublishRecipeRequestDTO;
 import flcr.backend.recipe.DTO.request.RecipeListRequestDTO;
-import flcr.backend.recipe.DTO.response.RecipeDetailDTO;
-import flcr.backend.recipe.DTO.response.RecipeListItemDTO;
+import flcr.backend.recipe.DTO.response.RecipeDetailResponseDTO;
+import flcr.backend.recipe.DTO.response.RecipeListItemResponseDTO;
 import flcr.backend.recipe.service.RecipeService;
 import flcr.backend.recipe.DTO.request.RecipeGenerateRequestDTO;
 import flcr.backend.recipe.DTO.response.RecipeGenerateResponseDTO;
@@ -50,7 +50,7 @@ class RecipeControllerTest {
     @Test
     @DisplayName("菜谱列表返回分页")
     void testGetRecipeList() {
-        Page<RecipeListItemDTO> page = new Page<>(1, 20);
+        Page<RecipeListItemResponseDTO> page = new Page<>(1, 20);
         when(recipeService.getRecipeList(any())).thenReturn(page);
 
         assertEquals(200, controller.getRecipeList(new RecipeListRequestDTO()).getCode());
@@ -59,7 +59,7 @@ class RecipeControllerTest {
     @Test
     @DisplayName("菜谱详情返回")
     void testGetRecipeDetail() {
-        RecipeDetailDTO detail = RecipeDetailDTO.builder().id(1L).name("测试").build();
+        RecipeDetailResponseDTO detail = RecipeDetailResponseDTO.builder().id(1L).name("测试").build();
         when(recipeService.getRecipeDetail(1L)).thenReturn(detail);
 
         assertEquals("测试", controller.getRecipeDetail(1L).getData().getName());

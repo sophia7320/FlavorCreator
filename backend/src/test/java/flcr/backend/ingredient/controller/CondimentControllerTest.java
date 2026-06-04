@@ -1,7 +1,7 @@
 package flcr.backend.ingredient.controller;
 
 import flcr.backend.ingredient.DTO.request.IngredientAddRequestDTO;
-import flcr.backend.ingredient.DTO.request.IngredientListQueryDTO;
+import flcr.backend.ingredient.DTO.request.IngredientListRequestDTO;
 import flcr.backend.ingredient.DTO.response.IngredientListResponseDTO;
 import flcr.backend.ingredient.service.IngredientService;
 import org.junit.jupiter.api.*;
@@ -21,7 +21,7 @@ class CondimentControllerTest {
     @Test
     @DisplayName("list设置category为调味品")
     void testList() {
-        IngredientListQueryDTO query = new IngredientListQueryDTO();
+        IngredientListRequestDTO query = new IngredientListRequestDTO();
         when(ingredientService.list(any())).thenReturn(IngredientListResponseDTO.builder().build());
 
         assertEquals(200, controller.list(query).getCode());

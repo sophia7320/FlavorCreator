@@ -11,7 +11,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class RecipeDetailDTO {
+public class RecipeDetailResponseDTO {
     private Long id;
     private String name;
     private String cover;

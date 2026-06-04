@@ -6,7 +6,7 @@ import flcr.backend.common.context.UserContext;
 import flcr.backend.common.exception.BusinessException;
 import flcr.backend.ingredient.DTO.request.IngredientAddRequestDTO;
 import flcr.backend.ingredient.DTO.request.IngredientBatchAddRequestDTO;
-import flcr.backend.ingredient.DTO.request.IngredientListQueryDTO;
+import flcr.backend.ingredient.DTO.request.IngredientListRequestDTO;
 import flcr.backend.ingredient.DTO.request.IngredientUpdateRequestDTO;
 import flcr.backend.ingredient.DTO.response.CommonIngredientResponseDTO;
 import flcr.backend.ingredient.DTO.response.ExpiringNoticeResponseDTO;
@@ -38,7 +38,7 @@ public class IngredientServiceImpl implements IngredientService {
     private final CommonIngredientMapper commonIngredientMapper;
 
     @Override
-    public IngredientListResponseDTO list(IngredientListQueryDTO query) {
+    public IngredientListResponseDTO list(IngredientListRequestDTO query) {
         Long userId = UserContext.getUserId();
         LambdaQueryWrapper<Ingredient> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Ingredient::getUserId, userId);

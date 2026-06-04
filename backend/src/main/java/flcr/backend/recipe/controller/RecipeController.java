@@ -8,9 +8,9 @@ import flcr.backend.recipe.DTO.request.PublishRecipeRequestDTO;
 import flcr.backend.recipe.DTO.request.RecipeGenerateRequestDTO;
 import flcr.backend.recipe.DTO.request.RecipeListRequestDTO;
 import flcr.backend.recipe.DTO.response.ApplyRecipeResponseDTO;
-import flcr.backend.recipe.DTO.response.RecipeDetailDTO;
+import flcr.backend.recipe.DTO.response.RecipeDetailResponseDTO;
 import flcr.backend.recipe.DTO.response.RecipeGenerateResponseDTO;
-import flcr.backend.recipe.DTO.response.RecipeListItemDTO;
+import flcr.backend.recipe.DTO.response.RecipeListItemResponseDTO;
 import flcr.backend.recipe.service.RecipeGenerateService;
 import flcr.backend.recipe.service.RecipeService;
 import jakarta.validation.Valid;
@@ -47,15 +47,15 @@ public class RecipeController {
 
     @Public
     @GetMapping("/list")
-    public Response<Page<RecipeListItemDTO>> getRecipeList(RecipeListRequestDTO request) {
-        Page<RecipeListItemDTO> result = recipeService.getRecipeList(request);
+    public Response<Page<RecipeListItemResponseDTO>> getRecipeList(RecipeListRequestDTO request) {
+        Page<RecipeListItemResponseDTO> result = recipeService.getRecipeList(request);
         return Response.success(result);
     }
 
     @Public
     @GetMapping("/{id}")
-    public Response<RecipeDetailDTO> getRecipeDetail(@PathVariable Long id) {
-        RecipeDetailDTO detail = recipeService.getRecipeDetail(id);
+    public Response<RecipeDetailResponseDTO> getRecipeDetail(@PathVariable Long id) {
+        RecipeDetailResponseDTO detail = recipeService.getRecipeDetail(id);
         return Response.success(detail);
     }
 

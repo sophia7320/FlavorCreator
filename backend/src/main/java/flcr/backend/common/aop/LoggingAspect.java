@@ -13,12 +13,17 @@ import java.util.StringJoiner;
 
 /**
  * 面向切片日志记录
- * 记录 Controller 和 Service 层方法调用的入参、出参和执行耗时
+ * 记录 Controller 和 Service 层方法调用的入参、出参和执行耗时。
+ * 自动脱敏 token、password 等敏感参数。
  */
 @Slf4j
 @Aspect
 @Component
 public class LoggingAspect {
+
+    private static final String[] SENSITIVE_PARAM_NAMES = {
+            "token", "refreshToken", "password", "code", "secret", "key"
+    };
 
     /**
      * 切点：所有 Controller 和 Service 的 public 方法
@@ -34,11 +39,13 @@ public class LoggingAspect {
         String[] paramNames = signature.getParameterNames();
         Object[] args = joinPoint.getArgs();
 
-        // 构建入参日志
+        // 构建入参日志，敏感字段脱敏
         StringJoiner paramsJoiner = new StringJoiner(", ");
         if (paramNames != null) {
             for (int i = 0; i < paramNames.length; i++) {
-                paramsJoiner.add(paramNames[i] + "=" + formatArg(args[i]));
+                String name = paramNames[i];
+                String value = isSensitiveParam(name) ? "***" : formatArg(args[i]);
+                paramsJoiner.add(name + "=" + value);
             }
         }
 
@@ -49,8 +56,7 @@ public class LoggingAspect {
         try {
             Object result = joinPoint.proceed();
             sw.stop();
-            log.info("← {}.{}() 耗时={}ms 返回={}",
-                    className, methodName, sw.getTotalTimeMillis(), formatArg(result));
+            log.info("← {}.{}() 耗时={}ms", className, methodName, sw.getTotalTimeMillis());
             return result;
         } catch (Exception e) {
             sw.stop();
@@ -58,6 +64,15 @@ public class LoggingAspect {
                     className, methodName, sw.getTotalTimeMillis(), e.getMessage());
             throw e;
         }
+    }
+
+    private boolean isSensitiveParam(String paramName) {
+        for (String sensitive : SENSITIVE_PARAM_NAMES) {
+            if (paramName.toLowerCase().contains(sensitive.toLowerCase())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

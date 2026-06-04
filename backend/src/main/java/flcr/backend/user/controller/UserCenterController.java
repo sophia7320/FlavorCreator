@@ -2,7 +2,7 @@ package flcr.backend.user.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import flcr.backend.common.response.Response;
-import flcr.backend.recipe.DTO.response.RecipeListItemDTO;
+import flcr.backend.recipe.DTO.response.RecipeListItemResponseDTO;
 import flcr.backend.user.DTO.response.MyCollectionResponseDTO;
 import flcr.backend.user.DTO.response.MyLikeResponseDTO;
 import flcr.backend.user.service.UserCenterService;
@@ -38,10 +38,10 @@ public class UserCenterController {
     }
 
     @GetMapping("/recipes")
-    public Response<Page<RecipeListItemDTO>> getRecipes(
+    public Response<Page<RecipeListItemResponseDTO>> getRecipes(
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "20") Integer size) {
-        Page<RecipeListItemDTO> result = userCenterService.getMyRecipes(page, size);
+        Page<RecipeListItemResponseDTO> result = userCenterService.getMyRecipes(page, size);
         return Response.success(result);
     }
 }

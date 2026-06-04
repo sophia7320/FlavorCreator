@@ -44,7 +44,7 @@ class IngredientServiceImplTest {
     @Test
     @DisplayName("list按分类筛选返回列表")
     void testList_ByCategory() {
-        IngredientListQueryDTO query = new IngredientListQueryDTO();
+        IngredientListRequestDTO query = new IngredientListRequestDTO();
         query.setCategory("蔬菜");
 
         Ingredient tomato = buildIngredient(1L, "西红柿");
@@ -60,7 +60,7 @@ class IngredientServiceImplTest {
     @Test
     @DisplayName("list空结果返回空列表和summary")
     void testList_Empty() {
-        IngredientListQueryDTO query = new IngredientListQueryDTO();
+        IngredientListRequestDTO query = new IngredientListRequestDTO();
         when(ingredientMapper.selectList(any(LambdaQueryWrapper.class))).thenReturn(Collections.emptyList());
 
         IngredientListResponseDTO result = ingredientService.list(query);

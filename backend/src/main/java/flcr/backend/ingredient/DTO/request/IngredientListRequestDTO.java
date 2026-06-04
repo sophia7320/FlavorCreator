@@ -3,7 +3,7 @@ package flcr.backend.ingredient.DTO.request;
 import lombok.Data;
 
 @Data
-public class IngredientListQueryDTO {
+public class IngredientListRequestDTO {
     private String sortBy;
     private String sort;
     private String status;

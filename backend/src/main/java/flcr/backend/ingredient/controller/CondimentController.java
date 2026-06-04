@@ -2,7 +2,7 @@ package flcr.backend.ingredient.controller;
 
 import flcr.backend.common.response.Response;
 import flcr.backend.ingredient.DTO.request.IngredientAddRequestDTO;
-import flcr.backend.ingredient.DTO.request.IngredientListQueryDTO;
+import flcr.backend.ingredient.DTO.request.IngredientListRequestDTO;
 import flcr.backend.ingredient.DTO.request.IngredientUpdateRequestDTO;
 import flcr.backend.ingredient.DTO.response.IngredientListResponseDTO;
 import flcr.backend.ingredient.service.IngredientService;
@@ -22,7 +22,7 @@ public class CondimentController {
     private final IngredientService ingredientService;
 
     @GetMapping("/list")
-    public Response<IngredientListResponseDTO> list(IngredientListQueryDTO query) {
+    public Response<IngredientListResponseDTO> list(IngredientListRequestDTO query) {
         query.setCategory(CATEGORY_CONDIMENT);
         return Response.success(ingredientService.list(query));
     }

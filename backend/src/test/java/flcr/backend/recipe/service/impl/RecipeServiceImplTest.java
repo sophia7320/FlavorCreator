@@ -14,8 +14,8 @@ import flcr.backend.recipe.DTO.request.ApplyRecipeRequestDTO;
 import flcr.backend.recipe.DTO.request.PublishRecipeRequestDTO;
 import flcr.backend.recipe.DTO.request.RecipeListRequestDTO;
 import flcr.backend.recipe.DTO.response.ApplyRecipeResponseDTO;
-import flcr.backend.recipe.DTO.response.RecipeDetailDTO;
-import flcr.backend.recipe.DTO.response.RecipeListItemDTO;
+import flcr.backend.recipe.DTO.response.RecipeDetailResponseDTO;
+import flcr.backend.recipe.DTO.response.RecipeListItemResponseDTO;
 import flcr.backend.recipe.entity.Recipe;
 import flcr.backend.recipe.mapper.RecipeMapper;
 import flcr.backend.recipe.service.RecipeService;
@@ -117,7 +117,7 @@ class RecipeServiceImplTest {
         request.setPage(1);
         request.setSize(20);
 
-        Page<RecipeListItemDTO> result = recipeService.getRecipeList(request);
+        Page<RecipeListItemResponseDTO> result = recipeService.getRecipeList(request);
         assertEquals(1, result.getTotal());
     }
 
@@ -191,7 +191,7 @@ class RecipeServiceImplTest {
         when(likeMapper.selectCount(any(LambdaQueryWrapper.class))).thenReturn(0L);
         when(collectionMapper.selectCount(any(LambdaQueryWrapper.class))).thenReturn(0L);
 
-        RecipeDetailDTO result = recipeService.getRecipeDetail(1L);
+        RecipeDetailResponseDTO result = recipeService.getRecipeDetail(1L);
         assertNotNull(result);
         assertEquals("测试菜谱", result.getName());
         assertFalse(result.getIsLiked());
