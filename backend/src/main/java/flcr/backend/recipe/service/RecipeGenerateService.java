@@ -1,9 +1,9 @@
 package flcr.backend.recipe.service;
 
-import flcr.backend.recipe.DTO.request.Recipe_Request;
-import flcr.backend.recipe.DTO.response.Recipe_Response;
+import flcr.backend.recipe.DTO.request.RecipeGenerateRequestDTO;
+import flcr.backend.recipe.DTO.response.RecipeGenerateResponseDTO;
 
 public interface RecipeGenerateService {
 
-    Recipe_Response generateRecipe(Recipe_Request request);
+    RecipeGenerateResponseDTO generateRecipe(RecipeGenerateRequestDTO request);
 }

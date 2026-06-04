@@ -7,6 +7,9 @@ import flcr.backend.recipe.DTO.request.RecipeListRequestDTO;
 import flcr.backend.recipe.DTO.response.RecipeDetailDTO;
 import flcr.backend.recipe.DTO.response.RecipeListItemDTO;
 import flcr.backend.recipe.service.RecipeService;
+import flcr.backend.recipe.DTO.request.RecipeGenerateRequestDTO;
+import flcr.backend.recipe.DTO.response.RecipeGenerateResponseDTO;
+import flcr.backend.recipe.service.RecipeGenerateService;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
@@ -22,6 +25,7 @@ import static org.mockito.Mockito.*;
 class RecipeControllerTest {
 
     @Mock private RecipeService recipeService;
+    @Mock private RecipeGenerateService recipeGenerateService;
     @InjectMocks private RecipeController controller;
 
     @Test
@@ -59,5 +63,20 @@ class RecipeControllerTest {
         when(recipeService.getRecipeDetail(1L)).thenReturn(detail);
 
         assertEquals("测试", controller.getRecipeDetail(1L).getData().getName());
+    }
+
+    @Test
+    @DisplayName("AI菜谱生成成功返回 RecipeGenerateResponseDTO")
+    void testGenerateRecipe_Success() {
+        RecipeGenerateRequestDTO request = new RecipeGenerateRequestDTO();
+        RecipeGenerateResponseDTO expected = RecipeGenerateResponseDTO.builder()
+                .recipe(RecipeGenerateResponseDTO.RecipeDetail.builder().name("番茄炒蛋").build())
+                .build();
+        when(recipeGenerateService.generateRecipe(any())).thenReturn(expected);
+
+        Response<RecipeGenerateResponseDTO> response = controller.generateRecipe(request);
+
+        assertEquals(200, response.getCode());
+        assertEquals("番茄炒蛋", response.getData().getRecipe().getName());
     }
 }

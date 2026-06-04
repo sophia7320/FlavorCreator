@@ -5,12 +5,13 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
 import java.util.List;
 
 @Data
 @NoArgsConstructor
 @Schema(description = "菜谱生成请求参数实体")
-public class Recipe_Request {
+public class RecipeGenerateRequestDTO {
 
     @NotEmpty(message = "食材列表不能为空")
     @Valid
@@ -27,10 +28,10 @@ public class Recipe_Request {
     public static class Ingredient {
         @Schema(description = "食材名称", example = "鸡蛋")
         private String name;
-        
+
         @Schema(description = "食材数量", example = "3")
         private Integer quantity;
-        
+
         @Schema(description = "食材单位", example = "个")
         private String unit;
     }
@@ -44,10 +45,10 @@ public class Recipe_Request {
 
         @Schema(description = "饮食禁忌/要求", example = "[\"低卡\"]")
         private List<String> dietary;
-        
+
         @Schema(description = "期望烹饪时长（分钟）", example = "30")
         private Integer cookTime;
-        
+
         @Schema(description = "期望难度", example = "简单")
         private String difficulty;
     }
