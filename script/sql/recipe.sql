@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS `recipe` (
     `ingredients` JSON COMMENT '食材列表',
     `steps` JSON COMMENT '步骤列表',
     `tips` TEXT COMMENT '小贴士',
-    `cook_time` VARCHAR(16) COMMENT '烹饪方式: 简单/普通/慢炖',
+    `cook_time` VARCHAR(16) COMMENT '烹饪时长(分钟)',
     `difficulty` TINYINT COMMENT '难度: 1-简单 2-中等 3-困难',
     `calories` INT COMMENT '卡路里',
     `tags` JSON COMMENT '标签',
