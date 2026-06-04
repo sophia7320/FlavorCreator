@@ -3,3 +3,6 @@
 logs/
 backend/logs/
 .codegraph
+.omp/
+.lsp.json
+lsp.json
