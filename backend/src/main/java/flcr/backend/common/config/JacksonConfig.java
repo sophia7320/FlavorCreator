@@ -15,4 +15,5 @@ public class JacksonConfig {
                 .registerModule(new JavaTimeModule())
                 .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     }
+
 }

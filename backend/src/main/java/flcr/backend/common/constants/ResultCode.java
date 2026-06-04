@@ -22,8 +22,6 @@ public final class ResultCode {
     public static final int WX_CODE_ERROR = 1001;
     // 微信接口调用失败
     public static final int WX_API_ERROR = 1002;
-    // 手机号获取失败
-    public static final int PHONE_ERROR = 1003;
 
     // 图片上传错误码
     public static final int IMAGE_TYPE_ERROR = 2001;

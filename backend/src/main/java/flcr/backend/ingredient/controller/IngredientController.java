@@ -4,7 +4,7 @@ import flcr.backend.common.aop.Public;
 import flcr.backend.common.response.Response;
 import flcr.backend.ingredient.DTO.request.IngredientAddRequestDTO;
 import flcr.backend.ingredient.DTO.request.IngredientBatchAddRequestDTO;
-import flcr.backend.ingredient.DTO.request.IngredientListQueryDTO;
+import flcr.backend.ingredient.DTO.request.IngredientListRequestDTO;
 import flcr.backend.ingredient.DTO.request.IngredientUpdateRequestDTO;
 import flcr.backend.ingredient.DTO.response.CommonIngredientResponseDTO;
 import flcr.backend.ingredient.DTO.response.ExpiringNoticeResponseDTO;
@@ -26,7 +26,7 @@ public class IngredientController {
     private final IngredientService ingredientService;
 
     @GetMapping("/list")
-    public Response<IngredientListResponseDTO> list(IngredientListQueryDTO query) {
+    public Response<IngredientListResponseDTO> list(IngredientListRequestDTO query) {
         return Response.success(ingredientService.list(query));
     }
 

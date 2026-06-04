@@ -22,12 +22,13 @@ import flcr.backend.recipe.DTO.request.ApplyRecipeRequestDTO;
 import flcr.backend.recipe.DTO.request.PublishRecipeRequestDTO;
 import flcr.backend.recipe.DTO.request.RecipeListRequestDTO;
 import flcr.backend.recipe.DTO.response.ApplyRecipeResponseDTO;
-import flcr.backend.recipe.DTO.response.RecipeDetailDTO;
-import flcr.backend.recipe.DTO.response.RecipeListItemDTO;
+import flcr.backend.recipe.DTO.response.RecipeDetailResponseDTO;
+import flcr.backend.recipe.DTO.response.RecipeListItemResponseDTO;
 import flcr.backend.recipe.entity.Recipe;
 import flcr.backend.recipe.mapper.RecipeMapper;
 import flcr.backend.recipe.service.RecipeService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,6 +40,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class RecipeServiceImpl implements RecipeService {
@@ -106,7 +108,7 @@ public class RecipeServiceImpl implements RecipeService {
     }
 
     @Override
-    public Page<RecipeListItemDTO> getRecipeList(RecipeListRequestDTO request) {
+    public Page<RecipeListItemResponseDTO> getRecipeList(RecipeListRequestDTO request) {
         Page<Recipe> recipePage = new Page<>(request.getPage(), request.getSize());
         LambdaQueryWrapper<Recipe> wrapper = new LambdaQueryWrapper<>();
 
@@ -123,17 +125,17 @@ public class RecipeServiceImpl implements RecipeService {
         wrapper.orderByDesc(Recipe::getCreatedAt);
         Page<Recipe> result = recipeMapper.selectPage(recipePage, wrapper);
 
-        List<RecipeListItemDTO> dtoList = result.getRecords().stream()
+        List<RecipeListItemResponseDTO> dtoList = result.getRecords().stream()
                 .map(this::convertToListItemDTO)
                 .collect(Collectors.toList());
 
-        Page<RecipeListItemDTO> dtoPage = new Page<>(result.getCurrent(), result.getSize(), result.getTotal());
+        Page<RecipeListItemResponseDTO> dtoPage = new Page<>(result.getCurrent(), result.getSize(), result.getTotal());
         dtoPage.setRecords(dtoList);
         return dtoPage;
     }
 
     @Override
-    public RecipeDetailDTO getRecipeDetail(Long recipeId) {
+    public RecipeDetailResponseDTO getRecipeDetail(Long recipeId) {
         Long userId = UserContext.getUserId();
         Recipe recipe = recipeMapper.selectById(recipeId);
         if (recipe == null) {
@@ -144,8 +146,9 @@ public class RecipeServiceImpl implements RecipeService {
         viewWrapper.eq(Recipe::getId, recipeId)
                 .setSql("view_count = view_count + 1");
         recipeMapper.update(null, viewWrapper);
+        recipe.setViewCount(recipe.getViewCount() + 1);
 
-        RecipeDetailDTO dto = convertToDetailDTO(recipe);
+        RecipeDetailResponseDTO dto = convertToDetailDTO(recipe);
 
         if (userId != null) {
             dto.setIsLiked(checkLiked(userId, recipeId, 1));
@@ -229,7 +232,7 @@ public class RecipeServiceImpl implements RecipeService {
                 ? matchedRecipes.stream().limit(5).toList()
                 : matchedRecipes;
 
-        List<RecipeListItemDTO> recipeDTOs = resultList.stream()
+        List<RecipeListItemResponseDTO> recipeDTOs = resultList.stream()
                 .map(m -> convertToListItemDTO(m.recipe()))
                 .collect(Collectors.toList());
 
@@ -257,6 +260,7 @@ public class RecipeServiceImpl implements RecipeService {
             }
             return names;
         } catch (JsonProcessingException e) {
+            log.warn("解析食材JSON失败", e);
             return Collections.emptySet();
         }
     }
@@ -266,13 +270,14 @@ public class RecipeServiceImpl implements RecipeService {
         try {
             return Integer.parseInt(cookTime.trim());
         } catch (NumberFormatException e) {
+            log.warn("解析烹饪时间失败: {}", cookTime);
             return null;
         }
     }
 
     // ==================== 私有辅助方法 ====================
 
-    private RecipeListItemDTO convertToListItemDTO(Recipe recipe) {
+    private RecipeListItemResponseDTO convertToListItemDTO(Recipe recipe) {
         User author = userMapper.selectById(recipe.getAuthorId());
 
         String[] tags = {};
@@ -284,11 +289,11 @@ public class RecipeServiceImpl implements RecipeService {
             throw new BusinessException(ResultCode.SYSTEM_ERROR, "JSON解析失败");
         }
 
-        return RecipeListItemDTO.builder()
+        return RecipeListItemResponseDTO.builder()
                 .id(recipe.getId())
                 .name(recipe.getName())
                 .cover(recipe.getCover())
-                .author(RecipeListItemDTO.AuthorInfo.builder()
+                .author(RecipeListItemResponseDTO.AuthorInfo.builder()
                         .id(author != null ? (long) author.getId() : null)
                         .nickname(author != null ? author.getNickname() : "未知用户")
                         .avatar(author != null ? author.getAvatar() : "")
@@ -297,7 +302,7 @@ public class RecipeServiceImpl implements RecipeService {
                 .difficulty(convertDifficultyToString(recipe.getDifficulty()))
                 .calories(recipe.getCalories())
                 .tags(tags)
-                .stats(RecipeListItemDTO.RecipeStats.builder()
+                .stats(RecipeListItemResponseDTO.RecipeStats.builder()
                         .likes(recipe.getLikeCount())
                         .collections(recipe.getCollectionCount())
                         .comments(recipe.getCommentCount())
@@ -307,7 +312,7 @@ public class RecipeServiceImpl implements RecipeService {
                 .build();
     }
 
-    private RecipeDetailDTO convertToDetailDTO(Recipe recipe) {
+    private RecipeDetailResponseDTO convertToDetailDTO(Recipe recipe) {
         User author = userMapper.selectById(recipe.getAuthorId());
 
         List<String> images = new ArrayList<>();
@@ -319,18 +324,18 @@ public class RecipeServiceImpl implements RecipeService {
             throw new BusinessException(ResultCode.SYSTEM_ERROR, "JSON解析失败");
         }
 
-        List<RecipeDetailDTO.IngredientItem> ingredients = new ArrayList<>();
-        List<RecipeDetailDTO.StepItem> steps = new ArrayList<>();
+        List<RecipeDetailResponseDTO.IngredientItem> ingredients = new ArrayList<>();
+        List<RecipeDetailResponseDTO.StepItem> steps = new ArrayList<>();
         String[] tags = {};
 
         try {
             if (recipe.getIngredients() != null) {
                 ingredients = objectMapper.readValue(recipe.getIngredients(),
-                    new TypeReference<List<RecipeDetailDTO.IngredientItem>>() {});
+                    new TypeReference<List<RecipeDetailResponseDTO.IngredientItem>>() {});
             }
             if (recipe.getSteps() != null) {
                 steps = objectMapper.readValue(recipe.getSteps(),
-                    new TypeReference<List<RecipeDetailDTO.StepItem>>() {});
+                    new TypeReference<List<RecipeDetailResponseDTO.StepItem>>() {});
             }
             if (recipe.getTags() != null) {
                 tags = objectMapper.readValue(recipe.getTags(), String[].class);
@@ -339,12 +344,12 @@ public class RecipeServiceImpl implements RecipeService {
             throw new BusinessException(ResultCode.SYSTEM_ERROR, "JSON解析失败");
         }
 
-        return RecipeDetailDTO.builder()
+        return RecipeDetailResponseDTO.builder()
                 .id(recipe.getId())
                 .name(recipe.getName())
                 .cover(recipe.getCover())
                 .images(images)
-                .author(RecipeDetailDTO.AuthorInfo.builder()
+                .author(RecipeDetailResponseDTO.AuthorInfo.builder()
                         .id(author != null ? (long) author.getId() : null)
                         .nickname(author != null ? author.getNickname() : "未知用户")
                         .avatar(author != null ? author.getAvatar() : "")
@@ -356,7 +361,7 @@ public class RecipeServiceImpl implements RecipeService {
                 .difficulty(convertDifficultyToString(recipe.getDifficulty()))
                 .calories(recipe.getCalories())
                 .tags(tags)
-                .stats(RecipeDetailDTO.RecipeStats.builder()
+                .stats(RecipeDetailResponseDTO.RecipeStats.builder()
                         .likes(recipe.getLikeCount())
                         .collections(recipe.getCollectionCount())
                         .comments(recipe.getCommentCount())

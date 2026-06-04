@@ -17,6 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @ActiveProfiles("dev")
 @Transactional
+@DisplayName("常用食材Mapper测试")
 class CommonIngredientMapperTest {
 
     @Autowired
@@ -24,7 +25,7 @@ class CommonIngredientMapperTest {
 
     @Test
     @DisplayName("测试查询所有常用食材")
-    void testSelectAll() {
+    void testSelectAll_ReturnsAll() {
         List<CommonIngredient> all = commonIngredientMapper.selectList(null);
 
         assertNotNull(all);
@@ -33,7 +34,7 @@ class CommonIngredientMapperTest {
 
     @Test
     @DisplayName("测试按分类查询常用食材")
-    void testSelectByCategory() {
+    void testSelectByCategory_ReturnsByCategory() {
         LambdaQueryWrapper<CommonIngredient> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(CommonIngredient::getCategory, "蔬菜");
 
@@ -48,7 +49,7 @@ class CommonIngredientMapperTest {
 
     @Test
     @DisplayName("测试查询调味品分类")
-    void testSelectCondiments() {
+    void testSelectCondiments_FiltersByCondiment() {
         LambdaQueryWrapper<CommonIngredient> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(CommonIngredient::getCategory, "调味品");
 
@@ -65,7 +66,7 @@ class CommonIngredientMapperTest {
 
     @Test
     @DisplayName("测试常用食材字段完整性")
-    void testFieldIntegrity() {
+    void testFieldIntegrity_AllFieldsNotNull() {
         LambdaQueryWrapper<CommonIngredient> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(CommonIngredient::getCategory, "肉类");
 

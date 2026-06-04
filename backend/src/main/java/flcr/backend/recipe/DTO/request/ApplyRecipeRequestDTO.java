@@ -1,5 +1,7 @@
 package flcr.backend.recipe.DTO.request;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -9,7 +11,10 @@ import java.util.List;
 @Data
 public class ApplyRecipeRequestDTO {
 
-    private List<IngredientItem> ingredients;
+    @NotEmpty(message = "食材列表不能为空")
+    @Valid
+    private List<@Valid IngredientItem> ingredients;
+
     private Preferences preferences;
 
     @Data

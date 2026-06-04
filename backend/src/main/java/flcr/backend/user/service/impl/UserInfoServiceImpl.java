@@ -84,6 +84,7 @@ public class UserInfoServiceImpl implements UserInfoService {
         return buildResponse(user, userId);
     }
 
+    @Transactional
     @Override
     public String uploadAvatar(MultipartFile file) {
         Long userId = UserContext.getUserId();
@@ -99,6 +100,7 @@ public class UserInfoServiceImpl implements UserInfoService {
         return avatarUrl;
     }
 
+    @Transactional
     @Override
     public String uploadBackground(MultipartFile file) {
         Long userId = UserContext.getUserId();
@@ -115,14 +117,6 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     private UserInfoResponseDTO buildResponse(User user, Long userId) {
-        // 手机号脱敏
-        String phone = null;
-        if (user.getPhoneNumber() != null && user.getPhoneNumber().length() == 11) {
-            phone = user.getPhoneNumber().replaceAll("(\\d{3})\\d{4}(\\d{4})", "$1****$2");
-        }
-        if (user.getPhoneNumber() != null && user.getPhoneNumber().length() != 11) {
-            phone = user.getPhoneNumber();
-        }
 
         // 解析偏好设置
         UserInfoResponseDTO.PreferencesInfo preferences = null;
@@ -156,13 +150,11 @@ public class UserInfoServiceImpl implements UserInfoService {
 
         return UserInfoResponseDTO.builder()
                 .id((long) user.getId())
-                .openid(user.getOpenid())
                 .nickname(user.getNickname())
                 .avatar(user.getAvatar())
                 .background(user.getBackground())
                 .signature(user.getSignature())
                 .gender(user.getGender())
-                .phone(phone)
                 .preferences(preferences)
                 .stats(UserInfoResponseDTO.StatsInfo.builder()
                         .followingCount(0)

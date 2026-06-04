@@ -14,6 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@DisplayName("用户信息控制器测试")
 class UserInfoControllerTest {
 
     @Mock private UserInfoService userInfoService;
@@ -21,7 +22,7 @@ class UserInfoControllerTest {
 
     @Test
     @DisplayName("getInfo返回用户信息")
-    void testGetInfo() {
+    void testGetInfo_ReturnsUserInfo() {
         UserInfoResponseDTO rsp = UserInfoResponseDTO.builder().nickname("测试").build();
         when(userInfoService.getInfo()).thenReturn(rsp);
 
@@ -30,7 +31,7 @@ class UserInfoControllerTest {
 
     @Test
     @DisplayName("updateInfo返回更新后信息")
-    void testUpdateInfo() {
+    void testUpdateInfo_ReturnsUpdatedInfo() {
         UpdateUserInfoRequestDTO req = new UpdateUserInfoRequestDTO();
         req.setNickname("新昵称");
         UserInfoResponseDTO rsp = UserInfoResponseDTO.builder().nickname("新昵称").build();
@@ -41,7 +42,7 @@ class UserInfoControllerTest {
 
     @Test
     @DisplayName("uploadAvatar返回URL")
-    void testUploadAvatar() {
+    void testUploadAvatar_ReturnsUrl() {
         MultipartFile file = mock(MultipartFile.class);
         when(userInfoService.uploadAvatar(file)).thenReturn("/uploads/test.jpg");
 
@@ -50,7 +51,7 @@ class UserInfoControllerTest {
 
     @Test
     @DisplayName("uploadBackground返回URL")
-    void testUploadBackground() {
+    void testUploadBackground_ReturnsUrl() {
         MultipartFile file = mock(MultipartFile.class);
         when(userInfoService.uploadBackground(file)).thenReturn("/uploads/bg.jpg");
 

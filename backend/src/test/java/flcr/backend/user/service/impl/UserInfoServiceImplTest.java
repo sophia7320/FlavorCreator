@@ -52,12 +52,10 @@ class UserInfoServiceImplTest {
     @DisplayName("getInfo成功返回脱敏手机和统计")
     void testGetInfo_Success() {
         User user = buildUser();
-        user.setPhoneNumber("13800138000");
         when(userMapper.selectById(USER_ID)).thenReturn(user);
         when(recipeMapper.selectList(any())).thenReturn(Collections.emptyList());
 
         UserInfoResponseDTO result = userInfoService.getInfo();
-        assertEquals("138****8000", result.getPhone());
         assertEquals("测试昵称", result.getNickname());
     }
 

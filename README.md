@@ -5,7 +5,7 @@
 <h1 align="center">FlavorCreator <small>（创味机）</small></h1>
 
 <p align="center">
-  <strong>微信小程序后端 —— 菜谱发现、食材管理与社区分享</strong>
+  <strong>微信小程序后端 —— 菜谱发现、AI 智能生成、食材管理与社区分享</strong>
 </p>
 
 <p align="center">
@@ -22,7 +22,7 @@
 
 ## 项目概述
 
-FlavorCreator 是支撑微信小程序的后端服务，帮助用户发现菜谱、管理厨房食材以及参与美食社区互动。基于 Spring Boot 构建，采用清晰的分层架构，支持双 JWT 认证（用户 + 管理员）和灵活的多环境部署。
+FlavorCreator 是支撑微信小程序的后端服务，帮助用户发现菜谱、AI 智能生成菜谱、管理厨房食材以及参与美食社区互动。基于 Spring Boot 构建，采用清晰的分层架构。
 
 > **注意：** 本仓库仅包含**后端**（`backend/`）代码。微信小程序前端（`miniprogram/`）是独立的原生项目，不在此仓库维护。
 
@@ -31,19 +31,19 @@ FlavorCreator 是支撑微信小程序的后端服务，帮助用户发现菜谱
 | 模块 | 说明 |
 |------|------|
 | **Auth**（`auth`） | 微信一键登录、JWT 签发、刷新令牌管理 |
-| **Admin**（`admin`） | 管理后台 — 菜谱与评论的完整 CRUD、用户管理、统计、独立的 JWT 认证 |
-| **Community**（`community`） | 菜谱点赞、收藏、评论，支持切换模式的原子增减 |
-| **Recipe**（`recipe`） | 菜谱发布（支持多图上传）、带筛选的列表浏览、详情查看 |
+| **Recipe**（`recipe`） | 菜谱发布、AI 智能生成（LLM）、带筛选的列表浏览、详情查看、食材匹配推荐 |
+| **Community**（`community`） | 菜谱点赞、收藏、评论 |
 | **Ingredient**（`ingredient`） | 食材管理 — 食材与调料的 CRUD、过期提醒、常用食材预设 |
-| **User**（`user`） | 个人资料管理、偏好设置、头像/背景图上传、我的收藏/点赞/菜谱 |
+| **User**（`user`） | 个人资料管理、偏好设置、头像上传、我的收藏/点赞/菜谱 |
 | **Common**（`common`） | 认证拦截器、AOP 日志、全局异常处理、文件存储（本地/COS/OSS）、图片审核 |
 
 ### 亮点
 
-- **双 JWT 认证**：用户端（`/api/**`）和管理端（`/api/admin/**`）使用独立密钥，互不串通
-- **令牌存储灵活**：默认内存存储（`ConcurrentHashMap`），可选 Redis，通过 `flcr.token.store` 配置切换
-- **图片审核流水线**：三步上传 — `validate`（类型+大小）→ `store`（上传）→ `moderate`（内容审核）；开发环境跳过审核，云端/生产环境使用腾讯云 COS CI
-- **多环境配置**：`dev`（本地）、`cloud`（微信云托管）、`prod`（生产环境）
+- **AI 菜谱生成**：对接 SiliconFlow LLM API，根据用户食材和偏好（口味、饮食限制、烹饪时长、难度）智能生成菜谱，含容错解析与字段类型校验
+- **食材匹配推荐**：根据用户已有食材匹配系统菜谱，计算匹配度排序推荐
+- **双 JWT 认证**：用户端（`/api/**`）使用 `@Public` 注解控制公开/需认证，通过 `AuthInterceptor` 统一拦截
+- **图片审核流水线**：三步上传 — `validate`（类型+大小）→ `store`（上传）→ `moderate`（内容审核）；dev 跳过审核，cloud/prod 使用腾讯云 COS CI
+- **令牌存储灵活**：默认内存（`ConcurrentHashMap`），可选 Redis，通过 `flcr.token.store` 切换
 - **分层架构**：`Controller → Service（接口）→ ServiceImpl → Mapper`，严格遵守关注点分离
 - **统一响应**：所有 API 返回 `Response<T> { code, message, data }` 格式
 
@@ -69,7 +69,7 @@ FlavorCreator 是支撑微信小程序的后端服务，帮助用户发现菜谱
 ### 前置条件
 
 - Java 17+
-- Maven 3.9+（或使用内置的 `./mvnw` 脚本）
+- Maven 3.9+（或使用内置 `./mvnw`）
 - MySQL 8.0
 - Redis 7（可选 — 可使用内存令牌存储）
 
@@ -89,25 +89,25 @@ docker compose up -d --build
 # 1. 创建数据库
 mysql -u root -e "CREATE DATABASE IF NOT EXISTS flcr CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 
-# 2. 运行 SQL 初始化脚本（可选 — 开发环境下 MyBatis-Plus 会自动建表）
-# mysql -u root flcr < script/sql/flcr.sql
-# mysql -u root flcr < script/sql/user.sql
-# ...（运行 script/sql/ 下所有脚本）
+# 2. 运行 SQL 初始化脚本
+mysql -u root flcr < script/sql/flcr.sql
+mysql -u root flcr < script/sql/user.sql
+mysql -u root flcr < script/sql/recipe.sql
+mysql -u root flcr < script/sql/ingredient.sql
+mysql -u root flcr < script/sql/community.sql
 
-# 3. 在 backend/src/main/resources/application-dev.yml 中配置数据库凭证
-
-# 4. 构建并运行
+# 3. 构建并运行
 cd backend
 ./mvnw spring-boot:run
 ```
 
-### 默认环境配置
+### 环境配置
 
 | 环境 | 配置文件 | 说明 |
 |------|----------|------|
 | `dev` | `application-dev.yml` | 本地开发（默认） |
 | `cloud` | `application-cloud.yml` | 微信云托管 |
-| `prod` | `application-prod.yml` | 生产环境（环境变量驱动） |
+| `prod` | `application-prod.yml` | 生产（环境变量驱动） |
 
 ```bash
 # 切换环境
@@ -123,35 +123,38 @@ FlavorCreator/
 │   │   ├── BackendApplication.java             # 入口 + @MapperScan
 │   │   ├── auth/                               # 认证模块
 │   │   │   ├── controller/                     #   REST 控制器
-│   │   │   ├── service/                        #   服务接口
-│   │   │   │   └── impl/                       #   服务实现
+│   │   │   ├── service/                        #   服务接口 + impl/
 │   │   │   ├── mapper/                         #   MyBatis-Plus 映射器
 │   │   │   ├── entity/                         #   数据库实体
 │   │   │   └── DTO/                            #   请求/响应 DTO
-│   │   ├── admin/                              # 管理后台模块
 │   │   ├── community/                          # 社区模块
-│   │   ├── recipe/                             # 菜谱模块
+│   │   ├── recipe/                             # 菜谱模块（含 LLM 客户端）
+│   │   │   ├── client/                         #   LlmClient（AI 接口）
+│   │   │   ├── controller/                     #   RecipeController
+│   │   │   ├── service/                        #   RecipeService + RecipeGenerateService
+│   │   │   └── DTO/                            #   请求/响应 DTO
 │   │   ├── ingredient/                         # 食材模块
 │   │   ├── user/                               # 用户模块
 │   │   └── common/                             # 公共组件
-│   │       ├── aop/                            #   拦截器与切面
-│   │       ├── config/                         #   Spring 配置
-│   │       ├── constants/                      #   错误码（ResultCode）
+│   │       ├── aop/                            #   AuthInterceptor + LoggingAspect
+│   │       ├── config/                         #   Spring 配置（WebMvc、CORS、Jackson）
+│   │       ├── constants/                      #   ResultCode 错误码
 │   │       ├── context/                        #   UserContext（ThreadLocal）
-│   │       ├── exception/                      #   BusinessException 与全局处理器
+│   │       ├── exception/                      #   BusinessException + 全局处理器
 │   │       ├── response/                       #   统一响应 Response<T>
-│   │       ├── service/                        #   公共服务（存储、审核）
-│   │       └── util/                           #   JwtTokenUtil 等工具类
+│   │       ├── service/                        #   文件存储、图片审核
+│   │       └── util/                           #   JwtTokenUtil、PasswordUtil
 │   ├── src/main/resources/
 │   │   ├── application.yml                     # 基础配置
-│   │   ├── application-dev.yml                 # 开发环境配置
-│   │   ├── application-cloud.yml               # 微信云托管配置
-│   │   ├── application-prod.yml                # 生产环境配置
+│   │   ├── application-dev.yml                 # 开发环境
+│   │   ├── application-cloud.yml               # 微信云托管
+│   │   ├── application-prod.yml               # 生产环境
 │   │   └── logback-spring.xml                  # 日志配置
-│   ├── src/test/                               # 165+ 条测试用例
-│   ├── Dockerfile                              # Docker 多阶段构建
-│   └── pom.xml                                 # Maven 项目描述文件
+│   ├── src/test/                               # 216 条测试用例
+│   ├── Dockerfile                              # 多阶段构建
+│   └── pom.xml                                 # Maven 项目文件
 ├── script/sql/                                 # 数据库初始化脚本
+├── doc/                                        # 技术文档
 ├── docker-compose.yml                          # Docker Compose 编排
 └── miniprogram/                                # 微信小程序前端（不在此维护）
 ```
@@ -168,12 +171,24 @@ http://localhost:8080/swagger-ui.html
 
 | 前缀 | 作用范围 | 认证方式 |
 |------|----------|----------|
-| `/api/auth` | 微信登录、令牌刷新、登出 | 混合（`@Public`） |
-| `/api/recipe` | 菜谱 CRUD、列表、详情 | 混合（列表/详情 `@Public`） |
-| `/api/community` | 点赞、收藏、评论 | 需用户 JWT |
-| `/api/ingredient` | 食材管理、过期提醒 | 需用户 JWT |
-| `/api/user` | 个人资料、偏好、上传 | 需用户 JWT |
-| `/api/admin` | 管理后台 | 需管理员 JWT（独立密钥） |
+| `/api/auth` | 微信登录、令牌刷新、登出 | `@Public` |
+| `/api/recipe` | CRUD、AI 生成、列表、详情、食材匹配 | 混合 |
+| `/api/community` | 点赞、收藏、评论 | 需 JWT |
+| `/api/ingredient` | 食材管理、过期提醒 | 需 JWT |
+| `/api/user` | 个人资料、偏好、上传 | 需 JWT |
+
+### 关键端点
+
+| 端点 | 方法 | 说明 |
+|------|------|------|
+| `/api/auth/login-wx` | `POST` | 微信登录 |
+| `/api/auth/refresh` | `POST` | 刷新 Token |
+| `/api/recipe/generate` | `POST` | AI 菜谱生成 |
+| `/api/recipe/apply` | `POST` | 食材匹配推荐 |
+| `/api/user/recipes` | `GET` | 我的发布 |
+| `/api/user/likes` | `GET` | 我的点赞 |
+| `/api/user/collections` | `GET` | 我的收藏 |
+| `/api/image/upload` | `POST` | 通用图片上传 |
 
 所有接口返回统一 `Response<T>` 格式：
 
@@ -226,16 +241,36 @@ http://localhost:8080/swagger-ui.html
   │                              │ UserContext.clear()   │
 ```
 
-- 标注 `@Public` 的方法无需令牌即可访问（游客友好）
+- 标注 `@Public` 的方法无需令牌即可访问
 - 未标注 `@Public` 的方法需要有效 JWT，否则返回 401
-- 管理端接口（`/api/admin/**`）使用**独立 JWT 密钥**，用户令牌无法访问
+
+### AI 菜谱生成流程
+
+```
+用户                     Controller              Service               LlmClient          LLM API
+  │                           │                      │                      │                 │
+  │ POST /recipe/generate     │                      │                      │                 │
+  │ { ingredients, prefs }    │                      │                      │                 │
+  │──────────────────────────>│                      │                      │                 │
+  │                           │ buildSystemPrompt()   │                      │                 │
+  │                           │─────────────────────>│                      │                 │
+  │                           │                      │ generateRecipeJson() │                 │
+  │                           │                      │─────────────────────>│ POST /chat      │
+  │                           │                      │                      │────────────────>│
+  │                           │                      │                      │<─── JSON ───────│
+  │                           │                      │ parseResponse()      │                 │
+  │                           │                      │ (容错: 正则提取JSON)   │                 │
+  │                           │                      │ (校验: recipe!=null)  │                 │
+  │  200 { recipe }           │                      │                      │                 │
+  │<──────────────────────────│<─────────────────────│                      │                 │
+```
 
 ## 测试
 
 ```bash
 cd backend
-./mvnw test                              # 运行全部测试（165+ 条）
-./mvnw test -Dtest=UserMapperTest        # 运行单个测试类
+./mvnw test                              # 运行全部测试（216 条）
+./mvnw test -Dtest=RecipeServiceImplTest # 运行单个测试类
 ```
 
 | 类型 | 注解 | 说明 |
@@ -251,14 +286,13 @@ cd backend
 |--------|--------|------|
 | `spring.profiles.active` | `dev` | 激活的环境配置 |
 | `server.port` | `8080` | HTTP 端口 |
-| `jwt.expiration` | `300000`（5 分钟） | 访问令牌有效期 |
-| `jwt.refresh-expiration` | `2592000000`（30 天） | 刷新令牌有效期 |
+| `jwt.expiration` | `300000`（5 分钟） | 访问令牌有效期（毫秒） |
+| `jwt.refresh-expiration` | `2592000000`（30 天） | 刷新令牌有效期（毫秒） |
 | `flcr.storage.type` | `local` | 文件存储类型：`local` / `cos` / `oss` |
 | `flcr.storage.local-path` | `./uploads` | 本地上传目录 |
 | `flcr.token.store` | `memory` | 令牌存储方式：`memory` / `redis` |
 | `flcr.moderation.enabled` | `false`（dev） | 是否启用图片内容审核 |
 | `spring.servlet.multipart.max-file-size` | `10MB` | 单文件上传限制 |
-| `spring.servlet.multipart.max-request-size` | `20MB` | 总请求大小限制 |
 
 ## 生产环境变量
 
@@ -271,11 +305,11 @@ cd backend
 | `DB_PASSWORD` | MySQL 密码 |
 | `WX_APP_ID` | 微信小程序 AppID |
 | `WX_SECRET` | 微信小程序 AppSecret |
-| `JWT_SECRET` | JWT 签名密钥（用户） |
-| `ADMIN_JWT_SECRET` | JWT 签名密钥（管理员） |
+| `JWT_SECRET` | JWT 签名密钥 |
 | `REDIS_URL` | Redis 连接地址（可选） |
-| `COS_SECRET_ID` | 腾讯云 COS SecretId（云端/生产） |
-| `COS_SECRET_KEY` | 腾讯云 COS SecretKey（云端/生产） |
+| `LLM_API_KEY` | LLM API 密钥 |
+| `COS_SECRET_ID` | 腾讯云 COS SecretId |
+| `COS_SECRET_KEY` | 腾讯云 COS SecretKey |
 
 ## 部署
 
@@ -286,8 +320,8 @@ docker compose up -d --build
 ```
 
 Dockerfile 采用多阶段构建：
-1. **构建阶段**：基于 `eclipse-temurin:17-alpine` 使用 Maven 编译项目
-2. **运行阶段**：将 JAR 复制到 `eclipse-temurin:17-jre-alpine`，获得最小镜像
+1. **构建阶段**：基于 `maven:3.9-eclipse-temurin-17-alpine` 编译项目
+2. **运行阶段**：将 JAR 复制到 `eclipse-temurin:17-jre`，获得最小镜像
 
 ### 微信云托管
 
@@ -295,12 +329,10 @@ Dockerfile 采用多阶段构建：
 
 ## 贡献指南
 
-1. Fork 本仓库
-2. 创建特性分支：`git checkout -b feature/your-feature`
-3. 遵循 `AGENTS.md` 中的编码规范
-4. 为新功能编写测试
-5. 确保所有测试通过：`./mvnw test`
-6. 提交 Pull Request
+1. 遵循 `AGENTS.md` 中的编码规范
+2. 为新功能编写测试
+3. 确保所有测试通过：`./mvnw test`
+4. 提交 Pull Request
 
 ### 编码规范
 
@@ -309,7 +341,7 @@ Dockerfile 采用多阶段构建：
 - Entity / Mapper / DTO / Service / Controller 模板
 - 错误处理：使用 `BusinessException`，禁止直接抛出 `RuntimeException`
 - 跨模块引用：直接注入 **Mapper**，而非 Service（避免循环依赖）
-- 公开接口使用 `@Public` 注解
+- 公开接口使用 `@Public` 注解，默认需认证
 
 ## 开源协议
 

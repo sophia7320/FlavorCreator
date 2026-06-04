@@ -13,13 +13,11 @@ import java.util.List;
 @AllArgsConstructor
 public class UserInfoResponseDTO {
     private Long id;
-    private String openid;
     private String nickname;
     private String avatar;
     private String background;
     private String signature;
     private Integer gender;
-    private String phone;
     private PreferencesInfo preferences;
     private StatsInfo stats;
 

@@ -29,6 +29,13 @@ public class JwtTokenUtil {
     private long refreshExpiration; // 默认 7 天
 
     /**
+     * 获取访问令牌过期时间（毫秒）。
+     */
+    public long getExpiration() {
+        return expiration;
+    }
+
+    /**
      * 生成访问令牌
      * @param userId 用户 ID
      * @param openid 用户 openid
@@ -68,7 +75,7 @@ public class JwtTokenUtil {
             JWTVerifier verifier = JWT.require(Algorithm.HMAC256(secret)).build();
             verifier.verify(token);
             return true;
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             log.error("JWT 验证失败：{}", e.getMessage());
             return false;
         }
@@ -84,7 +91,7 @@ public class JwtTokenUtil {
         try {
             DecodedJWT jwt = JWT.decode(token);
             return jwt.getClaim("userId").asLong();
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             log.error("从 token 中获取用户 ID 失败：{}", e.getMessage());
             return null;
         }

@@ -9,11 +9,9 @@ CREATE TABLE IF NOT EXISTS `user` (
     `background` VARCHAR(255) DEFAULT NULL COMMENT '背景图 URL',
     `signature` VARCHAR(128) DEFAULT NULL COMMENT '个性签名',
     `gender` TINYINT DEFAULT 0 COMMENT '性别 0-未知 1-男 2-女',
-    `phone_number` VARCHAR(20) DEFAULT NULL COMMENT '手机号',
     `preferences` JSON DEFAULT NULL COMMENT '用户偏好设置',
     `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (`id`),
     UNIQUE KEY `uk_openid` (`openid`),
-    KEY `idx_phone` (`phone_number`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户表';

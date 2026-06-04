@@ -4,9 +4,12 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import flcr.backend.common.response.Response;
 import flcr.backend.recipe.DTO.request.PublishRecipeRequestDTO;
 import flcr.backend.recipe.DTO.request.RecipeListRequestDTO;
-import flcr.backend.recipe.DTO.response.RecipeDetailDTO;
-import flcr.backend.recipe.DTO.response.RecipeListItemDTO;
+import flcr.backend.recipe.DTO.response.RecipeDetailResponseDTO;
+import flcr.backend.recipe.DTO.response.RecipeListItemResponseDTO;
 import flcr.backend.recipe.service.RecipeService;
+import flcr.backend.recipe.DTO.request.RecipeGenerateRequestDTO;
+import flcr.backend.recipe.DTO.response.RecipeGenerateResponseDTO;
+import flcr.backend.recipe.service.RecipeGenerateService;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
@@ -19,14 +22,16 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@DisplayName("菜谱控制器测试")
 class RecipeControllerTest {
 
     @Mock private RecipeService recipeService;
+    @Mock private RecipeGenerateService recipeGenerateService;
     @InjectMocks private RecipeController controller;
 
     @Test
     @DisplayName("发布菜谱成功返回id")
-    void testPublishRecipe() {
+    void testPublishRecipe_ReturnsId() {
         MultipartFile cover = mock(MultipartFile.class);
         List<MultipartFile> images = List.of(mock(MultipartFile.class));
         when(recipeService.publishRecipe(any(), eq(cover), eq(images))).thenReturn(1L);
@@ -45,8 +50,8 @@ class RecipeControllerTest {
 
     @Test
     @DisplayName("菜谱列表返回分页")
-    void testGetRecipeList() {
-        Page<RecipeListItemDTO> page = new Page<>(1, 20);
+    void testGetRecipeList_ReturnsPage() {
+        Page<RecipeListItemResponseDTO> page = new Page<>(1, 20);
         when(recipeService.getRecipeList(any())).thenReturn(page);
 
         assertEquals(200, controller.getRecipeList(new RecipeListRequestDTO()).getCode());
@@ -54,10 +59,25 @@ class RecipeControllerTest {
 
     @Test
     @DisplayName("菜谱详情返回")
-    void testGetRecipeDetail() {
-        RecipeDetailDTO detail = RecipeDetailDTO.builder().id(1L).name("测试").build();
+    void testGetRecipeDetail_ReturnsDetail() {
+        RecipeDetailResponseDTO detail = RecipeDetailResponseDTO.builder().id(1L).name("测试").build();
         when(recipeService.getRecipeDetail(1L)).thenReturn(detail);
 
         assertEquals("测试", controller.getRecipeDetail(1L).getData().getName());
+    }
+
+    @Test
+    @DisplayName("AI菜谱生成成功返回 RecipeGenerateResponseDTO")
+    void testGenerateRecipe_Success() {
+        RecipeGenerateRequestDTO request = new RecipeGenerateRequestDTO();
+        RecipeGenerateResponseDTO expected = RecipeGenerateResponseDTO.builder()
+                .recipe(RecipeGenerateResponseDTO.RecipeDetail.builder().name("番茄炒蛋").build())
+                .build();
+        when(recipeGenerateService.generateRecipe(any())).thenReturn(expected);
+
+        Response<RecipeGenerateResponseDTO> response = controller.generateRecipe(request);
+
+        assertEquals(200, response.getCode());
+        assertEquals("番茄炒蛋", response.getData().getRecipe().getName());
     }
 }

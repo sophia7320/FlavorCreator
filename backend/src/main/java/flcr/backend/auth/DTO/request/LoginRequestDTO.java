@@ -1,6 +1,8 @@
 package flcr.backend.auth.DTO.request;
 
 import jakarta.validation.constraints.NotBlank;
+import lombok.NoArgsConstructor;
+
 import lombok.Data;
 
 @Data
@@ -9,8 +11,8 @@ public class LoginRequestDTO {
     private String code;
 
     private UserInfo userInfo;
-
     @Data
+    @NoArgsConstructor
     public static class UserInfo {
         private String nickName;
         private String avatarUrl;

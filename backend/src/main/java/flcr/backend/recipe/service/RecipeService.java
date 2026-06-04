@@ -5,8 +5,8 @@ import flcr.backend.recipe.DTO.request.ApplyRecipeRequestDTO;
 import flcr.backend.recipe.DTO.request.PublishRecipeRequestDTO;
 import flcr.backend.recipe.DTO.request.RecipeListRequestDTO;
 import flcr.backend.recipe.DTO.response.ApplyRecipeResponseDTO;
-import flcr.backend.recipe.DTO.response.RecipeDetailDTO;
-import flcr.backend.recipe.DTO.response.RecipeListItemDTO;
+import flcr.backend.recipe.DTO.response.RecipeDetailResponseDTO;
+import flcr.backend.recipe.DTO.response.RecipeListItemResponseDTO;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -15,9 +15,9 @@ public interface RecipeService {
 
     Long publishRecipe(PublishRecipeRequestDTO request, MultipartFile cover, List<MultipartFile> images);
 
-    Page<RecipeListItemDTO> getRecipeList(RecipeListRequestDTO request);
+    Page<RecipeListItemResponseDTO> getRecipeList(RecipeListRequestDTO request);
 
-    RecipeDetailDTO getRecipeDetail(Long recipeId);
+    RecipeDetailResponseDTO getRecipeDetail(Long recipeId);
 
     ApplyRecipeResponseDTO apply(ApplyRecipeRequestDTO request);
 }

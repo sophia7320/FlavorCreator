@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @ActiveProfiles("dev")
 @Transactional
+@DisplayName("用户Mapper测试")
 class UserMapperTest {
 
     @Autowired
@@ -31,7 +32,7 @@ class UserMapperTest {
      */
     @Test
     @DisplayName("测试插入用户")
-    void testInsert() {
+    void testInsert_Success() {
         User user = buildUser("测试用户", "test_openid_" + System.currentTimeMillis());
         int result = userMapper.insert(user);
 
@@ -45,7 +46,7 @@ class UserMapperTest {
      */
     @Test
     @DisplayName("测试根据ID查询用户")
-    void testSelectById() {
+    void testSelectById_Success() {
         User user = buildUser("查询测试", "select_openid_" + System.currentTimeMillis());
         userMapper.insert(user);
 
@@ -61,7 +62,7 @@ class UserMapperTest {
      */
     @Test
     @DisplayName("测试更新用户")
-    void testUpdateById() {
+    void testUpdateById_Success() {
         User user = buildUser("原始昵称", "update_openid_" + System.currentTimeMillis());
         userMapper.insert(user);
 
@@ -80,7 +81,7 @@ class UserMapperTest {
      */
     @Test
     @DisplayName("测试使用LambdaQueryWrapper查询")
-    void testSelectWithLambdaQuery() {
+    void testSelectWithLambdaQuery_ReturnsByCondition() {
         String openid = "lambda_openid_" + System.currentTimeMillis();
         User user = buildUser("Lambda查询测试", openid);
         userMapper.insert(user);
@@ -101,7 +102,7 @@ class UserMapperTest {
      */
     @Test
     @DisplayName("测试根据openid查询")
-    void testSelectByOpenid() {
+    void testSelectByOpenid_ReturnsUser() {
         String expectedOpenid = "by_openid_" + System.currentTimeMillis();
         User user = buildUser("Openid查询", expectedOpenid);
         userMapper.insert(user);
@@ -119,7 +120,7 @@ class UserMapperTest {
      */
     @Test
     @DisplayName("测试查询所有用户")
-    void testSelectAll() {
+    void testSelectAll_ReturnsAll() {
         // 先插入当前测试的数据
         userMapper.insert(buildUser("全部查询1", "all1_" + System.currentTimeMillis()));
         userMapper.insert(buildUser("全部查询2", "all2_" + System.currentTimeMillis()));
@@ -135,7 +136,7 @@ class UserMapperTest {
      */
     @Test
     @DisplayName("测试删除用户")
-    void testDeleteById() {
+    void testDeleteById_Success() {
         User user = buildUser("待删除", "delete_openid_" + System.currentTimeMillis());
         userMapper.insert(user);
         Long id = user.getId();
@@ -156,7 +157,7 @@ class UserMapperTest {
      */
     @Test
     @DisplayName("测试批量插入")
-    void testBatchInsert() {
+    void testBatchInsert_Success() {
         String batchKey = "batch_" + System.currentTimeMillis();
         for (int i = 0; i < 3; i++) {
             User user = buildUser("批量用户" + (i + 1),
@@ -177,7 +178,7 @@ class UserMapperTest {
      */
     @Test
     @DisplayName("测试统计用户数量")
-    void testCountUsers() {
+    void testCountUsers_ReturnsCount() {
         long before = userMapper.selectCount(null);
 
         userMapper.insert(buildUser("计数测试", "count_" + System.currentTimeMillis()));

@@ -184,4 +184,17 @@ class CommunityServiceImplTest {
         recipe.setUpdatedAt(LocalDateTime.now());
         return recipe;
     }
+
+    @Test
+    @DisplayName("点赞不存在的菜谱返回全false不抛异常")
+    void testLikeRecipe_NonExistentRecipe() {
+        when(recipeMapper.selectById(999L)).thenReturn(null);
+
+        LikeCollectResponseDTO result = communityService.likeRecipe(999L);
+
+        assertFalse(result.getIsLiked());
+        assertEquals(0, result.getLikeCount());
+        assertFalse(result.getIsCollected());
+        assertEquals(0, result.getCollectionCount());
+    }
 }

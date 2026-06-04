@@ -5,11 +5,12 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import flcr.backend.auth.entity.User;
 import flcr.backend.auth.mapper.UserMapper;
 import flcr.backend.common.context.UserContext;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import flcr.backend.community.entity.Collection;
 import flcr.backend.community.entity.Like;
 import flcr.backend.community.mapper.CollectionMapper;
 import flcr.backend.community.mapper.LikeMapper;
-import flcr.backend.recipe.DTO.response.RecipeListItemDTO;
+import flcr.backend.recipe.DTO.response.RecipeListItemResponseDTO;
 import flcr.backend.recipe.entity.Recipe;
 import flcr.backend.recipe.mapper.RecipeMapper;
 import flcr.backend.user.DTO.response.MyCollectionResponseDTO;
@@ -37,6 +38,7 @@ class UserCenterServiceImplTest {
     @Mock private LikeMapper likeMapper;
     @Mock private RecipeMapper recipeMapper;
     @Mock private UserMapper userMapper;
+    @Mock private ObjectMapper objectMapper;
     @InjectMocks private UserCenterServiceImpl userCenterService;
 
     private static final Long USER_ID = 1001L;
@@ -140,9 +142,59 @@ class UserCenterServiceImplTest {
                 .thenReturn(pageResult);
         when(userMapper.selectById(USER_ID)).thenReturn(buildUser(USER_ID));
 
-        Page<RecipeListItemDTO> result = userCenterService.getMyRecipes(1, 20);
+        Page<RecipeListItemResponseDTO> result = userCenterService.getMyRecipes(1, 20);
         assertEquals(1, result.getRecords().size());
         assertEquals("我的菜谱", result.getRecords().get(0).getName());
+    }
+
+    @Test
+    @DisplayName("getMyRecipes正确解析JSON格式tags并转换难度")
+    void testGetMyRecipes_ParseTagsAndDifficulty() {
+        Recipe recipe = new Recipe();
+        recipe.setId(1L);
+        recipe.setName("测试菜谱");
+        recipe.setAuthorId(USER_ID);
+        recipe.setTags("[\"快手\",\"下饭\"]");
+        recipe.setDifficulty(2);
+        recipe.setCreatedAt(LocalDateTime.now());
+
+        Page<Recipe> pageResult = new Page<>(1, 20, 1);
+        pageResult.setRecords(List.of(recipe));
+
+        when(recipeMapper.selectPage(any(Page.class), any(LambdaQueryWrapper.class)))
+                .thenReturn(pageResult);
+        when(userMapper.selectById(USER_ID)).thenReturn(buildUser(USER_ID));
+        try {
+            when(objectMapper.readValue("[\"快手\",\"下饭\"]", String[].class))
+                    .thenReturn(new String[]{"快手", "下饭"});
+        } catch (Exception ignored) {}
+        Page<RecipeListItemResponseDTO> result = userCenterService.getMyRecipes(1, 20);
+        assertEquals(1, result.getRecords().size());
+        RecipeListItemResponseDTO dto = result.getRecords().get(0);
+        assertEquals(2, dto.getTags().length);
+        assertEquals("快手", dto.getTags()[0]);
+        assertEquals("中等", dto.getDifficulty());
+    }
+
+    @Test
+    @DisplayName("getMyRecipes tags为null返回空数组")
+    void testGetMyRecipes_NullTags() {
+        Recipe recipe = new Recipe();
+        recipe.setId(1L);
+        recipe.setName("无标签菜谱");
+        recipe.setAuthorId(USER_ID);
+        recipe.setCreatedAt(LocalDateTime.now());
+
+        Page<Recipe> pageResult = new Page<>(1, 20, 1);
+        pageResult.setRecords(List.of(recipe));
+
+        when(recipeMapper.selectPage(any(Page.class), any(LambdaQueryWrapper.class)))
+                .thenReturn(pageResult);
+        when(userMapper.selectById(USER_ID)).thenReturn(buildUser(USER_ID));
+
+        Page<RecipeListItemResponseDTO> result = userCenterService.getMyRecipes(1, 20);
+
+        assertEquals(0, result.getRecords().get(0).getTags().length);
     }
 
     private User buildUser(Long id) {

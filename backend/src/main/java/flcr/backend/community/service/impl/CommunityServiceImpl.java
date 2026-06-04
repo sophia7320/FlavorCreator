@@ -375,6 +375,15 @@ public class CommunityServiceImpl implements CommunityService {
 
     private LikeCollectResponseDTO buildLikeCollectResponse(Long recipeId, Long userId) {
         Recipe recipe = recipeMapper.selectById(recipeId);
+        if (recipe == null) {
+            return LikeCollectResponseDTO.builder()
+                    .isLiked(false)
+                    .likeCount(0)
+                    .isCollected(false)
+                    .collectionCount(0)
+                    .build();
+        }
+
         boolean isLiked = checkLiked(userId, recipeId, TargetTypeConstants.RECIPE);
         boolean isCollected = checkCollected(userId, recipeId);
 

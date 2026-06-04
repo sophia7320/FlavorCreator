@@ -49,7 +49,7 @@ public class InMemoryRefreshTokenServiceImpl implements RefreshTokenService {
             return null;
         }
         if (System.currentTimeMillis() > entry.expireTime) {
-            tokenStore.remove(refreshToken);
+            tokenStore.remove(refreshToken, entry);
             return null;
         }
         return entry.data;

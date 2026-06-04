@@ -56,7 +56,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         String openid = sessionResult.getOpenid();
         String unionid = sessionResult.getUnionid();
-        log.info("微信登录成功，openid: {}, unionid: {}", openid, unionid);
+        log.info("微信登录成功");
 
         // 2. 查询或创建用户
         UserWithStatus userWithStatus = getOrCreateUser(openid, unionid, request);
@@ -73,18 +73,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return LoginResponseDTO.builder()
                 .token(token)
                 .refreshToken(refreshToken)
-                .expiresIn(300L)
+                .expiresIn(jwtTokenUtil.getExpiration() / 1000)
                 .isNewUser(isNewUser)
                 .user(LoginResponseDTO.UserInfo.builder()
                         .id((long) user.getId())
                         .nickname(user.getNickname())
                         .avatar(user.getAvatar())
-                        .phone(user.getPhoneNumber())
                         .gender(user.getGender())
                         .build())
                 .build();
     }
 
+    @Transactional
     @Override
     public LoginResponseDTO refreshToken(String refreshTokenStr) {
         if (refreshTokenStr == null || refreshTokenStr.isEmpty()) {
@@ -113,14 +113,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return LoginResponseDTO.builder()
                 .token(newToken)
                 .refreshToken(newRefreshToken)
-                .expiresIn(300L)
-                .needBindPhone(false)
+                .expiresIn(jwtTokenUtil.getExpiration() / 1000)
                 .isNewUser(false)
                 .user(LoginResponseDTO.UserInfo.builder()
                         .id(data.userId())
                         .nickname(user.getNickname())
                         .avatar(user.getAvatar())
-                        .phone(user.getPhoneNumber())
                         .gender(user.getGender())
                         .build())
                 .build();
@@ -160,12 +158,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 } catch (NumberFormatException e) {
                     throw new BusinessException(ResultCode.PARAM_ERROR, "性别格式错误");
                 }
+            } else {
+                user.setGender(GenderConstants.UNKNOWN);
             }
         } else {
             user.setNickname("创味机用户");
             user.setGender(GenderConstants.UNKNOWN);
         }
-
         user.setCreatedAt(LocalDateTime.now());
         user.setUpdatedAt(LocalDateTime.now());
 

@@ -25,7 +25,6 @@ class ResultCodeTest {
         assertEquals(500, ResultCode.SYSTEM_ERROR);
         assertEquals(1001, ResultCode.WX_CODE_ERROR);
         assertEquals(1002, ResultCode.WX_API_ERROR);
-        assertEquals(1003, ResultCode.PHONE_ERROR);
     }
 
     @Test

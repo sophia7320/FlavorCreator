@@ -5,17 +5,19 @@ import flcr.backend.common.aop.Public;
 import flcr.backend.common.response.Response;
 import flcr.backend.recipe.DTO.request.ApplyRecipeRequestDTO;
 import flcr.backend.recipe.DTO.request.PublishRecipeRequestDTO;
+import flcr.backend.recipe.DTO.request.RecipeGenerateRequestDTO;
 import flcr.backend.recipe.DTO.request.RecipeListRequestDTO;
 import flcr.backend.recipe.DTO.response.ApplyRecipeResponseDTO;
-import flcr.backend.recipe.DTO.response.RecipeDetailDTO;
-import flcr.backend.recipe.DTO.response.RecipeListItemDTO;
+import flcr.backend.recipe.DTO.response.RecipeDetailResponseDTO;
+import flcr.backend.recipe.DTO.response.RecipeGenerateResponseDTO;
+import flcr.backend.recipe.DTO.response.RecipeListItemResponseDTO;
+import flcr.backend.recipe.service.RecipeGenerateService;
 import flcr.backend.recipe.service.RecipeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.util.List;
 
 @Slf4j
@@ -25,6 +27,13 @@ import java.util.List;
 public class RecipeController {
 
     private final RecipeService recipeService;
+    private final RecipeGenerateService recipeGenerateService;
+
+    @PostMapping("/generate")
+    public Response<RecipeGenerateResponseDTO> generateRecipe(@Valid @RequestBody RecipeGenerateRequestDTO request) {
+        RecipeGenerateResponseDTO result = recipeGenerateService.generateRecipe(request);
+        return Response.success(result);
+    }
 
     @PostMapping
     public Response<Long> publishRecipe(
@@ -37,15 +46,15 @@ public class RecipeController {
 
     @Public
     @GetMapping("/list")
-    public Response<Page<RecipeListItemDTO>> getRecipeList(RecipeListRequestDTO request) {
-        Page<RecipeListItemDTO> result = recipeService.getRecipeList(request);
+    public Response<Page<RecipeListItemResponseDTO>> getRecipeList(@Valid RecipeListRequestDTO request) {
+        Page<RecipeListItemResponseDTO> result = recipeService.getRecipeList(request);
         return Response.success(result);
     }
 
     @Public
     @GetMapping("/{id}")
-    public Response<RecipeDetailDTO> getRecipeDetail(@PathVariable Long id) {
-        RecipeDetailDTO detail = recipeService.getRecipeDetail(id);
+    public Response<RecipeDetailResponseDTO> getRecipeDetail(@PathVariable Long id) {
+        RecipeDetailResponseDTO detail = recipeService.getRecipeDetail(id);
         return Response.success(detail);
     }
 

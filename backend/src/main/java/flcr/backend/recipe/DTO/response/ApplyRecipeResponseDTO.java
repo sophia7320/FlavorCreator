@@ -14,6 +14,6 @@ import java.util.List;
 public class ApplyRecipeResponseDTO {
 
     private Integer matchDegree;
-    private List<RecipeListItemDTO> recipes;
+    private List<RecipeListItemResponseDTO> recipes;
     private Boolean needAiGenerate;
 }

@@ -1,5 +1,7 @@
 package flcr.backend.user.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import flcr.backend.auth.entity.User;
@@ -10,7 +12,7 @@ import flcr.backend.community.entity.Collection;
 import flcr.backend.community.entity.Like;
 import flcr.backend.community.mapper.CollectionMapper;
 import flcr.backend.community.mapper.LikeMapper;
-import flcr.backend.recipe.DTO.response.RecipeListItemDTO;
+import flcr.backend.recipe.DTO.response.RecipeListItemResponseDTO;
 import flcr.backend.recipe.entity.Recipe;
 import flcr.backend.recipe.mapper.RecipeMapper;
 import flcr.backend.user.DTO.response.MyCollectionResponseDTO;
@@ -34,6 +36,8 @@ public class UserCenterServiceImpl implements UserCenterService {
     private final LikeMapper likeMapper;
     private final RecipeMapper recipeMapper;
     private final UserMapper userMapper;
+    private final ObjectMapper objectMapper;
+
 
     @Override
     public Page<MyCollectionResponseDTO> getMyCollections(Integer page, Integer size) {
@@ -155,7 +159,7 @@ public class UserCenterServiceImpl implements UserCenterService {
     }
 
     @Override
-    public Page<RecipeListItemDTO> getMyRecipes(Integer page, Integer size) {
+    public Page<RecipeListItemResponseDTO> getMyRecipes(Integer page, Integer size) {
         Long userId = UserContext.getUserId();
 
         LambdaQueryWrapper<Recipe> wrapper = new LambdaQueryWrapper<>();
@@ -171,21 +175,21 @@ public class UserCenterServiceImpl implements UserCenterService {
 
         User user = userMapper.selectById(userId);
 
-        List<RecipeListItemDTO> dtos = result.getRecords().stream()
-                .map(recipe -> RecipeListItemDTO.builder()
+        List<RecipeListItemResponseDTO> dtos = result.getRecords().stream()
+                .map(recipe -> RecipeListItemResponseDTO.builder()
                         .id(recipe.getId())
                         .name(recipe.getName())
                         .cover(recipe.getCover())
-                        .author(RecipeListItemDTO.AuthorInfo.builder()
+                        .author(RecipeListItemResponseDTO.AuthorInfo.builder()
                                 .id(userId)
                                 .nickname(user != null ? user.getNickname() : null)
                                 .avatar(user != null ? user.getAvatar() : null)
                                 .build())
                         .cookTime(recipe.getCookTime())
-                        .difficulty(recipe.getDifficulty() != null ? String.valueOf(recipe.getDifficulty()) : null)
+                        .difficulty(convertDifficultyToString(recipe.getDifficulty()))
                         .calories(recipe.getCalories())
-                        .tags(recipe.getTags() != null ? recipe.getTags().split(",") : new String[0])
-                        .stats(RecipeListItemDTO.RecipeStats.builder()
+                        .tags(parseTags(recipe.getTags()))
+                        .stats(RecipeListItemResponseDTO.RecipeStats.builder()
                                 .likes(recipe.getLikeCount())
                                 .collections(recipe.getCollectionCount())
                                 .comments(recipe.getCommentCount())
@@ -195,8 +199,29 @@ public class UserCenterServiceImpl implements UserCenterService {
                         .build())
                 .collect(Collectors.toList());
 
-        Page<RecipeListItemDTO> dtoPage = new Page<>(result.getCurrent(), result.getSize(), result.getTotal());
+        Page<RecipeListItemResponseDTO> dtoPage = new Page<>(result.getCurrent(), result.getSize(), result.getTotal());
         dtoPage.setRecords(dtos);
         return dtoPage;
+    }
+
+    private String convertDifficultyToString(Integer difficulty) {
+        if (difficulty == null) return "";
+        switch (difficulty) {
+            case 1: return "简单";
+            case 2: return "中等";
+            case 3: return "困难";
+            default: return String.valueOf(difficulty);
+        }
+    }
+
+    private String[] parseTags(String tagsJson) {
+        if (tagsJson == null || tagsJson.isBlank()) {
+            return new String[0];
+        }
+        try {
+            return objectMapper.readValue(tagsJson, String[].class);
+        } catch (JsonProcessingException e) {
+            return new String[0];
+        }
     }
 }
