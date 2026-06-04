@@ -58,3 +58,9 @@ flcr:
 springdoc:
   api-docs:
     enabled: false
+
+llm:
+  api:
+    url: ${LLM_API_BASE_URL}
+    model: ${LLM_API_MODEL}
+    key: ${LLM_API_KEY}
