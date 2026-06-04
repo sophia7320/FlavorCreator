@@ -1,5 +1,7 @@
 package flcr.backend.recipe.DTO.response;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import flcr.backend.common.util.FlexibleIntegerDeserializer;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -34,12 +36,14 @@ public class RecipeGenerateResponseDTO {
         @Schema(description = "烹饪步骤列表")
         private List<StepItem> steps;
 
+        @JsonDeserialize(using = FlexibleIntegerDeserializer.class)
         @Schema(description = "烹饪时长（分钟）", example = "10")
         private Integer cookTime;
 
         @Schema(description = "烹饪难度", example = "简单")
         private String difficulty;
 
+        @JsonDeserialize(using = FlexibleIntegerDeserializer.class)
         @Schema(description = "卡路里", example = "280")
         private Integer calories;
 
@@ -56,6 +60,7 @@ public class RecipeGenerateResponseDTO {
         @Schema(description = "食材名称", example = "鸡蛋")
         private String name;
 
+        @JsonDeserialize(using = FlexibleIntegerDeserializer.class)
         @Schema(description = "食材数量", example = "3")
         private Integer quantity;
 
@@ -69,6 +74,7 @@ public class RecipeGenerateResponseDTO {
     @AllArgsConstructor
     @Schema(description = "菜谱中的步骤项")
     public static class StepItem {
+        @JsonDeserialize(using = FlexibleIntegerDeserializer.class)
         @Schema(description = "步骤序号", example = "1")
         private Integer order;
 
