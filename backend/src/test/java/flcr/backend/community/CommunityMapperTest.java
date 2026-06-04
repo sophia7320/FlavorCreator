@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @ActiveProfiles("dev")
 @Transactional
+@DisplayName("社区Mapper测试")
 class CommunityMapperTest {
 
     @Autowired private CommentMapper commentMapper;
@@ -29,7 +30,7 @@ class CommunityMapperTest {
 
     @Test
     @DisplayName("插入评论")
-    void testInsertComment() {
+    void testInsertComment_Success() {
         Comment comment = new Comment();
         comment.setUserId(1L);
         comment.setRecipeId(1L);
@@ -45,7 +46,7 @@ class CommunityMapperTest {
 
     @Test
     @DisplayName("按菜谱ID查询评论")
-    void testSelectCommentByRecipeId() {
+    void testSelectCommentByRecipeId_ReturnsByRecipe() {
         Comment c1 = new Comment();
         c1.setUserId(1L); c1.setRecipeId(100L); c1.setContent("评论1");
         c1.setLikeCount(0); c1.setCreatedAt(LocalDateTime.now()); c1.setUpdatedAt(LocalDateTime.now());
@@ -65,7 +66,7 @@ class CommunityMapperTest {
 
     @Test
     @DisplayName("插入点赞记录")
-    void testInsertLike() {
+    void testInsertLike_Success() {
         Like like = new Like();
         like.setUserId(1L);
         like.setTargetId(1L);
@@ -77,7 +78,7 @@ class CommunityMapperTest {
 
     @Test
     @DisplayName("查询点赞状态")
-    void testSelectLikeCount() {
+    void testSelectLikeCount_ReturnsCount() {
         Like like = new Like();
         like.setUserId(1L); like.setTargetId(1L); like.setTargetType(1);
         like.setCreatedAt(LocalDateTime.now());
@@ -90,7 +91,7 @@ class CommunityMapperTest {
 
     @Test
     @DisplayName("插入收藏记录")
-    void testInsertCollection() {
+    void testInsertCollection_Success() {
         Collection c = new Collection();
         c.setUserId(1L);
         c.setRecipeId(1L);
@@ -101,7 +102,7 @@ class CommunityMapperTest {
 
     @Test
     @DisplayName("查询收藏状态")
-    void testSelectCollectionCount() {
+    void testSelectCollectionCount_ReturnsCount() {
         Collection c = new Collection();
         c.setUserId(1L); c.setRecipeId(1L);
         c.setCreatedAt(LocalDateTime.now());

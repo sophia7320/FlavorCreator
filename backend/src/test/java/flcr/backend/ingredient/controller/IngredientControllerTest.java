@@ -14,6 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@DisplayName("食材控制器测试")
 class IngredientControllerTest {
 
     @Mock private IngredientService ingredientService;
@@ -21,7 +22,7 @@ class IngredientControllerTest {
 
     @Test
     @DisplayName("list返回食材列表")
-    void testList() {
+    void testList_ReturnsList() {
         IngredientListRequestDTO query = new IngredientListRequestDTO();
         IngredientListResponseDTO rsp = IngredientListResponseDTO.builder().build();
         when(ingredientService.list(query)).thenReturn(rsp);
@@ -31,7 +32,7 @@ class IngredientControllerTest {
 
     @Test
     @DisplayName("add返回id")
-    void testAdd() {
+    void testAdd_ReturnsId() {
         IngredientAddRequestDTO req = new IngredientAddRequestDTO();
         when(ingredientService.add(req)).thenReturn(1L);
 
@@ -40,7 +41,7 @@ class IngredientControllerTest {
 
     @Test
     @DisplayName("update成功")
-    void testUpdate() {
+    void testUpdate_Success() {
         IngredientUpdateRequestDTO req = new IngredientUpdateRequestDTO();
         assertDoesNotThrow(() -> controller.update(1L, req));
         verify(ingredientService).update(1L, req);
@@ -48,14 +49,14 @@ class IngredientControllerTest {
 
     @Test
     @DisplayName("delete成功")
-    void testDelete() {
+    void testDelete_Success() {
         assertDoesNotThrow(() -> controller.delete(1L));
         verify(ingredientService).delete(1L);
     }
 
     @Test
     @DisplayName("batchAdd返回ids")
-    void testBatchAdd() {
+    void testBatchAdd_ReturnsIds() {
         IngredientBatchAddRequestDTO req = new IngredientBatchAddRequestDTO();
         when(ingredientService.batchAdd(req)).thenReturn(List.of(1L, 2L));
 
@@ -64,14 +65,14 @@ class IngredientControllerTest {
 
     @Test
     @DisplayName("expiringNotice返回提醒")
-    void testExpiringNotice() {
+    void testExpiringNotice_ReturnsNotice() {
         when(ingredientService.expiringNotice()).thenReturn(ExpiringNoticeResponseDTO.builder().build());
         assertEquals(200, controller.expiringNotice().getCode());
     }
 
     @Test
     @DisplayName("commonList返回常用食材")
-    void testCommonList() {
+    void testCommonList_ReturnsList() {
         when(ingredientService.commonList()).thenReturn(CommonIngredientResponseDTO.builder().build());
         assertEquals(200, controller.commonList().getCode());
     }

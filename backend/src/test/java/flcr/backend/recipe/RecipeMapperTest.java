@@ -17,6 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @ActiveProfiles("dev")
 @Transactional
+@DisplayName("菜谱Mapper测试")
 class RecipeMapperTest {
 
     @Autowired
@@ -24,7 +25,7 @@ class RecipeMapperTest {
 
     @Test
     @DisplayName("测试插入菜谱")
-    void testInsert() {
+    void testInsert_Success() {
         Recipe recipe = buildRecipe("测试菜谱");
         int result = recipeMapper.insert(recipe);
 
@@ -34,7 +35,7 @@ class RecipeMapperTest {
 
     @Test
     @DisplayName("测试根据ID查询")
-    void testSelectById() {
+    void testSelectById_Success() {
         Recipe recipe = buildRecipe("查询测试");
         recipeMapper.insert(recipe);
 
@@ -45,7 +46,7 @@ class RecipeMapperTest {
 
     @Test
     @DisplayName("测试按分类查询")
-    void testSelectByCategory() {
+    void testSelectByCategory_ReturnsByCategory() {
         Recipe r1 = buildRecipe("家常测试1");
         r1.setCategory("家常菜");
         recipeMapper.insert(r1);
@@ -63,7 +64,7 @@ class RecipeMapperTest {
 
     @Test
     @DisplayName("测试更新")
-    void testUpdate() {
+    void testUpdate_Success() {
         Recipe recipe = buildRecipe("原始名称");
         recipeMapper.insert(recipe);
 
@@ -77,7 +78,7 @@ class RecipeMapperTest {
 
     @Test
     @DisplayName("测试删除")
-    void testDelete() {
+    void testDelete_Success() {
         Recipe recipe = buildRecipe("待删除");
         recipeMapper.insert(recipe);
 

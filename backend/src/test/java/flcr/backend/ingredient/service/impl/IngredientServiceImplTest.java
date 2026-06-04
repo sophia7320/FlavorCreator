@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@DisplayName("食材服务实现测试")
 class IngredientServiceImplTest {
 
     @Mock private IngredientMapper ingredientMapper;
@@ -166,7 +167,7 @@ class IngredientServiceImplTest {
 
     @Test
     @DisplayName("expiringNotice区分临期和过期")
-    void testExpiringNotice() {
+    void testExpiringNotice_DistinguishesExpiringAndExpired() {
         Ingredient expiring = buildIngredient(1L, "牛奶");
         expiring.setExpireDate(LocalDate.now().plusDays(2)); // 临期
         Ingredient expired = buildIngredient(2L, "青菜");
@@ -184,7 +185,7 @@ class IngredientServiceImplTest {
 
     @Test
     @DisplayName("commonList返回分类分组")
-    void testCommonList() {
+    void testCommonList_ReturnsGroupedByCategory() {
         CommonIngredient tomato = new CommonIngredient();
         tomato.setCategory("蔬菜"); tomato.setName("西红柿"); tomato.setDefaultUnit("个");
         CommonIngredient pork = new CommonIngredient();

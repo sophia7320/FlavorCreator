@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @ActiveProfiles("dev")
 @Transactional
+@DisplayName("食材Mapper测试")
 class IngredientMapperTest {
 
     @Autowired
@@ -27,7 +28,7 @@ class IngredientMapperTest {
 
     @Test
     @DisplayName("测试插入食材")
-    void testInsert() {
+    void testInsert_Success() {
         Ingredient ingredient = buildIngredient("鸡蛋", "蛋类", 6, "个", LocalDate.now().plusDays(14));
         int result = ingredientMapper.insert(ingredient);
 
@@ -38,7 +39,7 @@ class IngredientMapperTest {
 
     @Test
     @DisplayName("测试根据ID查询食材")
-    void testSelectById() {
+    void testSelectById_Success() {
         Ingredient ingredient = buildIngredient("牛奶", "乳制品", 1, "盒", LocalDate.now().plusDays(5));
         ingredientMapper.insert(ingredient);
 
@@ -51,7 +52,7 @@ class IngredientMapperTest {
 
     @Test
     @DisplayName("测试更新食材")
-    void testUpdateById() {
+    void testUpdateById_Success() {
         Ingredient ingredient = buildIngredient("西红柿", "蔬菜", 3, "个", LocalDate.now().plusDays(7));
         ingredientMapper.insert(ingredient);
 
@@ -69,7 +70,7 @@ class IngredientMapperTest {
 
     @Test
     @DisplayName("测试删除食材")
-    void testDeleteById() {
+    void testDeleteById_Success() {
         Ingredient ingredient = buildIngredient("待删除食材", "其他", 1, "份", null);
         ingredientMapper.insert(ingredient);
         Long id = ingredient.getId();
@@ -84,7 +85,7 @@ class IngredientMapperTest {
 
     @Test
     @DisplayName("测试批量插入食材")
-    void testBatchInsert() {
+    void testBatchInsert_Success() {
         Long userId = 10001L;
         for (int i = 0; i < 3; i++) {
             Ingredient ingredient = buildIngredient("批量食材" + (i + 1), "蔬菜", i + 1, "个", LocalDate.now().plusDays(i + 5));
@@ -102,7 +103,7 @@ class IngredientMapperTest {
 
     @Test
     @DisplayName("测试根据用户ID查询食材")
-    void testSelectByUserId() {
+    void testSelectByUserId_ReturnsUserIngredients() {
         Long userId = 20001L;
         Ingredient i1 = buildIngredient("苹果", "水果", 5, "个", LocalDate.now().plusDays(10));
         i1.setUserId(userId);
@@ -121,7 +122,7 @@ class IngredientMapperTest {
 
     @Test
     @DisplayName("测试根据分类查询食材")
-    void testSelectByCategory() {
+    void testSelectByCategory_ReturnsByCategory() {
         Long userId = 30001L;
         Ingredient i1 = buildIngredient("猪肉", "肉类", 500, "克", LocalDate.now().plusDays(3));
         i1.setUserId(userId);
@@ -142,7 +143,7 @@ class IngredientMapperTest {
 
     @Test
     @DisplayName("测试按保质期升序排序")
-    void testOrderByExpireDateAsc() {
+    void testOrderByExpireDateAsc_SortsByExpiry() {
         Long userId = 40001L;
         Ingredient i1 = buildIngredient("临期食材", "乳制品", 1, "盒", LocalDate.now().plusDays(1));
         i1.setUserId(userId);
@@ -163,7 +164,7 @@ class IngredientMapperTest {
 
     @Test
     @DisplayName("测试计数查询")
-    void testCount() {
+    void testCount_ReturnsCorrectCount() {
         Long userId = 50001L;
         long before = ingredientMapper.selectCount(
                 new LambdaQueryWrapper<Ingredient>().eq(Ingredient::getUserId, userId));

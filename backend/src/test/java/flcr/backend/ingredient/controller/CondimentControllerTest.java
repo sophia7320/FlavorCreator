@@ -13,6 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@DisplayName("调味品控制器测试")
 class CondimentControllerTest {
 
     @Mock private IngredientService ingredientService;
@@ -20,7 +21,7 @@ class CondimentControllerTest {
 
     @Test
     @DisplayName("list设置category为调味品")
-    void testList() {
+    void testList_SetsCategoryToCondiment() {
         IngredientListRequestDTO query = new IngredientListRequestDTO();
         when(ingredientService.list(any())).thenReturn(IngredientListResponseDTO.builder().build());
 
@@ -30,7 +31,7 @@ class CondimentControllerTest {
 
     @Test
     @DisplayName("add设置category为调味品")
-    void testAdd() {
+    void testAdd_SetsCategoryToCondiment() {
         IngredientAddRequestDTO req = new IngredientAddRequestDTO();
         when(ingredientService.add(req)).thenReturn(1L);
 
@@ -40,7 +41,7 @@ class CondimentControllerTest {
 
     @Test
     @DisplayName("add返回id")
-    void testAddReturnId() {
+    void testAdd_ReturnsId() {
         IngredientAddRequestDTO req = new IngredientAddRequestDTO();
         when(ingredientService.add(req)).thenReturn(5L);
 

@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@DisplayName("菜谱控制器测试")
 class RecipeControllerTest {
 
     @Mock private RecipeService recipeService;
@@ -30,7 +31,7 @@ class RecipeControllerTest {
 
     @Test
     @DisplayName("发布菜谱成功返回id")
-    void testPublishRecipe() {
+    void testPublishRecipe_ReturnsId() {
         MultipartFile cover = mock(MultipartFile.class);
         List<MultipartFile> images = List.of(mock(MultipartFile.class));
         when(recipeService.publishRecipe(any(), eq(cover), eq(images))).thenReturn(1L);
@@ -49,7 +50,7 @@ class RecipeControllerTest {
 
     @Test
     @DisplayName("菜谱列表返回分页")
-    void testGetRecipeList() {
+    void testGetRecipeList_ReturnsPage() {
         Page<RecipeListItemResponseDTO> page = new Page<>(1, 20);
         when(recipeService.getRecipeList(any())).thenReturn(page);
 
@@ -58,7 +59,7 @@ class RecipeControllerTest {
 
     @Test
     @DisplayName("菜谱详情返回")
-    void testGetRecipeDetail() {
+    void testGetRecipeDetail_ReturnsDetail() {
         RecipeDetailResponseDTO detail = RecipeDetailResponseDTO.builder().id(1L).name("测试").build();
         when(recipeService.getRecipeDetail(1L)).thenReturn(detail);
 

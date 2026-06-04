@@ -13,6 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@DisplayName("刷新令牌服务实现测试")
 class RefreshTokenServiceImplTest {
 
     @Mock private org.springframework.data.redis.core.StringRedisTemplate redisTemplate;
@@ -33,7 +34,7 @@ class RefreshTokenServiceImplTest {
 
     @Test
     @DisplayName("store 将数据写入 Redis，TTL 为 30 天")
-    void testStore() {
+    void testStore_Success() {
         refreshTokenService.store(USER_ID, OPENID, REFRESH_TOKEN);
 
         verify(valueOperations).set(
@@ -70,7 +71,7 @@ class RefreshTokenServiceImplTest {
 
     @Test
     @DisplayName("delete 删除 Redis key")
-    void testDelete() {
+    void testDelete_Success() {
         refreshTokenService.delete(REFRESH_TOKEN);
 
         verify(redisTemplate).delete("rt:" + REFRESH_TOKEN);

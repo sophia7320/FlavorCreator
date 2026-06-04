@@ -56,7 +56,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         String openid = sessionResult.getOpenid();
         String unionid = sessionResult.getUnionid();
-        log.info("微信登录成功，openid: {}, unionid: {}", openid, unionid);
+        log.info("微信登录成功");
 
         // 2. 查询或创建用户
         UserWithStatus userWithStatus = getOrCreateUser(openid, unionid, request);
@@ -73,7 +73,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return LoginResponseDTO.builder()
                 .token(token)
                 .refreshToken(refreshToken)
-                .expiresIn(300L)
+                .expiresIn(jwtTokenUtil.getExpiration() / 1000)
                 .isNewUser(isNewUser)
                 .user(LoginResponseDTO.UserInfo.builder()
                         .id((long) user.getId())
@@ -85,6 +85,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 .build();
     }
 
+    @Transactional
     @Override
     public LoginResponseDTO refreshToken(String refreshTokenStr) {
         if (refreshTokenStr == null || refreshTokenStr.isEmpty()) {
@@ -113,7 +114,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return LoginResponseDTO.builder()
                 .token(newToken)
                 .refreshToken(newRefreshToken)
-                .expiresIn(300L)
+                .expiresIn(jwtTokenUtil.getExpiration() / 1000)
                 .needBindPhone(false)
                 .isNewUser(false)
                 .user(LoginResponseDTO.UserInfo.builder()

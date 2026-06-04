@@ -15,6 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@DisplayName("用户控制器测试")
 class UserControllerTest {
 
     @Mock private UserService userService;
@@ -37,7 +38,7 @@ class UserControllerTest {
 
     @Test
     @DisplayName("刷新Token成功")
-    void testRefresh_Success() {
+    void testRefreshToken_ReturnsNewToken() {
         RefreshTokenRequestDTO request = new RefreshTokenRequestDTO();
         request.setRefreshToken("old_refresh");
 

@@ -29,6 +29,13 @@ public class JwtTokenUtil {
     private long refreshExpiration; // 默认 7 天
 
     /**
+     * 获取访问令牌过期时间（毫秒）。
+     */
+    public long getExpiration() {
+        return expiration;
+    }
+
+    /**
      * 生成访问令牌
      * @param userId 用户 ID
      * @param openid 用户 openid

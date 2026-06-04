@@ -17,6 +17,9 @@ public class AuthInterceptor implements HandlerInterceptor {
 
     private final JwtTokenUtil jwtTokenUtil;
 
+    private static final String AUTH_HEADER_PREFIX = "Bearer ";
+    private static final int AUTH_HEADER_PREFIX_LENGTH = AUTH_HEADER_PREFIX.length();
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         if (!(handler instanceof HandlerMethod hm)) {
@@ -60,8 +63,8 @@ public class AuthInterceptor implements HandlerInterceptor {
 
     private String extractToken(HttpServletRequest request) {
         String header = request.getHeader("Authorization");
-        if (header != null && header.startsWith("Bearer ")) {
-            return header.substring(7);
+        if (header != null && header.startsWith(AUTH_HEADER_PREFIX)) {
+            return header.substring(AUTH_HEADER_PREFIX_LENGTH);
         }
         return null;
     }

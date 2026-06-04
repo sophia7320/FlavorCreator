@@ -2,7 +2,9 @@ package flcr.backend.recipe.DTO.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Positive;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -26,9 +28,11 @@ public class RecipeGenerateRequestDTO {
     @NoArgsConstructor
     @Schema(description = "食材详情")
     public static class Ingredient {
+        @NotBlank(message = "食材名称不能为空")
         @Schema(description = "食材名称", example = "鸡蛋")
         private String name;
 
+        @Positive(message = "食材数量必须为正数")
         @Schema(description = "食材数量", example = "3")
         private Integer quantity;
 

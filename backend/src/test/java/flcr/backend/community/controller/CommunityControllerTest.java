@@ -15,6 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@DisplayName("社区控制器测试")
 class CommunityControllerTest {
 
     @Mock private CommunityService communityService;
@@ -22,7 +23,7 @@ class CommunityControllerTest {
 
     @Test
     @DisplayName("点赞返回状态")
-    void testLikeRecipe() {
+    void testLikeRecipe_Success() {
         LikeCollectResponseDTO rsp = LikeCollectResponseDTO.builder().isLiked(true).likeCount(1).build();
         when(communityService.likeRecipe(1L)).thenReturn(rsp);
 
@@ -31,7 +32,7 @@ class CommunityControllerTest {
 
     @Test
     @DisplayName("取消点赞")
-    void testUnlikeRecipe() {
+    void testUnlikeRecipe_Success() {
         LikeCollectResponseDTO rsp = LikeCollectResponseDTO.builder().isLiked(false).build();
         when(communityService.unlikeRecipe(1L)).thenReturn(rsp);
 
@@ -40,7 +41,7 @@ class CommunityControllerTest {
 
     @Test
     @DisplayName("收藏返回状态")
-    void testCollectRecipe() {
+    void testCollectRecipe_Success() {
         LikeCollectResponseDTO rsp = LikeCollectResponseDTO.builder().isCollected(true).collectionCount(1).build();
         when(communityService.collectRecipe(1L)).thenReturn(rsp);
 
@@ -49,14 +50,14 @@ class CommunityControllerTest {
 
     @Test
     @DisplayName("评论列表返回")
-    void testGetComments() {
+    void testGetComments_ReturnsPage() {
         when(communityService.getComments(1L, 1, 20)).thenReturn(List.of());
         assertEquals(200, controller.getComments(1L, 1, 20).getCode());
     }
 
     @Test
     @DisplayName("发表评论成功")
-    void testAddComment() {
+    void testAddComment_Success() {
         CommentRequestDTO req = new CommentRequestDTO();
         req.setContent("好菜谱");
         CommentResponseDTO rsp = CommentResponseDTO.builder().content("好菜谱").build();
@@ -67,7 +68,7 @@ class CommunityControllerTest {
 
     @Test
     @DisplayName("删除评论成功")
-    void testDeleteComment() {
+    void testDeleteComment_Success() {
         assertDoesNotThrow(() -> controller.deleteComment(1L));
         verify(communityService).deleteComment(1L);
     }

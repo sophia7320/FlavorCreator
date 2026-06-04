@@ -84,6 +84,7 @@ public class UserInfoServiceImpl implements UserInfoService {
         return buildResponse(user, userId);
     }
 
+    @Transactional
     @Override
     public String uploadAvatar(MultipartFile file) {
         Long userId = UserContext.getUserId();
@@ -99,6 +100,7 @@ public class UserInfoServiceImpl implements UserInfoService {
         return avatarUrl;
     }
 
+    @Transactional
     @Override
     public String uploadBackground(MultipartFile file) {
         Long userId = UserContext.getUserId();
@@ -156,7 +158,6 @@ public class UserInfoServiceImpl implements UserInfoService {
 
         return UserInfoResponseDTO.builder()
                 .id((long) user.getId())
-                .openid(user.getOpenid())
                 .nickname(user.getNickname())
                 .avatar(user.getAvatar())
                 .background(user.getBackground())

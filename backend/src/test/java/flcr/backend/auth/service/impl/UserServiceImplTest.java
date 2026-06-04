@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@DisplayName("用户服务实现测试")
 class UserServiceImplTest {
 
     @Mock private WxMaService wxMaService;
@@ -134,7 +135,7 @@ class UserServiceImplTest {
 
         when(userMapper.selectById(USER_ID)).thenReturn(user);
         when(jwtTokenUtil.generateToken(USER_ID, TEST_OPENID)).thenReturn("new_token");
-
+        when(jwtTokenUtil.getExpiration()).thenReturn(300000L);
         LoginResponseDTO result = userService.refreshToken("old_refresh");
 
         assertEquals("new_token", result.getToken());

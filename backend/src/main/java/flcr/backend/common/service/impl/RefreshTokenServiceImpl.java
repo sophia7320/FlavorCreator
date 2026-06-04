@@ -2,6 +2,8 @@ package flcr.backend.common.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import flcr.backend.common.constants.ResultCode;
+import flcr.backend.common.exception.BusinessException;
 import flcr.backend.common.service.RefreshTokenService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +35,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
             log.info("RefreshToken 已存储，userId={}", userId);
         } catch (JsonProcessingException e) {
             log.error("RefreshToken 数据序列化失败", e);
+            throw new BusinessException(ResultCode.SYSTEM_ERROR, "RefreshToken 数据序列化失败");
         }
     }
 

@@ -35,6 +35,7 @@ import static org.mockito.Mockito.*;
 
 @MockitoSettings(strictness = Strictness.LENIENT)
 @ExtendWith(MockitoExtension.class)
+@DisplayName("菜谱服务实现测试")
 class RecipeServiceImplTest {
 
     @BeforeAll
@@ -103,7 +104,7 @@ class RecipeServiceImplTest {
 
     @Test
     @DisplayName("getRecipeList按分类返回")
-    void testGetRecipeList() throws Exception {
+    void testGetRecipeList_ReturnsPageByCategory() throws Exception {
         Recipe recipe = buildRecipe(1L);
         recipe.setTags("[\"家常菜\"]");
         Page<Recipe> page = new Page<>(1, 20);
