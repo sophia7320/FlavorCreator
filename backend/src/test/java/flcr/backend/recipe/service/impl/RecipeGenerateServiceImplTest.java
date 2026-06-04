@@ -199,4 +199,25 @@ class RecipeGenerateServiceImplTest {
 
         return request;
     }
+
+    @Test
+    @DisplayName("LLM 返回带前缀文字的 JSON 通过正则提取解析")
+    void testGenerateRecipe_NonJsonPrefix() throws Exception {
+        RecipeGenerateRequestDTO request = buildBasicRequest();
+        String llmWithPrefix = "好的，以下是为您生成的食谱：\n{\"recipe\":{\"name\":\"番茄炒蛋\"}}";
+        RecipeGenerateResponseDTO expected = RecipeGenerateResponseDTO.builder()
+                .recipe(RecipeGenerateResponseDTO.RecipeDetail.builder().name("番茄炒蛋").build())
+                .build();
+
+        when(llmClient.generateRecipeJson(anyString())).thenReturn(llmWithPrefix);
+        when(objectMapper.readValue(llmWithPrefix.replace("```json", "").replace("```", "").trim(), RecipeGenerateResponseDTO.class))
+                .thenThrow(new JsonProcessingException("prefix") {});
+        when(objectMapper.readValue("{\"recipe\":{\"name\":\"番茄炒蛋\"}}", RecipeGenerateResponseDTO.class))
+                .thenReturn(expected);
+
+        RecipeGenerateResponseDTO result = service.generateRecipe(request);
+
+        assertNotNull(result);
+        assertEquals("番茄炒蛋", result.getRecipe().getName());
+    }
 }

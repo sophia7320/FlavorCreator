@@ -1,5 +1,7 @@
 package flcr.backend.recipe.service.impl;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import flcr.backend.common.constants.ResultCode;
@@ -59,7 +61,13 @@ public class RecipeGenerateServiceImpl implements RecipeGenerateService {
                 "可用食材：\n%s\n" +
                 "食谱要求：\n%s\n\n" +
                 "请根据以上食材和要求，提供一份最佳食谱。\n\n" +
-                "【极其重要】你必须且只能返回一个纯 JSON 格式的数据，不要包含任何 markdown 标记（如 ```json）或其他多余文字。\n" +
+                "【输出格式铁律】\n" +
+                "你的回复必须以 { 开头、以 } 结尾，前后没有任何其他字符。\n" +
+                "以下回复都是错误的，会导致解析失败：\n" +
+                "  ✗ \"好的，以下是为您生成的食谱：{...}\"\n" +
+                "  ✗ \"```json\\n{...}\\n```\"\n" +
+                "  ✗ \"{...}希望您喜欢！\"\n" +
+                "正确做法：整个回复就是一个裸 JSON，如 {\"recipe\":{...}}\n\n" +
                 "返回的 JSON 必须严格符合以下结构及类型：\n" +
                 "{\"recipe\": {\"name\": \"菜谱名\", " +
                 "\"ingredients\": [{\"name\": \"食材名\", \"quantity\": 3, \"unit\": \"个\"}], " +
@@ -71,18 +79,21 @@ public class RecipeGenerateServiceImpl implements RecipeGenerateService {
                 "- calories: 纯数字，不要带\"大卡\"、\"kcal\"等单位。正确: 280  错误: \"280大卡\"\n" +
                 "- quantity: 纯数字，不要带单位。正确: 3  错误: \"3个\"\n" +
                 "- order: 纯数字，不要带\"步骤\"等前缀。正确: 1  错误: \"步骤1\"\n\n" +
+                "【食材原则】\n" +
+                "基础调料（油、盐、酱油、醋、糖、料酒、葱、姜、蒜、辣椒、花椒、淀粉）默认可用，无需在食材列表中列出。\n" +
+                "请尽量使用用户提供的主要食材设计菜谱，非必要不增加额外主要食材。\n" +
+                "如确需补充主要食材，在 tags 中标注 \"AI 补充食材\"。\n\n" +
                 "【注意事项】\n" +
                 "1. 必须严格考虑食材的相冲规则，避免推荐相克食材的搭配。\n" +
                 "2. 如果用户的问题与食谱产品无关，请礼貌拒绝并引导回正题。\n" +
                 "3. 严禁讨论政治、娱乐、编程、其他竞品等无关话题。\n" +
-                "4. 你的回答必须精炼，不要包含冗长的额外说明。\n" +
-                "5. 你只能使用已有的食材。如果现有食材不能满足食谱所需，你可以自创食谱，但需要在 tags 标签中加入 \"AI自创仅供参考\"。\n\n" +
-                "如果食材不足或包含非食材，请返回：" +
+                "4. 如果食材不足或包含非食材，请返回：" +
                 "{\"recipe\": {\"name\": \"食材输入有误\", \"ingredients\": [], \"steps\": [], " +
                 "\"cookTime\": 0, \"difficulty\": \"\", \"calories\": 0, \"tags\": []}}",
-                ingredientsBuilder.toString(), preferencesFormatted
-        );
+                ingredientsBuilder.toString(), preferencesFormatted);
     }
+
+    private static final Pattern JSON_BLOCK = Pattern.compile("\\{.*}", Pattern.DOTALL);
 
     private RecipeGenerateResponseDTO parseResponse(String llmJsonResponse) {
         try {
@@ -92,6 +103,14 @@ public class RecipeGenerateServiceImpl implements RecipeGenerateService {
                     .trim();
             return objectMapper.readValue(cleanJson, RecipeGenerateResponseDTO.class);
         } catch (JsonProcessingException e) {
+            // 兜底：正则提取第一个 { 到最后一个 } 之间的 JSON
+            Matcher m = JSON_BLOCK.matcher(llmJsonResponse);
+            if (m.find()) {
+                try {
+                    return objectMapper.readValue(m.group(), RecipeGenerateResponseDTO.class);
+                } catch (JsonProcessingException ignored) {
+                }
+            }
             log.error("Failed to parse LLM JSON response: {}", llmJsonResponse, e);
             throw new BusinessException(ResultCode.SYSTEM_ERROR, "AI生成格式解析失败");
         }
