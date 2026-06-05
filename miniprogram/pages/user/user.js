@@ -45,10 +45,11 @@ Page({
 
     const page = isRefresh ? 1 : this.data.page
 
-    // 通过关键词搜索来获取该用户的菜谱
-    request(API_CONFIG.community.list, {
+    // 获取指定用户的已发布菜谱
+    request(API_CONFIG.userCenter.published, {
       page,
-      size: this.data.pageSize
+      size: this.data.pageSize,
+      userId: this.data.userId
     }, { showLoading: false })
       .then(res => {
         const list = res.data.list || res.data || []

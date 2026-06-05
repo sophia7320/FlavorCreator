@@ -22,11 +22,11 @@ App({
     wx.setStorageSync('userInfo', userInfo)
 
     // 记录 token 过期时间，提前 60 秒视为过期留缓冲
-    if (expiresIn) {
-      const expiresAt = Date.now() + (expiresIn - 60) * 1000
-      wx.setStorageSync('tokenExpiresAt', expiresAt)
-      this.globalData.tokenExpiresAt = expiresAt
-    }
+    // 如果后端没返回 expiresIn，使用默认值 7200 秒（2小时）
+    const validExpiresIn = expiresIn || 7200
+    const expiresAt = Date.now() + (validExpiresIn - 60) * 1000
+    wx.setStorageSync('tokenExpiresAt', expiresAt)
+    this.globalData.tokenExpiresAt = expiresAt
 
     this.globalData.token = token
     this.globalData.refreshToken = refreshToken

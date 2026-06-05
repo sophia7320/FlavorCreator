@@ -30,6 +30,7 @@ function hideLoading() {
 // Token 刷新相关状态
 let isRefreshing = false
 let refreshQueue = []
+let isRetrying = false  // 标记是否正在重试队列中的请求，避免重试时再次触发静默刷新
 
 /**
  * 检查是否是刷新 token 的请求路径
@@ -59,6 +60,11 @@ function doRefreshToken() {
  * 处理刷新后的请求队列
  */
 function processRefreshQueue(success) {
+  isRetrying = true  // 标记正在重试，避免重试时再次触发静默刷新
+
+  // 提前判断是否需要通知用户（在清空队列之前）
+  const shouldNotify = !success && refreshQueue.some(({ options }) => options.showError !== false)
+
   refreshQueue.forEach(({ apiConfig, data, options, resolve, reject, isCloud }) => {
     if (success) {
       const requestFn = isCloud ? cloudRequest : directRequest
@@ -73,7 +79,12 @@ function processRefreshQueue(success) {
   refreshQueue = []
   isRefreshing = false
 
-  if (!success) {
+  // 延迟重置 isRetrying，确保重试请求已完成
+  setTimeout(() => {
+    isRetrying = false
+  }, 100)
+
+  if (shouldNotify) {
     wx.showToast({ title: '登录已过期', icon: 'none' })
     setTimeout(() => {
       wx.reLaunch({ url: '/pages/phone-number-login/login' })
@@ -98,7 +109,8 @@ function isTokenExpiringSoon() {
   const expiresAt = app.globalData.tokenExpiresAt
                  || wx.getStorageSync('tokenExpiresAt')
                  || 0
-  return expiresAt > 0 && Date.now() >= expiresAt
+  // 提前 5 分钟视为即将过期，留出缓冲时间
+  return expiresAt > 0 && Date.now() >= (expiresAt - 5 * 60 * 1000)
 }
 
 /**
@@ -110,26 +122,50 @@ function isTokenExpiringSoon() {
 function cloudRequest(apiConfig, data = {}, options = {}) {
   const { showLoading: needLoading = true, showError = true } = options
 
-  // 主动刷新：非刷新请求本身，且 token 即将过期时静默刷新
-  if (!isRefreshPath(apiConfig) && isTokenExpiringSoon()) {
-    if (!isRefreshing) {
-      isRefreshing = true
-      const app = getApp()
-      app.silentRefreshToken()
-        .then((success) => {
-          if (success) {
-            processRefreshQueue(true)
-          } else {
-            isRefreshing = false
-          }
-        })
-        .catch(() => {
-          isRefreshing = false
-        })
-    }
-  }
-
   return new Promise((resolve, reject) => {
+    // 主动刷新：非刷新请求本身、非重试中，且 token 即将过期时静默刷新
+    if (!isRefreshPath(apiConfig) && !isRetrying && isTokenExpiringSoon()) {
+      if (!isRefreshing) {
+        isRefreshing = true
+        // 将当前请求加入队列，等待刷新完成后重试
+        refreshQueue.push({ apiConfig, data, options, resolve, reject, isCloud: true })
+        const app = getApp()
+        app.silentRefreshToken()
+          .then((success) => {
+            if (success) {
+              processRefreshQueue(true)
+            } else {
+              // 静默刷新失败，放行队列请求让服务端判 401
+              isRefreshing = false
+              isRetrying = true
+              const pending = refreshQueue.splice(0)
+              pending.forEach(({ apiConfig: cfg, data: d, options: opt, resolve: r, reject: j, isCloud: ic }) => {
+                const fn = ic ? cloudRequest : directRequest
+                fn(cfg, d, opt).then(r).catch(j)
+              })
+              setTimeout(() => { isRetrying = false }, 100)
+            }
+          })
+          .catch(() => {
+            // 静默刷新异常，同样放行队列请求
+            isRefreshing = false
+            isRetrying = true
+            const pending = refreshQueue.splice(0)
+            pending.forEach(({ apiConfig: cfg, data: d, options: opt, resolve: r, reject: j, isCloud: ic }) => {
+              const fn = ic ? cloudRequest : directRequest
+              fn(cfg, d, opt).then(r).catch(j)
+            })
+            setTimeout(() => { isRetrying = false }, 100)
+          })
+        // 直接 return，不执行后续请求逻辑，等待刷新完成后重试
+        return
+      } else {
+        // 已经在刷新中，将当前请求加入队列等待
+        refreshQueue.push({ apiConfig, data, options, resolve, reject, isCloud: true })
+        return
+      }
+    }
+
     if (needLoading) {
       showLoading()
     }
@@ -197,6 +233,32 @@ function handleResponse(res, resolve, reject, showError, apiConfig, data, option
   if (res.statusCode === 200) {
     if (res.data.code === 0 || res.data.code === 200) {
       resolve(res.data)
+    } else if (res.data.code === 401) {
+      // 业务 code 401：token 过期，与 HTTP 401 同样处理
+      if (isRefreshPath(apiConfig)) {
+        // 刷新请求本身返回 401，说明 refreshToken 也过期了
+        if (showError) {
+          wx.showToast({
+            title: '登录已过期，请重新登录',
+            icon: 'none'
+          })
+          setTimeout(() => {
+            wx.reLaunch({
+              url: '/pages/phone-number-login/login'
+            })
+          }, 1500)
+        }
+        reject(res.data)
+        return
+      }
+
+      // 将当前请求加入重试队列，等待 token 刷新后重试
+      refreshQueue.push({ apiConfig, data, options, resolve, reject, isCloud })
+
+      if (!isRefreshing) {
+        doRefreshToken()
+      }
+      // 不调用 reject/resolve，等待刷新完成后处理
     } else {
       if (showError) {
         wx.showToast({
@@ -207,19 +269,19 @@ function handleResponse(res, resolve, reject, showError, apiConfig, data, option
       reject(res.data)
     }
   } else if (res.statusCode === 401) {
-    // 如果是刷新 token 请求本身返回 401，说明 refreshToken 也过期了
+    // HTTP 401：token 过期（兜底兼容）
     if (isRefreshPath(apiConfig)) {
       if (showError) {
         wx.showToast({
-          title: '登录已过期',
+          title: '登录已过期，请重新登录',
           icon: 'none'
         })
+        setTimeout(() => {
+          wx.reLaunch({
+            url: '/pages/phone-number-login/login'
+          })
+        }, 1500)
       }
-      setTimeout(() => {
-        wx.reLaunch({
-          url: '/pages/phone-number-login/login'
-        })
-      }, 1500)
       reject(res)
       return
     }
@@ -266,6 +328,49 @@ function directRequest(apiConfig, data = {}, options = {}) {
   const { showLoading: needLoading = true, showError = true } = options
 
   return new Promise((resolve, reject) => {
+    // 主动刷新：非刷新请求本身、非重试中，且 token 即将过期时静默刷新
+    if (!isRefreshPath(apiConfig) && !isRetrying && isTokenExpiringSoon()) {
+      if (!isRefreshing) {
+        isRefreshing = true
+        // 将当前请求加入队列，等待刷新完成后重试
+        refreshQueue.push({ apiConfig, data, options, resolve, reject, isCloud: false })
+        const app = getApp()
+        app.silentRefreshToken()
+          .then((success) => {
+            if (success) {
+              processRefreshQueue(true)
+            } else {
+              // 静默刷新失败，放行队列请求让服务端判 401
+              isRefreshing = false
+              isRetrying = true
+              const pending = refreshQueue.splice(0)
+              pending.forEach(({ apiConfig: cfg, data: d, options: opt, resolve: r, reject: j, isCloud: ic }) => {
+                const fn = ic ? cloudRequest : directRequest
+                fn(cfg, d, opt).then(r).catch(j)
+              })
+              setTimeout(() => { isRetrying = false }, 100)
+            }
+          })
+          .catch(() => {
+            // 静默刷新异常，同样放行队列请求
+            isRefreshing = false
+            isRetrying = true
+            const pending = refreshQueue.splice(0)
+            pending.forEach(({ apiConfig: cfg, data: d, options: opt, resolve: r, reject: j, isCloud: ic }) => {
+              const fn = ic ? cloudRequest : directRequest
+              fn(cfg, d, opt).then(r).catch(j)
+            })
+            setTimeout(() => { isRetrying = false }, 100)
+          })
+        // 直接 return，不执行后续请求逻辑，等待刷新完成后重试
+        return
+      } else {
+        // 已经在刷新中，将当前请求加入队列等待
+        refreshQueue.push({ apiConfig, data, options, resolve, reject, isCloud: false })
+        return
+      }
+    }
+
     if (needLoading) {
       showLoading()
     }

@@ -95,6 +95,8 @@ Page({
             const data = JSON.parse(res.data)
             if (data.code === 0 || data.code === 200) {
               resolve(data.data || data.url)
+            } else if (data.code === 401) {
+              reject({ code: 401, message: '登录已过期' })
             } else {
               reject(data.message || '上传失败')
             }
@@ -132,7 +134,11 @@ Page({
           })
           .catch(err => {
             console.error('头像更新失败', err)
-            wx.showToast({ title: typeof err === 'string' ? err : '头像更新失败', icon: 'none' })
+            if (err && err.code === 401) {
+              wx.showToast({ title: '登录已过期，请重新登录', icon: 'none' })
+            } else {
+              wx.showToast({ title: typeof err === 'string' ? err : '头像更新失败', icon: 'none' })
+            }
           })
       }
     })
@@ -154,6 +160,11 @@ Page({
       })
       .catch(err => {
         console.error('更新失败', err)
+        if (err && err.code === 401) {
+          wx.showToast({ title: '登录已过期，请重新登录', icon: 'none' })
+        } else {
+          wx.showToast({ title: '更新失败，请稍后重试', icon: 'none' })
+        }
       })
   },
 
@@ -224,11 +235,16 @@ Page({
     })
   },
 
-  // 地区选择器回调
+  // 地区选择器回调（500ms 防抖）
   onRegionChange(e) {
     const region = e.detail.value  // ['广东省', '广州市', '天河区']
     const regionStr = region.join(' ')
-    this.submitFieldUpdate('region', regionStr)
+
+    if (this._regionTimer) clearTimeout(this._regionTimer)
+    this._regionTimer = setTimeout(() => {
+      this.submitFieldUpdate('region', regionStr)
+      this._regionTimer = null
+    }, 500)
   },
 
   // 选择背景图
@@ -246,12 +262,18 @@ Page({
             return request(API_CONFIG.user.uploadBackground, { background: imageUrl }, { showLoading: true })
           })
           .then(() => {
-            wx.showToast({ title: '背景图更新成功', icon: 'success' })
             return that.fetchUserInfo()
+          })
+          .then(() => {
+            wx.showToast({ title: '背景图更新成功', icon: 'success' })
           })
           .catch(err => {
             console.error('背景图更新失败', err)
-            wx.showToast({ title: typeof err === 'string' ? err : '背景图更新失败', icon: 'none' })
+            if (err && err.code === 401) {
+              wx.showToast({ title: '登录已过期，请重新登录', icon: 'none' })
+            } else {
+              wx.showToast({ title: typeof err === 'string' ? err : '背景图更新失败', icon: 'none' })
+            }
           })
       }
     })
