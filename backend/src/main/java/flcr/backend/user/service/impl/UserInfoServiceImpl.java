@@ -18,8 +18,6 @@ import flcr.backend.common.constants.ResultCode;
 import flcr.backend.common.context.UserContext;
 import flcr.backend.common.exception.BusinessException;
 import flcr.backend.common.service.ImageUploadService;
-import flcr.backend.community.mapper.CollectionMapper;
-import flcr.backend.community.mapper.LikeMapper;
 import flcr.backend.recipe.entity.Recipe;
 import flcr.backend.recipe.mapper.RecipeMapper;
 import flcr.backend.user.DTO.request.UpdateUserInfoRequestDTO;
@@ -33,8 +31,6 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     private final UserMapper userMapper;
     private final RecipeMapper recipeMapper;
-    private final LikeMapper likeMapper;
-    private final CollectionMapper collectionMapper;
     private final ObjectMapper objectMapper;
     private final ImageUploadService imageUploadService;
 
