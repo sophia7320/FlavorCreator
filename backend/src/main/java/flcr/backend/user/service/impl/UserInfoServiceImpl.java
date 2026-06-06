@@ -65,11 +65,14 @@ public class UserInfoServiceImpl implements UserInfoService {
         if (request.getSignature() != null) {
             user.setSignature(request.getSignature());
         }
-        if (request.getBackground() != null) {
+        if (request.getBackground() != null) { 
             user.setBackground(request.getBackground());
         }
         if (request.getGender() != null) {
             user.setGender(request.getGender());
+        }
+        if (request.getAdvator() != null){
+            user.setAdvator(request.getAdvator());
         }
         if (request.getPreferences() != null) {
             try {

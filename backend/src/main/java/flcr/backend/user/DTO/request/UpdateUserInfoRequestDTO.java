@@ -21,6 +21,7 @@ public class UpdateUserInfoRequestDTO {
     @Min(value = 0, message = "性别取值0-2")
     @Max(value = 2, message = "性别取值0-2")
     private Integer gender;
+    private String advator;
 
     private Preferences preferences;
 
