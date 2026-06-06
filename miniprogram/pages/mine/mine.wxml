@@ -1,7 +1,7 @@
 <!--pages/mine/mine.wxml-->
 <view class="mine-page">
 	<view class="top-container">
-		<image src="{{backgroundUrl}}" mode="aspectFit" class="bg-img"/>
+		<image src="{{backgroundUrl}}" mode="aspectFill" class="bg-img"/>
 
 		<view class="user-info-container">
 			<view class="user-avatar-container">
