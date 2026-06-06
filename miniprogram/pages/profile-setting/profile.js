@@ -111,7 +111,8 @@ Page({
           try {
             const data = JSON.parse(res.data)
             if (data.code === 0 || data.code === 200) {
-              resolve(data.data || data.url)
+              const imageUrl = (data.data && data.data.url) || data.url || data.data
+              resolve(imageUrl)
             } else if (data.code === 401) {
               // token 过期，触发刷新后重试
               const app = getApp()

@@ -1,0 +1,16 @@
+<!--pages/help-center/help.wxml-->
+<view class="help-page">
+	<view class="top-bar">
+		<back-btn></back-btn>
+		<text class="top-title">口味偏好设置</text>
+	</view>
+
+	<view class="main">
+		<block wx:for="{{helpList}}">
+			<view class="card-container">
+				<view class="qustion">问：{{item.question}}</view>
+				<view class="answer">答案：{{item.answer}}</view>
+			</view>
+		</block>
+	</view>
+</view>
