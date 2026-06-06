@@ -1,12 +1,12 @@
 package flcr.backend.user.DTO.request;
 
+import java.util.List;
+
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 @Data
 public class UpdateUserInfoRequestDTO {
@@ -21,7 +21,7 @@ public class UpdateUserInfoRequestDTO {
     @Min(value = 0, message = "性别取值0-2")
     @Max(value = 2, message = "性别取值0-2")
     private Integer gender;
-    private String advator;
+    private String avatar;
 
     private Preferences preferences;
 
