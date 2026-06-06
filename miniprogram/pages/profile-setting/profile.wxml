@@ -37,7 +37,13 @@
 						<view class="info-title">{{item.title}}</view>
 					</view>
 					<view class="right">
-						<view class="info-value">{{userInfo[item.field] || '未设置'}}</view>
+					<!-- 背景图：有 URL 显示缩略图，没有显示默认图 -->
+					<block wx:if="{{item.field === 'background'}}">
+						<image wx:if="{{userInfo.background}}" src="{{userInfo.background}}" mode="aspectFill" class="background-thumb"/>
+						<image wx:else src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/bg/mine-background.png" mode="aspectFill" class="background-thumb"/>
+					</block>
+						<!-- 其他字段：照旧 -->
+						<view wx:else class="info-value">{{userInfo[item.field] || '未设置'}}</view>
 						<view class="right-arrow"></view>
 					</view>
 				</view>

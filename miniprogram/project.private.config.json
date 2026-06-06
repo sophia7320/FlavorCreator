@@ -24,10 +24,17 @@
 			"list": [
 				{
 					"name": "test",
-					"pathName": "pages/index/index",
+					"pathName": "pages/community/community",
 					"query": "",
 					"scene": null,
 					"launchMode": "default"
+				},
+				{
+					"name": "new-page",
+					"pathName": "pages/help-center/help",
+					"query": "",
+					"launchMode": "default",
+					"scene": null
 				},
 				{
 					"name": "正常启动",

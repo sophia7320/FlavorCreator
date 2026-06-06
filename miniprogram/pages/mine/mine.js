@@ -13,6 +13,7 @@ Page({
       avatar: '',
       userName: 'user001'
     },
+    backgroundUrl: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/bg/mine-background.png',
     tagIndex: 0,
     sharedCards: [],
     likeCards: [],
@@ -32,7 +33,7 @@ Page({
    */
   onLoad(options) {
     const userInfo = this.normalizeUserInfo(wx.getStorageSync('userInfo'))
-    this.setData({ userInfo })
+    this.setData({ userInfo, backgroundUrl: userInfo.backgroundUrl })
     this.loadData(true)
   },
 
@@ -53,7 +54,7 @@ Page({
       this.getTabBar().onTabPageShow()
     }
     const userInfo = this.normalizeUserInfo(wx.getStorageSync('userInfo'))
-    this.setData({ userInfo })
+    this.setData({ userInfo, backgroundUrl: userInfo.backgroundUrl })
     // 同步收藏状态（从其他页面回来后更新 isLiked）
     this.syncLikedStatus()
   },
@@ -208,13 +209,15 @@ Page({
    * 后端: { nickname, avatar } → 前端: { nickName, avatarUrl }
    */
   normalizeUserInfo(raw) {
+    const DEFAULT_BG = 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/bg/mine-background.png'
     if (!raw) {
-      return { nickName: '默认用户', avatarUrl: '' }
+      return { nickName: '默认用户', avatarUrl: '', backgroundUrl: DEFAULT_BG }
     }
     return {
       ...raw,
       nickName: raw.nickName || raw.nickname || '默认用户',
-      avatarUrl: raw.avatarUrl || raw.avatar || ''
+      avatarUrl: raw.avatarUrl || raw.avatar || '',
+      backgroundUrl: raw.background || DEFAULT_BG
     }
   },
 

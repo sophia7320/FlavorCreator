@@ -1,0 +1,6 @@
+/* pages/help-center/help.wxss */
+.help-container {
+	width: 750rpx;
+	height: 100vh;
+	
+}
