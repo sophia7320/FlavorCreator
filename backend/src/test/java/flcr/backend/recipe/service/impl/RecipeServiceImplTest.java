@@ -371,6 +371,15 @@ class RecipeServiceImplTest {
 
         String llmResponse = "{\"recipes\":[{\"id\":1,\"reason\":\"匹配你的辣口味偏好\"},{\"id\":2,\"reason\":\"清淡搭配推荐\"}]}";
         when(llmClient.generateRecipeJson(anyString())).thenReturn(llmResponse);
+        java.util.Map<String, Object> respMap = new java.util.LinkedHashMap<>();
+        java.util.List<java.util.Map<String, Object>> respRecipes = new java.util.ArrayList<>();
+        java.util.Map<String, Object> item1 = new java.util.LinkedHashMap<>();
+        item1.put("id", 1); item1.put("reason", "匹配你的辣口味偏好");
+        java.util.Map<String, Object> item2 = new java.util.LinkedHashMap<>();
+        item2.put("id", 2); item2.put("reason", "清淡搭配推荐");
+        respRecipes.add(item1); respRecipes.add(item2);
+        respMap.put("recipes", respRecipes);
+        when(objectMapper.readValue(eq(llmResponse), eq(java.util.Map.class))).thenReturn(respMap);
 
         RecipeRecommendResponseDTO result = recipeService.recommend();
         assertNotNull(result);
@@ -387,10 +396,21 @@ class RecipeServiceImplTest {
         User user = buildUser();
         when(userMapper.selectById(USER_ID)).thenReturn(user);
         when(recipeMapper.selectList(any(LambdaQueryWrapper.class))).thenReturn(List.of());
-        when(objectMapper.readValue(anyString(), any(Class.class))).thenReturn(null);
+        when(objectMapper.readValue(anyString(), eq(UpdateUserInfoRequestDTO.Preferences.class))).thenReturn(null);
 
         String llmResponse = "{\"recipes\":[{\"id\":0,\"name\":\"青椒肉丝\",\"reason\":\"[AI生成]简单下饭\"},{\"id\":0,\"reason\":\"[AI生成]营养均衡\"},{\"id\":0,\"reason\":\"[AI生成]快手菜\"}]}";
         when(llmClient.generateRecipeJson(anyString())).thenReturn(llmResponse);
+        java.util.Map<String, Object> respMap = new java.util.LinkedHashMap<>();
+        java.util.List<java.util.Map<String, Object>> respRecipes = new java.util.ArrayList<>();
+        java.util.Map<String, Object> item1 = new java.util.LinkedHashMap<>();
+        item1.put("id", 0); item1.put("name", "青椒肉丝"); item1.put("reason", "[AI生成]简单下饭");
+        java.util.Map<String, Object> item2 = new java.util.LinkedHashMap<>();
+        item2.put("id", 0); item2.put("reason", "[AI生成]营养均衡");
+        java.util.Map<String, Object> item3 = new java.util.LinkedHashMap<>();
+        item3.put("id", 0); item3.put("reason", "[AI生成]快手菜");
+        respRecipes.add(item1); respRecipes.add(item2); respRecipes.add(item3);
+        respMap.put("recipes", respRecipes);
+        when(objectMapper.readValue(eq(llmResponse), eq(java.util.Map.class))).thenReturn(respMap);
 
         RecipeRecommendResponseDTO result = recipeService.recommend();
         assertEquals(3, result.getRecipes().size());
@@ -403,7 +423,7 @@ class RecipeServiceImplTest {
     void testRecommend_LlmFallback() throws Exception {
         User user = buildUser();
         when(userMapper.selectById(USER_ID)).thenReturn(user);
-        when(objectMapper.readValue(anyString(), any(Class.class))).thenReturn(null);
+        when(objectMapper.readValue(anyString(), eq(UpdateUserInfoRequestDTO.Preferences.class))).thenReturn(null);
 
         Recipe r1 = buildRecipe(1L);
         r1.setName("热门菜1");
