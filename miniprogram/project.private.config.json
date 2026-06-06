@@ -24,7 +24,7 @@
 			"list": [
 				{
 					"name": "test",
-					"pathName": "pages/community/community",
+					"pathName": "pages/choose-recipes/choose-recipes",
 					"query": "",
 					"scene": null,
 					"launchMode": "default"

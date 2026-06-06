@@ -1,6 +1,57 @@
 /* pages/help-center/help.wxss */
-.help-container {
+.help-page {
 	width: 750rpx;
 	height: 100vh;
-	
+	background-color: rgba(255, 238, 209, 1);
+}
+
+.top-bar {
+	display: flex;
+	align-items: center;
+	background-color: rgba(255, 225, 207, 1);
+	height: 201rpx;
+	width: 750rpx;
+	border-radius: 0 0 60rpx 60rpx;
+	padding: 100rpx 61rpx 0;
+	gap: 20rpx;
+	color: rgba(87, 30, 0, 1);
+	font-size: 36rpx;
+}
+
+.main {
+	width: 750rpx;
+	padding: 0 45rpx;
+	display: flex;
+	flex-direction: column;
+	gap: 30rpx; 
+	margin-top: 50rpx;
+}
+
+.main .card-container {
+	width: 100%;
+	height: 384rpx;
+	padding: 30rpx;
+	background-color: rgba(255, 225, 207, 1);
+	border-radius: 40rpx;
+	display: flex;
+	flex-direction: column;
+	gap: 22rpx;
+}
+
+.main .card-container .question-container, .main .card-container .answer-container {
+	background-color: rgba(255, 250, 241, 1);
+	width: 100%;
+	border-radius: 30rpx;
+	display: flex;
+	padding-left: 33rpx;
+}
+
+.main .card-container .question-container {
+	align-items: center;
+	height: 62rpx;
+}
+
+.main .card-container .answer-container {
+	padding: 17rpx 33rpx 0;
+	height: 240rpx;
 }

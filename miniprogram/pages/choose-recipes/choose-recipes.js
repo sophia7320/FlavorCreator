@@ -35,11 +35,38 @@ Page({
       })
       console.log('接收到的菜谱数据:', recipeResult)
     } else {
-      this.setData({ loading: false })
-      wx.showToast({
-        title: '暂无数据',
-        icon: 'none'
+      // TODO: 后端接口就绪后，删除以下 mock 数据，恢复原来的空状态逻辑
+      // ========== 临时 mock 数据（开始） ==========
+      const mockRecipes = [
+        {
+          id: 'mock_1',
+          name: '示例菜谱一',
+          cover: '',
+          cookTime: 30,
+          matchDegree: 95
+        },
+        {
+          id: 'mock_2',
+          name: '示例菜谱二',
+          cover: '',
+          cookTime: 45,
+          matchDegree: 88
+        },
+        {
+          id: 'mock_3',
+          name: '示例菜谱三',
+          cover: '',
+          cookTime: 20,
+          matchDegree: 76
+        }
+      ]
+      this.setData({
+        recipes: mockRecipes,
+        matchDegree: 85,
+        needAiGenerate: true,
+        loading: false
       })
+      // ========== 临时 mock 数据（结束） ==========
     }
   },
 

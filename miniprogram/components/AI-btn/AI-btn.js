@@ -1,13 +1,11 @@
-// pages/help-center/help.js
+// components/AI-btn/AI-btn.js
 Page({
 
   /**
    * 页面的初始数据
    */
   data: {
-		helpList: [
-			{question: "如何使用？", answer: "1. 点击右上角的“+”按钮，选择菜谱类型；\n2. 选择菜谱后，点击“开始制作”，开始制作；\n3. 制作完成后，点击“完成”，完成制作。"}
-		]
+
   },
 
   /**

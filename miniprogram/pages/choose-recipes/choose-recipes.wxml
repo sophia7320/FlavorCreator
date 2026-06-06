@@ -2,16 +2,16 @@
 <view class="choose-recipes-page">
 	<!-- 顶部导航栏 -->
 	<view class="header">
-		<view class="back-btn" bindtap="onBack">
-			<image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/back-white.png" mode="aspectFit" class="back-icon"></image>
-		</view>
+		<back-btn></back-btn>
 		<view class="header-title">匹配结果</view>
 	</view>
 	
 	<!-- 菜谱列表 -->
 	<view class="recipes-container" wx:if="{{!loading && recipes.length > 0}}">
 		<view class="recipe-card" wx:for="{{recipes}}" wx:key="id" data-id="{{item.id}}" bindtap="onRecipeTap">
-			<image src="{{item.cover || 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/placeholder/recipe.png'}}" mode="aspectFill" class="recipe-cover"></image>
+			<view class="recipe-cover-box">
+				<image src="{{item.cover || 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/image.svg'}}" mode="aspectFill" class="recipe-cover {{!item.cover ? 'recipe-cover--default' : ''}}"></image>
+			</view>
 			
 			<view class="recipe-info">
 				<view class="recipe-name">{{item.name}}</view>

@@ -299,15 +299,15 @@ Component({
 				.then(res => {
 					wx.setStorageSync('recipeRequest', requestData)
 					wx.setStorageSync('recipeResult', res)
-					wx.navigateTo({
-						url: '/pages/choose-recipes/choose-recipes'
-					})
 				})
 				.catch(err => {
 					console.error('菜谱匹配失败:', err)
-					wx.showToast({
-						title: '匹配失败，请重试',
-						icon: 'none'
+					wx.setStorageSync('recipeRequest', requestData)
+					wx.setStorageSync('recipeResult', null)
+				})
+				.finally(() => {
+					wx.navigateTo({
+						url: '/pages/choose-recipes/choose-recipes'
 					})
 				})
 		}
