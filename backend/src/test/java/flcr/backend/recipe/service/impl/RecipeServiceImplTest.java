@@ -6,8 +6,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import flcr.backend.auth.entity.User;
 import flcr.backend.auth.mapper.UserMapper;
 import flcr.backend.common.context.UserContext;
-import flcr.backend.common.constants.ImageScene;
-import flcr.backend.common.service.ImageUploadService;
 import flcr.backend.community.mapper.CollectionMapper;
 import flcr.backend.community.mapper.LikeMapper;
 import flcr.backend.recipe.DTO.request.ApplyRecipeRequestDTO;
@@ -25,7 +23,6 @@ import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -52,7 +49,6 @@ class RecipeServiceImplTest {
     @Mock private CollectionMapper collectionMapper;
     @Mock private UserMapper userMapper;
     @Mock private ObjectMapper objectMapper;
-    @Mock private ImageUploadService imageUploadService;
     @InjectMocks private RecipeServiceImpl recipeService;
 
     private static final Long USER_ID = 1001L;
@@ -70,8 +66,6 @@ class RecipeServiceImplTest {
     @Test
     @DisplayName("publishRecipe成功返回recipeId")
     void testPublishRecipe_Success() throws Exception {
-        MultipartFile cover = mock(MultipartFile.class);
-        when(imageUploadService.upload(cover, ImageScene.RECIPE_COVER)).thenReturn("/uploads/test.jpg");
         when(objectMapper.writeValueAsString(any())).thenReturn("[]");
         when(recipeMapper.insert(any(Recipe.class))).thenAnswer(inv -> {
             Recipe r = inv.getArgument(0);
@@ -82,8 +76,9 @@ class RecipeServiceImplTest {
         PublishRecipeRequestDTO request = new PublishRecipeRequestDTO();
         request.setName("测试菜谱");
         request.setCategory("家常菜");
+        request.setCoverUrl("https://example.com/cover.jpg");
 
-        Long id = recipeService.publishRecipe(request, cover, null);
+        Long id = recipeService.publishRecipe(request);
         assertEquals(1L, id);
     }
     @Test
@@ -98,7 +93,7 @@ class RecipeServiceImplTest {
 
         PublishRecipeRequestDTO request = new PublishRecipeRequestDTO();
         request.setName("无图菜谱");
-        Long id = recipeService.publishRecipe(request, null, null);
+        Long id = recipeService.publishRecipe(request);
         assertEquals(2L, id);
     }
 

@@ -12,8 +12,6 @@ import flcr.backend.common.constants.ResultCode;
 import flcr.backend.common.constants.SourceConstants;
 import flcr.backend.common.context.UserContext;
 import flcr.backend.common.exception.BusinessException;
-import flcr.backend.common.constants.ImageScene;
-import flcr.backend.common.service.ImageUploadService;
 import flcr.backend.community.entity.Collection;
 import flcr.backend.community.entity.Like;
 import flcr.backend.community.mapper.CollectionMapper;
@@ -31,7 +29,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -50,41 +47,22 @@ public class RecipeServiceImpl implements RecipeService {
     private final CollectionMapper collectionMapper;
     private final UserMapper userMapper;
     private final ObjectMapper objectMapper;
-    private final ImageUploadService imageUploadService;
 
     @Override
     @Transactional
-    public Long publishRecipe(PublishRecipeRequestDTO request, MultipartFile cover,
-                              List<MultipartFile> images) {
+    public Long publishRecipe(PublishRecipeRequestDTO request) {
         Long userId = UserContext.getUserId();
-
-        // Upload cover (validate + store + moderate, auto-cleanup on failure)
-        String coverUrl = "";
-        if (cover != null) {
-            coverUrl = imageUploadService.upload(cover, ImageScene.RECIPE_COVER);
-        }
-
-        // Upload images (each independently atomic)
-        List<String> imageUrls = new ArrayList<>();
-        if (images != null) {
-            for (MultipartFile image : images) {
-                imageUrls.add(imageUploadService.upload(image, ImageScene.RECIPE_IMAGE));
-            }
-        }
-
-        // Build and save recipe
-        Recipe recipe = buildRecipe(request, coverUrl, imageUrls, userId);
+        Recipe recipe = buildRecipe(request, userId);
         recipeMapper.insert(recipe);
         return recipe.getId();
     }
 
-    private Recipe buildRecipe(PublishRecipeRequestDTO request, String coverUrl,
-                                List<String> imageUrls, Long userId) {
+    private Recipe buildRecipe(PublishRecipeRequestDTO request, Long userId) {
         Recipe recipe = new Recipe();
         recipe.setName(request.getName());
-        recipe.setCover(coverUrl);
+        recipe.setCover(request.getCoverUrl());
         try {
-            recipe.setImages(objectMapper.writeValueAsString(imageUrls));
+            recipe.setImages(objectMapper.writeValueAsString(request.getImageUrls()));
             recipe.setIngredients(request.getIngredients());
             recipe.setSteps(request.getSteps());
             recipe.setTags(request.getTags());

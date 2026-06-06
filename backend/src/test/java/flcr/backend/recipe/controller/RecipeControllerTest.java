@@ -14,7 +14,6 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -32,20 +31,21 @@ class RecipeControllerTest {
     @Test
     @DisplayName("发布菜谱成功返回id")
     void testPublishRecipe_ReturnsId() {
-        MultipartFile cover = mock(MultipartFile.class);
-        List<MultipartFile> images = List.of(mock(MultipartFile.class));
-        when(recipeService.publishRecipe(any(), eq(cover), eq(images))).thenReturn(1L);
+        PublishRecipeRequestDTO dto = new PublishRecipeRequestDTO();
+        dto.setCoverUrl("https://example.com/cover.jpg");
+        dto.setImageUrls(List.of("https://example.com/img1.jpg"));
+        when(recipeService.publishRecipe(any())).thenReturn(1L);
 
-        assertEquals(1L, controller.publishRecipe(new PublishRecipeRequestDTO(), cover, images).getData());
+        assertEquals(1L, controller.publishRecipe(dto).getData());
     }
 
     @Test
     @DisplayName("发布菜谱无图片")
     void testPublishRecipe_NoImages() {
-        MultipartFile cover = mock(MultipartFile.class);
-        when(recipeService.publishRecipe(any(), eq(cover), isNull())).thenReturn(2L);
+        PublishRecipeRequestDTO dto = new PublishRecipeRequestDTO();
+        when(recipeService.publishRecipe(any())).thenReturn(2L);
 
-        assertEquals(2L, controller.publishRecipe(new PublishRecipeRequestDTO(), cover, null).getData());
+        assertEquals(2L, controller.publishRecipe(dto).getData());
     }
 
     @Test
