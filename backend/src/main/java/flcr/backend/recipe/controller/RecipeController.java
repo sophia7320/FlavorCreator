@@ -11,6 +11,7 @@ import flcr.backend.recipe.DTO.response.ApplyRecipeResponseDTO;
 import flcr.backend.recipe.DTO.response.RecipeDetailResponseDTO;
 import flcr.backend.recipe.DTO.response.RecipeGenerateResponseDTO;
 import flcr.backend.recipe.DTO.response.RecipeListItemResponseDTO;
+import flcr.backend.recipe.DTO.response.RecipeRecommendResponseDTO;
 import flcr.backend.recipe.service.RecipeGenerateService;
 import flcr.backend.recipe.service.RecipeService;
 import jakarta.validation.Valid;
@@ -57,5 +58,10 @@ public class RecipeController {
     public Response<ApplyRecipeResponseDTO> apply(@Valid @RequestBody ApplyRecipeRequestDTO request) {
         ApplyRecipeResponseDTO result = recipeService.apply(request);
         return Response.success(result);
+    }
+
+    @GetMapping("/recommend")
+    public Response<RecipeRecommendResponseDTO> recommend() {
+        return Response.success(recipeService.recommend());
     }
 }

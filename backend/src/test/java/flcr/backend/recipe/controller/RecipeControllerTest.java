@@ -9,6 +9,7 @@ import flcr.backend.recipe.DTO.response.RecipeListItemResponseDTO;
 import flcr.backend.recipe.service.RecipeService;
 import flcr.backend.recipe.DTO.request.RecipeGenerateRequestDTO;
 import flcr.backend.recipe.DTO.response.RecipeGenerateResponseDTO;
+import flcr.backend.recipe.DTO.response.RecipeRecommendResponseDTO;
 import flcr.backend.recipe.service.RecipeGenerateService;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -79,5 +80,20 @@ class RecipeControllerTest {
 
         assertEquals(200, response.getCode());
         assertEquals("番茄炒蛋", response.getData().getRecipe().getName());
+    }
+
+    @Test
+    @DisplayName("今日推荐返回200")
+    void testRecommend_ReturnsOk() {
+        RecipeRecommendResponseDTO dto = RecipeRecommendResponseDTO.builder()
+                .title("今天吃什么？")
+                .recipes(List.of(
+                        RecipeRecommendResponseDTO.RecommendItem.builder()
+                                .id(1L).name("测试菜").cover("https://...").reason("推荐").build()))
+                .build();
+        when(recipeService.recommend()).thenReturn(dto);
+        Response<RecipeRecommendResponseDTO> response = controller.recommend();
+        assertEquals(200, response.getCode());
+        assertEquals(1, response.getData().getRecipes().size());
     }
 }

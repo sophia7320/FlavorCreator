@@ -7,6 +7,7 @@ import flcr.backend.recipe.DTO.request.RecipeListRequestDTO;
 import flcr.backend.recipe.DTO.response.ApplyRecipeResponseDTO;
 import flcr.backend.recipe.DTO.response.RecipeDetailResponseDTO;
 import flcr.backend.recipe.DTO.response.RecipeListItemResponseDTO;
+import flcr.backend.recipe.DTO.response.RecipeRecommendResponseDTO;
 
 public interface RecipeService {
 
@@ -17,4 +18,6 @@ public interface RecipeService {
     RecipeDetailResponseDTO getRecipeDetail(Long recipeId);
 
     ApplyRecipeResponseDTO apply(ApplyRecipeRequestDTO request);
+
+    RecipeRecommendResponseDTO recommend();
 }

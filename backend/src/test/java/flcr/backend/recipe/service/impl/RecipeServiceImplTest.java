@@ -14,7 +14,10 @@ import flcr.backend.recipe.DTO.request.RecipeListRequestDTO;
 import flcr.backend.recipe.DTO.response.ApplyRecipeResponseDTO;
 import flcr.backend.recipe.DTO.response.RecipeDetailResponseDTO;
 import flcr.backend.recipe.DTO.response.RecipeListItemResponseDTO;
+import flcr.backend.recipe.DTO.response.RecipeRecommendResponseDTO;
+import flcr.backend.recipe.client.LlmClient;
 import flcr.backend.recipe.entity.Recipe;
+import flcr.backend.user.DTO.request.UpdateUserInfoRequestDTO;
 import flcr.backend.recipe.mapper.RecipeMapper;
 import flcr.backend.recipe.service.RecipeService;
 import org.junit.jupiter.api.*;
@@ -49,6 +52,7 @@ class RecipeServiceImplTest {
     @Mock private CollectionMapper collectionMapper;
     @Mock private UserMapper userMapper;
     @Mock private ObjectMapper objectMapper;
+    @Mock private LlmClient llmClient;
     @InjectMocks private RecipeServiceImpl recipeService;
 
     private static final Long USER_ID = 1001L;
@@ -342,6 +346,81 @@ class RecipeServiceImplTest {
         ApplyRecipeResponseDTO result = recipeService.apply(request);
         assertTrue(result.getRecipes().isEmpty());
         assertTrue(result.getNeedAiGenerate());
+    }
+
+    // ==================== recommend 测试 ====================
+
+    @Test
+    @DisplayName("recommend AI调用成功并解析响应")
+    void testRecommend_SuccessWithPreferences() throws Exception {
+        User user = buildUser();
+        user.setPreferences("{\"taste\":[\"辣\"],\"cookTime\":\"30\",\"difficulty\":\"简单\"}");
+        when(userMapper.selectById(USER_ID)).thenReturn(user);
+
+        UpdateUserInfoRequestDTO.Preferences prefs = new UpdateUserInfoRequestDTO.Preferences();
+        prefs.setTaste(List.of("辣"));
+        prefs.setCookTime("30");
+        prefs.setDifficulty("简单");
+        when(objectMapper.readValue(anyString(), eq(UpdateUserInfoRequestDTO.Preferences.class))).thenReturn(prefs);
+
+        Recipe r1 = buildRecipe(1L);
+        r1.setTags("[\"辣\",\"川菜\"]");
+        Recipe r2 = buildRecipe(2L);
+        r2.setTags("[\"清淡\"]");
+        when(recipeMapper.selectList(any(LambdaQueryWrapper.class))).thenReturn(List.of(r1, r2));
+
+        String llmResponse = "{\"recipes\":[{\"id\":1,\"reason\":\"匹配你的辣口味偏好\"},{\"id\":2,\"reason\":\"清淡搭配推荐\"}]}";
+        when(llmClient.generateRecipeJson(anyString())).thenReturn(llmResponse);
+
+        RecipeRecommendResponseDTO result = recipeService.recommend();
+        assertNotNull(result);
+        assertEquals(2, result.getRecipes().size());
+        assertEquals("匹配你的辣口味偏好", result.getRecipes().get(0).getReason());
+        assertTrue(result.getRecipes().get(0).getName() != null);
+        verify(llmClient).generateRecipeJson(argThat(prompt ->
+                prompt.contains("辣") && prompt.contains("简单")));
+    }
+
+    @Test
+    @DisplayName("recommend 候选池为空时AI生成并带[AI生成]标注")
+    void testRecommend_EmptyCandidates_GeneratesWithLabel() throws Exception {
+        User user = buildUser();
+        when(userMapper.selectById(USER_ID)).thenReturn(user);
+        when(recipeMapper.selectList(any(LambdaQueryWrapper.class))).thenReturn(List.of());
+        when(objectMapper.readValue(anyString(), any(Class.class))).thenReturn(null);
+
+        String llmResponse = "{\"recipes\":[{\"id\":0,\"name\":\"青椒肉丝\",\"reason\":\"[AI生成]简单下饭\"},{\"id\":0,\"reason\":\"[AI生成]营养均衡\"},{\"id\":0,\"reason\":\"[AI生成]快手菜\"}]}";
+        when(llmClient.generateRecipeJson(anyString())).thenReturn(llmResponse);
+
+        RecipeRecommendResponseDTO result = recipeService.recommend();
+        assertEquals(3, result.getRecipes().size());
+        assertNull(result.getRecipes().get(0).getId());
+        assertTrue(result.getRecipes().get(0).getReason().startsWith("[AI生成]"));
+    }
+
+    @Test
+    @DisplayName("recommend LLM失败时降级返回热门Top3")
+    void testRecommend_LlmFallback() throws Exception {
+        User user = buildUser();
+        when(userMapper.selectById(USER_ID)).thenReturn(user);
+        when(objectMapper.readValue(anyString(), any(Class.class))).thenReturn(null);
+
+        Recipe r1 = buildRecipe(1L);
+        r1.setName("热门菜1");
+        Recipe r2 = buildRecipe(2L);
+        r2.setName("热门菜2");
+        Recipe r3 = buildRecipe(3L);
+        r3.setName("热门菜3");
+        when(recipeMapper.selectList(any(LambdaQueryWrapper.class))).thenReturn(List.of(r1, r2, r3));
+
+        when(llmClient.generateRecipeJson(anyString())).thenThrow(new RuntimeException("network error"));
+
+        RecipeRecommendResponseDTO result = recipeService.recommend();
+        assertEquals(3, result.getRecipes().size());
+        assertEquals("热门菜1", result.getRecipes().get(0).getName());
+        assertEquals("大家最近都在做", result.getRecipes().get(0).getReason());
+        assertEquals("热门菜2", result.getRecipes().get(1).getName());
+        assertEquals("热门菜3", result.getRecipes().get(2).getName());
     }
 
     // ==================== 辅助方法 ====================
