@@ -393,7 +393,7 @@ swiper {
 	font-size: var(--pref-font-size);
 	font-weight: var(--pref-font-weight);
 	color: var(--pref-font-color);
-	padding: 0 30rpx;
+	padding: 0 26rpx;
 	transition: all 0.2s ease;
 }
 
@@ -411,9 +411,18 @@ swiper {
 
 /* 选中状态 */
 .preference-item.selected {
-	background-color: var(--bg-light-green);
+	/* background-color: var(--bg-light-green);
 	color: var(--color-primary);
-	border: 2rpx solid var(--color-primary);
+	border: 2rpx solid var(--color-primary); */
+	background-color: rgba(232, 167, 167, 1);
+
+	box-shadow: 0 3rpx 3rpx 0 rgba(232, 167, 167, 0.4);
+	color: #FFF;
+}
+
+.preference-item.selected .preference-icon {
+		width: 28rpx;
+		height: 28rpx;
 }
 
 /* 选项文本 */
@@ -425,7 +434,7 @@ swiper {
 .preference-icon {
 	width: 20rpx;
 	height: 20rpx;
-	margin-left: 10rpx;
+	margin-left: 6rpx;
 }
 
 /* ========== 弹窗容器 ========== */

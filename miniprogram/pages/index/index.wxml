@@ -84,7 +84,7 @@
 						>
 							<text class="preference-text">{{item.name}}</text>
 							<image 
-								src="{{item.selected ? 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/green-check.png' : 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/pink-add.png'}}" 
+								src="{{item.selected ? 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/selected-x.svg' : 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/pink-add.png'}}" 
 								mode="aspectFit" 
 								class="preference-icon"
 							/>
@@ -106,7 +106,7 @@
 						>
 							<text class="preference-text">{{item.name}}</text>
 							<image 
-								src="{{item.selected ? 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/green-check.png' : 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/pink-add.png'}}" 
+								src="{{item.selected ? 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/selected-x.svg' : 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/pink-add.png'}}" 
 								mode="aspectFit" 
 								class="preference-icon"
 							/>
@@ -128,7 +128,7 @@
 						>
 							<text class="preference-text">{{item.name}}</text>
 							<image 
-								src="{{item.selected ? 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/green-check.png' : 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/pink-add.png'}}" 
+								src="{{item.selected ? 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/selected-x.svg' : 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/pink-add.png'}}" 
 								mode="aspectFit" 
 								class="preference-icon"
 							/>

@@ -65,30 +65,43 @@ function processRefreshQueue(success) {
   // 提前判断是否需要通知用户（在清空队列之前）
   const shouldNotify = !success && refreshQueue.some(({ options }) => options.showError !== false)
 
-  refreshQueue.forEach(({ apiConfig, data, options, resolve, reject, isCloud }) => {
-    if (success) {
+  if (success) {
+    const pendingRetries = []
+
+    refreshQueue.forEach(({ apiConfig, data, options, resolve, reject, isCloud }) => {
       const requestFn = isCloud ? cloudRequest : directRequest
-      requestFn(apiConfig, data, options)
+      const retryPromise = requestFn(apiConfig, data, options)
         .then(resolve)
-        .catch(reject)
-    } else {
+        .catch((err) => {
+          // 重试请求再次失败，直接 reject，不加入队列避免循环
+          reject(err)
+        })
+      pendingRetries.push(retryPromise)
+    })
+
+    // 等待所有重试请求完成后再重置状态
+    Promise.all(pendingRetries).finally(() => {
+      refreshQueue = []
+      isRefreshing = false
+      // 延迟重置 isRetrying，确保后续请求不会立即触发静默刷新
+      setTimeout(() => {
+        isRetrying = false
+      }, 500)
+    })
+  } else {
+    refreshQueue.forEach(({ resolve, reject }) => {
       reject({ code: 401, message: '登录已过期' })
-    }
-  })
-
-  refreshQueue = []
-  isRefreshing = false
-
-  // 延迟重置 isRetrying，确保重试请求已完成
-  setTimeout(() => {
+    })
+    refreshQueue = []
+    isRefreshing = false
     isRetrying = false
-  }, 100)
 
-  if (shouldNotify) {
-    wx.showToast({ title: '登录已过期', icon: 'none' })
-    setTimeout(() => {
-      wx.reLaunch({ url: '/pages/phone-number-login/login' })
-    }, 1500)
+    if (shouldNotify) {
+      wx.showToast({ title: '登录已过期', icon: 'none' })
+      setTimeout(() => {
+        wx.reLaunch({ url: '/pages/phone-number-login/login' })
+      }, 1500)
+    }
   }
 }
 
@@ -135,27 +148,33 @@ function cloudRequest(apiConfig, data = {}, options = {}) {
             if (success) {
               processRefreshQueue(true)
             } else {
-              // 静默刷新失败，放行队列请求让服务端判 401
+              // 静默刷新失败，清除登录状态并跳转登录页
               isRefreshing = false
-              isRetrying = true
-              const pending = refreshQueue.splice(0)
-              pending.forEach(({ apiConfig: cfg, data: d, options: opt, resolve: r, reject: j, isCloud: ic }) => {
-                const fn = ic ? cloudRequest : directRequest
-                fn(cfg, d, opt).then(r).catch(j)
+              app.clearLoginState()
+              wx.showToast({ title: '登录已过期，请重新登录', icon: 'none' })
+              setTimeout(() => {
+                wx.reLaunch({ url: '/pages/phone-number-login/login' })
+              }, 1500)
+              // 拒绝队列中的请求
+              refreshQueue.forEach(({ resolve: r, reject: j }) => {
+                j({ code: 401, message: '登录已过期' })
               })
-              setTimeout(() => { isRetrying = false }, 100)
+              refreshQueue = []
             }
           })
           .catch(() => {
-            // 静默刷新异常，同样放行队列请求
+            // 静默刷新异常，同样清除登录状态
             isRefreshing = false
-            isRetrying = true
-            const pending = refreshQueue.splice(0)
-            pending.forEach(({ apiConfig: cfg, data: d, options: opt, resolve: r, reject: j, isCloud: ic }) => {
-              const fn = ic ? cloudRequest : directRequest
-              fn(cfg, d, opt).then(r).catch(j)
+            const app = getApp()
+            app.clearLoginState()
+            wx.showToast({ title: '登录已过期，请重新登录', icon: 'none' })
+            setTimeout(() => {
+              wx.reLaunch({ url: '/pages/phone-number-login/login' })
+            }, 1500)
+            refreshQueue.forEach(({ resolve: r, reject: j }) => {
+              j({ code: 401, message: '登录已过期' })
             })
-            setTimeout(() => { isRetrying = false }, 100)
+            refreshQueue = []
           })
         // 直接 return，不执行后续请求逻辑，等待刷新完成后重试
         return
@@ -340,27 +359,33 @@ function directRequest(apiConfig, data = {}, options = {}) {
             if (success) {
               processRefreshQueue(true)
             } else {
-              // 静默刷新失败，放行队列请求让服务端判 401
+              // 静默刷新失败，清除登录状态并跳转登录页
               isRefreshing = false
-              isRetrying = true
-              const pending = refreshQueue.splice(0)
-              pending.forEach(({ apiConfig: cfg, data: d, options: opt, resolve: r, reject: j, isCloud: ic }) => {
-                const fn = ic ? cloudRequest : directRequest
-                fn(cfg, d, opt).then(r).catch(j)
+              app.clearLoginState()
+              wx.showToast({ title: '登录已过期，请重新登录', icon: 'none' })
+              setTimeout(() => {
+                wx.reLaunch({ url: '/pages/phone-number-login/login' })
+              }, 1500)
+              // 拒绝队列中的请求
+              refreshQueue.forEach(({ resolve: r, reject: j }) => {
+                j({ code: 401, message: '登录已过期' })
               })
-              setTimeout(() => { isRetrying = false }, 100)
+              refreshQueue = []
             }
           })
           .catch(() => {
-            // 静默刷新异常，同样放行队列请求
+            // 静默刷新异常，同样清除登录状态
             isRefreshing = false
-            isRetrying = true
-            const pending = refreshQueue.splice(0)
-            pending.forEach(({ apiConfig: cfg, data: d, options: opt, resolve: r, reject: j, isCloud: ic }) => {
-              const fn = ic ? cloudRequest : directRequest
-              fn(cfg, d, opt).then(r).catch(j)
+            const app = getApp()
+            app.clearLoginState()
+            wx.showToast({ title: '登录已过期，请重新登录', icon: 'none' })
+            setTimeout(() => {
+              wx.reLaunch({ url: '/pages/phone-number-login/login' })
+            }, 1500)
+            refreshQueue.forEach(({ resolve: r, reject: j }) => {
+              j({ code: 401, message: '登录已过期' })
             })
-            setTimeout(() => { isRetrying = false }, 100)
+            refreshQueue = []
           })
         // 直接 return，不执行后续请求逻辑，等待刷新完成后重试
         return

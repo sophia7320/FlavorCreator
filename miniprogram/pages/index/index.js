@@ -129,6 +129,14 @@ Page({
 		this.initIngredientsList()
 		// 拉取每日推荐
 		this.fetchDailyRecommend()
+		// 恢复默认模式开关状态
+		const savedMode = wx.getStorageSync('isDefaultMode')
+		if (savedMode !== undefined && savedMode !== '') {
+			this.setData({ isDefaultMode: !!savedMode })
+			if (!!savedMode) {
+				this.applyDefaultPreferences()
+			}
+		}
 	},
 
 	onReady() {
@@ -138,16 +146,16 @@ Page({
 	},
 
 	onDefaultModeTap(e) {
-		if(this.data.isDefaultMode) {
-			this.setData({
-				isDefaultMode: false
-			})
-		} else {
-			this.setData({
-				isDefaultMode: true
-			})
+		const newMode = !this.data.isDefaultMode
+		this.setData({
+			isDefaultMode: newMode
+		})
+		// 持久化开关状态
+		wx.setStorageSync('isDefaultMode', newMode)
+
+		if (newMode) {
+			this.applyDefaultPreferences()
 		}
-		
 	},
 
 	// 点击切换tab
@@ -247,6 +255,12 @@ Page({
 
 	// 选择口味
 	onSelectTaste(e) {
+		// 默认模式下手动修改，自动关闭默认模式
+		if (this.data.isDefaultMode) {
+			this.setData({ isDefaultMode: false })
+			wx.setStorageSync('isDefaultMode', false)
+		}
+
 		const { index } = e.currentTarget.dataset
 		const tasteOptions = [...this.data.tasteOptions]
 		tasteOptions[index].selected = !tasteOptions[index].selected
@@ -264,6 +278,12 @@ Page({
 
 	// 选择时长
 	onSelectCookTime(e) {
+		// 默认模式下手动修改，自动关闭默认模式
+		if (this.data.isDefaultMode) {
+			this.setData({ isDefaultMode: false })
+			wx.setStorageSync('isDefaultMode', false)
+		}
+
 		const { index } = e.currentTarget.dataset
 		const cookTimeOptions = [...this.data.cookTimeOptions]
 		
@@ -287,6 +307,12 @@ Page({
 
 	// 选择份量
 	onSelectServings(e) {
+		// 默认模式下手动修改，自动关闭默认模式
+		if (this.data.isDefaultMode) {
+			this.setData({ isDefaultMode: false })
+			wx.setStorageSync('isDefaultMode', false)
+		}
+
 		const { index } = e.currentTarget.dataset
 		const servingsOptions = [...this.data.servingsOptions]
 		
@@ -582,6 +608,54 @@ Page({
 				}
 			}
 		})
+	},
+
+	// 应用默认偏好（从本地存储读取并自动选中对应按钮）
+	applyDefaultPreferences() {
+		const prefs = wx.getStorageSync('defaultPreferences')
+		if (!prefs) return
+
+		const updates = {}
+
+		// 1. 应用口味（多选，按名称匹配）
+		if (prefs.taste && prefs.taste.length > 0) {
+			const tasteOptions = this.data.tasteOptions.map(item => ({
+				...item,
+				selected: prefs.taste.includes(item.name)
+			}))
+			updates.tasteOptions = tasteOptions
+			updates['selectedPreferences.taste'] = prefs.taste
+		}
+
+		// 2. 应用分量（单选，"4人及以上" → "4人以上"）
+		if (prefs.portion) {
+			const mappedPortion = prefs.portion === '4人及以上' ? '4人以上' : prefs.portion
+			const servingsOptions = this.data.servingsOptions.map(item => ({
+				...item,
+				selected: item.name === mappedPortion
+			}))
+			updates.servingsOptions = servingsOptions
+		}
+
+		// 3. 应用时长（单选，按偏好页顺序映射到 cookTimeOptions 索引）
+		if (prefs.time) {
+			const timeIndexMap = { '快手菜': 0, '普通': 1, '慢炖': 2 }
+			const timeIndex = timeIndexMap[prefs.time]
+			if (timeIndex !== undefined) {
+				const cookTimeOptions = this.data.cookTimeOptions.map((item, i) => ({
+					...item,
+					selected: i === timeIndex
+				}))
+				const difficultyMap = ['简单', '普通', '困难']
+				updates.cookTimeOptions = cookTimeOptions
+				updates['selectedPreferences.cookTime'] = cookTimeOptions[timeIndex].value
+				updates['selectedPreferences.difficulty'] = difficultyMap[timeIndex]
+			}
+		}
+
+		if (Object.keys(updates).length > 0) {
+			this.setData(updates)
+		}
 	},
 
 	// 移除单个食材

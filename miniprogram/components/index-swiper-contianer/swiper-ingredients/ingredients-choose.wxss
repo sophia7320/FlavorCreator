@@ -49,9 +49,10 @@
 }
 
 .ingredient-container .item.selected {
-	background-color: var(--bg-light-green);
-	color: var(--color-primary);
-	border: 2rpx solid var(--color-primary);
+	background-color: rgba(232, 167, 167, 1);
+
+	box-shadow: 0 3rpx 3rpx 0 rgba(232, 167, 167, 0.4);
+	color: #FFF;
 }
 
 .ingredient-container .item text {

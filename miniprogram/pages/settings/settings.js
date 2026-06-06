@@ -114,13 +114,6 @@ Page({
   },
 
   /**
-   * 返回上一页
-   */
-  goBack() {
-    wx.navigateBack()
-  },
-
-  /**
    * 点击设置项
    */
   onSettingTap(e) {
@@ -134,9 +127,8 @@ Page({
         })
         break
       case 'taste':
-        wx.showToast({
-          title: '口味偏好功能开发中',
-          icon: 'none'
+        wx.navigateTo({
+          url: '/pages/preference-setting/preference'
         })
         break
       case 'history':

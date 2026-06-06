@@ -14,7 +14,8 @@
     "pages/settings/settings",
     "pages/detail/detail",
     "pages/user/user",
-    "pages/profile-setting/profile"
+    "pages/profile-setting/profile",
+    "pages/preference-setting/preference"
   ],
   "tabBar": {
     "custom": true,

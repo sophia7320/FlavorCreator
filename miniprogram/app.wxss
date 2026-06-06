@@ -66,7 +66,7 @@ page {
   --font-size-xs: 12rpx;
   --font-size-sm: 16rpx;
   --font-size-base: 18rpx;
-  --font-size-md: 20rpx;
+  --font-size-md: 22rpx;
   --font-size-lg: 24rpx;
   --font-size-xl: 28rpx;
   --font-size-2xl: 30rpx;

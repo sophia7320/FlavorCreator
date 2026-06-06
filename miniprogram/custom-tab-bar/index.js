@@ -257,15 +257,42 @@ Component({
 				return
 			}
 
-			const { selectedIngredients, selectedPreferences } = currentPage.data
+			const { selectedIngredients, selectedPreferences, isDefaultMode } = currentPage.data
 
-			const requestData = {
-				ingredients: selectedIngredients,
-				preferences: {
+			// 默认模式开启时，使用保存的默认偏好
+			let preferences
+			if (isDefaultMode) {
+				const defaultPrefs = wx.getStorageSync('defaultPreferences') || {}
+				const timeValueMap = {
+					'快手菜': 15,
+					'普通': 30,
+					'慢炖': 60
+				}
+				const timeToDifficulty = {
+					'快手菜': '简单',
+					'普通': '普通',
+					'慢炖': '困难'
+				}
+				const cookTimeValue = timeValueMap[defaultPrefs.time] || 30
+				const difficulty = timeToDifficulty[defaultPrefs.time] || '简单'
+
+				preferences = {
+					taste: (defaultPrefs.taste && defaultPrefs.taste.length > 0) ? defaultPrefs.taste : ['清淡'],
+					cookTime: cookTimeValue,
+					difficulty: difficulty
+				}
+			} else {
+				// 非默认模式，使用主页手动选择的偏好
+				preferences = {
 					taste: selectedPreferences.taste.length > 0 ? selectedPreferences.taste : ['清淡'],
 					cookTime: selectedPreferences.cookTime || 30,
 					difficulty: selectedPreferences.difficulty || '简单'
 				}
+			}
+
+			const requestData = {
+				ingredients: selectedIngredients,
+				preferences: preferences
 			}
 
 			request(API_CONFIG.recipe.apply, requestData)

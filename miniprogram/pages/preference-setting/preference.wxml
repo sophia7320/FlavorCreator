@@ -1,0 +1,53 @@
+<!--pages/preference-setting/preference.wxml-->
+<view class="preference-page">
+	<view class="top-bar">
+		<back-btn></back-btn>
+		<text class="top-title">口味偏好设置</text>
+	</view>
+
+	<view class="description">你可以设置默认偏好，打开默认模式，更方便！</view>
+
+	<view class="main">
+		<view class="flavor">
+			<view class="title">口味</view>
+			<view class="choose-box">
+				<block wx:for="{{flavorList}}" wx:key="name">
+				<view class="item-container {{item.selected ? 'selected' : ''}}" bindtap="onFlavorTap" data-item="{{item.name}}">
+					<view class="name">{{item.name}}</view>
+					<image class="add-btn" src="{{item.selected ? 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/selected-x.svg' : 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/add.svg'}}" mode="aspectFit"/>
+				</view>
+			</block>
+			</view>
+		</view>
+
+		<view class="divider-line"></view>
+
+		<view class="portion">
+			<view class="title">分量</view>
+			<view class="choose-box">
+				<block wx:for="{{portionList}}" wx:key="*this">
+				<view class="item-container {{selectedPortion === item ? 'selected' : ''}}" bindtap="onPortionTap" data-item="{{item}}">
+					<view class="name">{{item}}</view>
+					<image class="add-btn" src="{{selectedPortion === item ? 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/selected-x.svg' : 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/add.svg'}}" mode="aspectFit"/>
+				</view>
+			</block>
+			</view>
+		</view>
+
+		<view class="divider-line"></view>
+
+		<view class="time">
+			<view class="title">时长</view>
+			<view class="choose-box">
+				<block wx:for="{{timeList}}" wx:key="*this">
+				<view class="item-container {{selectedTime === item ? 'selected' : ''}}" bindtap="onTimeTap" data-item="{{item}}">
+					<view class="name">{{item}}</view>
+					<image class="add-btn" src="{{selectedTime === item ? 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/selected-x.svg' : 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/add.svg'}}" mode="aspectFit"/>
+				</view>
+			</block>
+			</view>
+		</view>
+	</view>
+
+	<view class="save" bindtap="onSave">保存</view>
+</view>

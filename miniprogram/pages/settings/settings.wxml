@@ -3,7 +3,7 @@
 <!-- 顶部导航栏 -->
   <view class="top-mask">
 		<view class="nav-bar">
-			<back-btn bind:back="goBack"/>
+			<back-btn/>
 			<view class="nav-title">设置</view>
   	</view>
 	</view>
