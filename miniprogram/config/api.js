@@ -6,7 +6,7 @@ const CLOUD_CONFIG = {
 
 // 直连请求配置
 const REQUEST_CONFIG = {
-  baseUrl: 'http://localhost:8080'
+  baseUrl: 'http://127.0.0.1:8080'
 }
 
 const API_CONFIG = {

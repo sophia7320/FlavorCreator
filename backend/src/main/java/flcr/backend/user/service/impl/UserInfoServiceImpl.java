@@ -1,18 +1,23 @@
 package flcr.backend.user.service.impl;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import flcr.backend.auth.entity.User;
 import flcr.backend.auth.mapper.UserMapper;
+import flcr.backend.common.constants.ImageScene;
 import flcr.backend.common.constants.ResultCode;
 import flcr.backend.common.context.UserContext;
 import flcr.backend.common.exception.BusinessException;
-import flcr.backend.common.constants.ImageScene;
 import flcr.backend.common.service.ImageUploadService;
-import flcr.backend.community.entity.Collection;
-import flcr.backend.community.entity.Like;
 import flcr.backend.community.mapper.CollectionMapper;
 import flcr.backend.community.mapper.LikeMapper;
 import flcr.backend.recipe.entity.Recipe;
@@ -21,12 +26,6 @@ import flcr.backend.user.DTO.request.UpdateUserInfoRequestDTO;
 import flcr.backend.user.DTO.response.UserInfoResponseDTO;
 import flcr.backend.user.service.UserInfoService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -65,11 +64,14 @@ public class UserInfoServiceImpl implements UserInfoService {
         if (request.getSignature() != null) {
             user.setSignature(request.getSignature());
         }
-        if (request.getBackground() != null) {
+        if (request.getBackground() != null) { 
             user.setBackground(request.getBackground());
         }
         if (request.getGender() != null) {
             user.setGender(request.getGender());
+        }
+        if (request.getAvatar() != null){
+            user.setAvatar(request.getAvatar());
         }
         if (request.getPreferences() != null) {
             try {

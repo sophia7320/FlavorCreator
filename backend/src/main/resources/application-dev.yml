@@ -34,7 +34,12 @@ logging:
 
 flcr:
   storage:
-    type: local
+    type: cos
+    cos:
+      secret-id: AKIDZ1ECvPeeQ1PYXKyPcaNxSq5MUqIjCoS6
+      secret-key: cEg3T1dK1kXJ5utsx68C8JXpCYyRnCc5
+      region: ap-shanghai
+      bucket: 7072-prod-1g8rulbw951115e9-1419078283
   moderation:
     enabled: false
     allowed-types: jpg, jpeg, png, gif, webp, bmp
