@@ -126,17 +126,19 @@
   margin-bottom: 40rpx;
 }
 
-.ai-btn {
-  padding: 20rpx 60rpx;
-  background: linear-gradient(135deg, #D47A48 0%, #C46A3A 100%);
-  border-radius: 50rpx;
-  box-shadow: 0 4rpx 15rpx 0 rgba(212, 122, 72, 0.3);
+/* AI 生成链接区域 - 始终显示在卡片下方 */
+.ai-link-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40rpx 40rpx 0;
+  box-sizing: border-box;
 }
 
 .ai-btn-text {
   font-size: 28rpx;
-  font-weight: 600;
-  color: #FFFFFF;
+  color: #C56A27;
+  text-decoration: underline;
 }
 
 /* 加载中 */

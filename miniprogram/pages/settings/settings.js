@@ -149,9 +149,8 @@ Page({
         })
         break
       case 'feedback':
-        wx.showToast({
-          title: '反馈功能开发中',
-          icon: 'none'
+        wx.navigateTo({
+          url: '/pages/feedback/feedback'
         })
         break
     }

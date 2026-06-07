@@ -170,7 +170,6 @@
 					<view class="basket-ingredient-item" wx:for="{{selectedIngredients}}" wx:key="name">
 						<view class="ingredient-info">
 							<view class="ingredient-name">{{item.name}}</view>
-							<view class="ingredient-unit">{{item.unit}}</view>
 						</view>
 						<view class="ingredient-remove" bindtap="onRemoveIngredient" data-item="{{item}}">
 							<image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/remove.svg" mode="aspectFit" class="remove-icon"/>

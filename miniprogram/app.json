@@ -17,7 +17,8 @@
     "pages/profile-setting/profile",
     "pages/preference-setting/preference",
     "pages/help-center/help",
-    "components/AI-btn/AI-btn"
+    "components/AI-btn/AI-btn",
+    "pages/feedback/feedback"
   ],
   "tabBar": {
     "custom": true,
