@@ -62,7 +62,7 @@ Page({
           userImg: item.author?.avatar || item.userImg || '',
           recipeName: item.name || item.recipeName || item.title || '',
           recipeImage: item.cover || item.recipeImage || item.image || '',
-          likeCount: item.likeCount || 0
+          collectionCount: item.collectionCount || 0
         }))
 
         const newRecipes = isRefresh ? cards : [...this.data.recipes, ...cards]
@@ -70,10 +70,10 @@ Page({
         // 同步收藏状态
         const favorites = wx.getStorageSync('favorites') || []
         const likedIds = new Set(favorites.map(f => f.id))
-        const cardsWithLiked = newRecipes.map(c => ({ ...c, isLiked: likedIds.has(c.id) }))
+        const cardsWithCollected = newRecipes.map(c => ({ ...c, isCollected: likedIds.has(c.id) }))
 
         this.setData({
-          recipes: cardsWithLiked,
+          recipes: cardsWithCollected,
           page: isRefresh ? 2 : page + 1,
           hasMore,
           loading: false,
@@ -111,7 +111,7 @@ Page({
     })
   },
 
-  onLike(e) {
+  onCollect(e) {
     const { cardId } = e.detail
     const likeApi = { ...API_CONFIG.community.like, path: API_CONFIG.community.like.path.replace('{id}', cardId) }
 
@@ -135,7 +135,7 @@ Page({
 
         const likedIds = new Set(favorites.map(f => f.id))
         this.setData({
-          recipes: this.data.recipes.map(c => ({ ...c, isLiked: likedIds.has(c.id) }))
+          recipes: this.data.recipes.map(c => ({ ...c, isCollected: likedIds.has(c.id) }))
         })
       })
       .catch(() => {

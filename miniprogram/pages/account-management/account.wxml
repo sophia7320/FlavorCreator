@@ -5,16 +5,29 @@
 		<view class="wx-connection">
 			<view class="title">绑定微信</view>
 			<view class="content">
-				<image src="" mode="aspectFit" class="wx"/>
+				<view class="image-container">
+					<image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/wx-login-icon.png" mode="aspectFit" class="wx"/>
+				</view>
 				<view class="statues">{{ bindWX ? '已绑定' : '未绑定'}}</view>
 			</view>
 			<view class="divider-line"></view>
-			<view class="change-btn">修改</view>
+			<view class="unbind-btn" bind:tap="bindWX">解绑</view>
 		</view>
-		<view class="phone-connection"></view>
+
+		<view class="phone-connection">
+			<view class="title">绑定手机号</view>
+			<view class="content">
+				<view class="image-container">
+					<image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/phone.svg" mode="aspectFit" class="phone"/>
+				</view>
+				<view class="statues">{{ bindPhone ? '已绑定' : '未绑定'}}</view>
+			</view>
+			<view class="divider-line"></view>
+			<view class="unbind-btn" bind:tap="bindPhone">解绑</view>
+		</view>
 	</view>
 	<view class="delete-btn">
-		<image src="" mode="aspectFit"/>
+		<image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/logout.png" mode="aspectFit"/>
 		<text>注销账号</text>
 	</view>
 </view>

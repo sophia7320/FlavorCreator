@@ -1,2 +1,4 @@
 <!--pages/post/post.wxml-->
-<text>pages/post/post.wxml</text>
+<view class="post-page">
+	
+</view>

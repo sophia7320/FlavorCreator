@@ -25,16 +25,16 @@ Page({
 			{name: '特色菜', selected: false},
 		],
 		leftList: [
-			{ id: 'ph_l0', authorId: '', userName: 'User Name', userImg: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/user.svg', recipeName: 'Addtional info goes here', recipeImage: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/image.svg', likeCount: 0, isPlaceholder: true },
-			{ id: 'ph_l1', authorId: '', userName: 'User Name', userImg: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/user.svg', recipeName: 'Addtional info goes here', recipeImage: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/image.svg', likeCount: 0, isPlaceholder: true },
-			{ id: 'ph_l2', authorId: '', userName: 'User Name', userImg: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/user.svg', recipeName: 'Addtional info goes here', recipeImage: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/image.svg', likeCount: 0, isPlaceholder: true },
-			{ id: 'ph_l3', authorId: '', userName: 'User Name', userImg: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/user.svg', recipeName: 'Addtional info goes here', recipeImage: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/image.svg', likeCount: 0, isPlaceholder: true },
+			{ id: 'ph_l0', authorId: '', userName: 'User Name', userImg: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/user.svg', recipeName: 'Addtional info goes here', recipeImage: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/image.svg', collectionCount: 0, isPlaceholder: true },
+			{ id: 'ph_l1', authorId: '', userName: 'User Name', userImg: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/user.svg', recipeName: 'Addtional info goes here', recipeImage: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/image.svg', collectionCount: 0, isPlaceholder: true },
+			{ id: 'ph_l2', authorId: '', userName: 'User Name', userImg: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/user.svg', recipeName: 'Addtional info goes here', recipeImage: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/image.svg', collectionCount: 0, isPlaceholder: true },
+			{ id: 'ph_l3', authorId: '', userName: 'User Name', userImg: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/user.svg', recipeName: 'Addtional info goes here', recipeImage: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/image.svg', collectionCount: 0, isPlaceholder: true },
 		],
 		rightList: [
-			{ id: 'ph_r0', authorId: '', userName: 'User Name', userImg: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/user.svg', recipeName: 'Addtional info goes here', recipeImage: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/image.svg', likeCount: 0, isPlaceholder: true },
-			{ id: 'ph_r1', authorId: '', userName: 'User Name', userImg: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/user.svg', recipeName: 'Addtional info goes here', recipeImage: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/image.svg', likeCount: 0, isPlaceholder: true },
-			{ id: 'ph_r2', authorId: '', userName: 'User Name', userImg: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/user.svg', recipeName: 'Addtional info goes here', recipeImage: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/image.svg', likeCount: 0, isPlaceholder: true },
-			{ id: 'ph_r3', authorId: '', userName: 'User Name', userImg: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/user.svg', recipeName: 'Addtional info goes here', recipeImage: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/image.svg', likeCount: 0, isPlaceholder: true },
+			{ id: 'ph_r0', authorId: '', userName: 'User Name', userImg: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/user.svg', recipeName: 'Addtional info goes here', recipeImage: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/image.svg', collectionCount: 0, isPlaceholder: true },
+			{ id: 'ph_r1', authorId: '', userName: 'User Name', userImg: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/user.svg', recipeName: 'Addtional info goes here', recipeImage: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/image.svg', collectionCount: 0, isPlaceholder: true },
+			{ id: 'ph_r2', authorId: '', userName: 'User Name', userImg: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/user.svg', recipeName: 'Addtional info goes here', recipeImage: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/image.svg', collectionCount: 0, isPlaceholder: true },
+			{ id: 'ph_r3', authorId: '', userName: 'User Name', userImg: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/user.svg', recipeName: 'Addtional info goes here', recipeImage: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/image.svg', collectionCount: 0, isPlaceholder: true },
 		],
 		page: 1,
 		pageSize: 10,
@@ -62,7 +62,7 @@ Page({
       this.getTabBar().onTabPageShow()
     }
     // 同步收藏状态
-    this.syncLikedStatus()
+    this.syncCollectedStatus()
   },
 
   onHide() {
@@ -126,7 +126,7 @@ Page({
         userImg: item.author?.avatar || item.userImg || item.user_avatar || 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/user.svg',
         recipeName: item.name || item.recipeName || item.title || '',
         recipeImage: item.cover || item.recipeImage || item.image || 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/image.svg',
-        likeCount: item.likeCount || 0
+        collectionCount: item.collectionCount || 0
       }
 
       const totalCount = newLeftList.length + newRightList.length
@@ -140,8 +140,8 @@ Page({
     // 同步收藏状态
     const favorites = wx.getStorageSync('favorites') || []
     const likedIds = new Set(favorites.map(f => f.id))
-    newLeftList = newLeftList.map(c => ({ ...c, isLiked: likedIds.has(c.id) }))
-    newRightList = newRightList.map(c => ({ ...c, isLiked: likedIds.has(c.id) }))
+    newLeftList = newLeftList.map(c => ({ ...c, isCollected: likedIds.has(c.id) }))
+    newRightList = newRightList.map(c => ({ ...c, isCollected: likedIds.has(c.id) }))
 
     this.setData({ leftList: newLeftList, rightList: newRightList })
   },
@@ -149,12 +149,12 @@ Page({
   /**
    * 同步所有卡片的收藏状态
    */
-  syncLikedStatus() {
+  syncCollectedStatus() {
     const favorites = wx.getStorageSync('favorites') || []
     const likedIds = new Set(favorites.map(f => f.id))
     this.setData({
-      leftList: this.data.leftList.map(c => ({ ...c, isLiked: likedIds.has(c.id) })),
-      rightList: this.data.rightList.map(c => ({ ...c, isLiked: likedIds.has(c.id) }))
+      leftList: this.data.leftList.map(c => ({ ...c, isCollected: likedIds.has(c.id) })),
+      rightList: this.data.rightList.map(c => ({ ...c, isCollected: likedIds.has(c.id) }))
     })
   },
 
@@ -185,7 +185,7 @@ Page({
     })
   },
 
-  onLike(e) {
+  onCollect(e) {
     const { cardId } = e.detail
 
     // 先判断当前收藏状态，决定调用收藏还是取消收藏 API
@@ -221,11 +221,11 @@ Page({
 
         // 更新列表中对应卡片的收藏状态
         const cardIdSet = new Set(favorites.map(f => f.id))
-        const updateLiked = (list) => list.map(c => ({ ...c, isLiked: cardIdSet.has(c.id) }))
+        const updateCollected = (list) => list.map(c => ({ ...c, isCollected: cardIdSet.has(c.id) }))
 
         this.setData({
-          leftList: updateLiked(this.data.leftList),
-          rightList: updateLiked(this.data.rightList)
+          leftList: updateCollected(this.data.leftList),
+          rightList: updateCollected(this.data.rightList)
         })
       })
       .catch(() => {

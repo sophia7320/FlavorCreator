@@ -20,9 +20,9 @@
       <block wx:for="{{recipes}}" wx:key="id">
         <recipe-card
           cardData="{{item}}"
-          isLiked="{{item.isLiked}}"
+          isCollected="{{item.isCollected}}"
           bind:cardtap="onCardTap"
-          bind:liketap="onLike"
+          bind:collecttap="onCollect"
           bind:sharetap="onShare"
         />
       </block>

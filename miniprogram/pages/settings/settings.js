@@ -132,15 +132,13 @@ Page({
         })
         break
       case 'history':
-        wx.showToast({
-          title: '浏览历史功能开发中',
-          icon: 'none'
+				wx.navigateTo({
+          url: '/pages/history/history'
         })
         break
       case 'security':
-        wx.showToast({
-          title: '账号安全功能开发中',
-          icon: 'none'
+        wx.navigateTo({
+          url: '/pages/account-management/account'
         })
         break
       case 'help':

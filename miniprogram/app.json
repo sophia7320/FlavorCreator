@@ -20,7 +20,8 @@
     "components/AI-btn/AI-btn",
     "pages/feedback/feedback",
     "pages/post/post",
-    "pages/account-management/account"
+    "pages/account-management/account",
+    "pages/history/history"
   ],
   "tabBar": {
     "custom": true,

@@ -80,13 +80,13 @@
   justify-content: space-between;
 }
 
-.card .tool-bar .like {
+.card .tool-bar .collect {
 	display: flex;
 	align-items: center;
 	gap: 6rpx;
 }
 
-.card .like-btn , .card .share-btn{
+.card .collect-btn , .card .share-btn{
 	width: 24rpx;
 	height: 24rpx;
 }
@@ -105,7 +105,7 @@
   border: none;
 }
 
-.card .like-count {
+.card .collect-count {
 	font-size: 20rpx;
 	color: rgba(122, 125, 132, 1);
 }
