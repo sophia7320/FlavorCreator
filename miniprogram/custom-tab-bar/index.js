@@ -15,6 +15,12 @@ Component({
 		showCreate: false,
 		noTransition: true,
 		createAnimate: false,
+		isOnCommunity: false,
+		postBgAnimate: false,
+		postIconUrl: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/release.svg',
+		isOnMine: false,
+		mineBgAnimate: false,
+		mineIconUrl: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/selected-mine.svg',
 		list: [
 			{
 				pagePath: '/pages/index/index',
@@ -116,6 +122,43 @@ Component({
 		 */
 		onTabPageShow() {
 			const currentTab = this.getCurrentTabKey()
+			this.setData({
+				isOnCommunity: currentTab === 'community',
+				isOnMine: currentTab === 'mine'
+			})
+
+			// 进入社区页时触发背景胶囊动画（每次进入都触发）
+			if (currentTab === 'community') {
+				if (this._postBgTimer) {
+					clearTimeout(this._postBgTimer)
+					this._postBgTimer = null
+				}
+				this.setData({ postBgAnimate: false })
+				wx.nextTick(() => {
+					this.setData({ postBgAnimate: true })
+					this._postBgTimer = setTimeout(() => {
+						this._postBgTimer = null
+						this.setData({ postBgAnimate: false })
+					}, 400)
+				})
+			}
+
+			// 进入我的页时触发背景胶囊动画（每次进入都触发）
+			if (currentTab === 'mine') {
+				if (this._mineBgTimer) {
+					clearTimeout(this._mineBgTimer)
+					this._mineBgTimer = null
+				}
+				this.setData({ mineBgAnimate: false })
+				wx.nextTick(() => {
+					this.setData({ mineBgAnimate: true })
+					this._mineBgTimer = setTimeout(() => {
+						this._mineBgTimer = null
+						this.setData({ mineBgAnimate: false })
+					}, 400)
+				})
+			}
+
 			if (!currentTab) {
 				return
 			}
@@ -227,6 +270,15 @@ Component({
 		switchTab(e) {
 			const url = e.currentTarget.dataset.path
 			this.navigateTab(url)
+		},
+
+		onCommunityTap() {
+			if (this.data.isOnCommunity) {
+				this.setData({ isOnCommunity: false })
+				wx.navigateTo({ url: '/pages/post/post' })
+			} else {
+				this.navigateTab('/pages/community/community')
+			}
 		},
 
 		updateCreateVisibility(show) {

@@ -1,0 +1,20 @@
+<!--pages/account-management/account.wxml-->
+<view class="account-page">
+	<top-bar title="账户安全"></top-bar>
+	<view class="main">
+		<view class="wx-connection">
+			<view class="title">绑定微信</view>
+			<view class="content">
+				<image src="" mode="aspectFit" class="wx"/>
+				<view class="statues">{{ bindWX ? '已绑定' : '未绑定'}}</view>
+			</view>
+			<view class="divider-line"></view>
+			<view class="change-btn">修改</view>
+		</view>
+		<view class="phone-connection"></view>
+	</view>
+	<view class="delete-btn">
+		<image src="" mode="aspectFit"/>
+		<text>注销账号</text>
+	</view>
+</view>

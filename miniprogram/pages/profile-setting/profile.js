@@ -1,6 +1,7 @@
 // pages/profile-setting/profile.js
 const { API_CONFIG, REQUEST_CONFIG } = require('../../config/api')
 const { request } = require('../../utils/request')
+const { getUseCallContainer } = require('../../utils/globalState')
 
 Page({
 
@@ -96,10 +97,49 @@ Page({
     }
   },
 
-  // 上传图片文件，返回图片 URL
+  // 上传图片文件，返回图片 URL（自动根据 useCallContainer 选择云/本地模式）
   uploadImageFile(filePath, scene = '') {
-    const uploadConfig = this.buildUploadUrl(API_CONFIG.image.upload)
     const that = this
+    const useCloud = getUseCallContainer()
+
+    if (useCloud) {
+      // ========== 云模式：上传到云存储 → 通知后端 ==========
+      const ext = filePath.split('.').pop() || 'jpg'
+      const timestamp = Date.now()
+      const random = Math.random().toString(36).substring(2, 8)
+      const cloudPath = `images/${scene || 'general'}/${timestamp}_${random}.${ext}`
+
+      return wx.cloud.uploadFile({
+        cloudPath: cloudPath,
+        filePath: filePath
+      }).then(res => {
+        const fileID = res.fileID
+        // 通过统一的 request（走 callContainer）通知后端
+        return request(
+          API_CONFIG.image.uploadCloud,
+          { fileID: fileID, scene: scene },
+          { showLoading: false, showError: false }
+        )
+      }).then(res => {
+        // request 返回的是 res.data.data，即 { url: "..." }
+        const imageUrl = (res && res.url) || res
+        return imageUrl
+      }).catch(err => {
+        if (err && err.code === 401) {
+          const app = getApp()
+          return app.refreshAccessToken().then(success => {
+            if (success) {
+              return that.uploadImageFile(filePath, scene)
+            }
+            throw { code: 401, message: '登录已过期' }
+          })
+        }
+        throw err
+      })
+    }
+
+    // ========== 本地模式：直连上传（原有逻辑） ==========
+    const uploadConfig = this.buildUploadUrl(API_CONFIG.image.upload)
     return new Promise((resolve, reject) => {
       wx.uploadFile({
         url: uploadConfig.url,
@@ -114,12 +154,10 @@ Page({
               const imageUrl = (data.data && data.data.url) || data.url || data.data
               resolve(imageUrl)
             } else if (data.code === 401) {
-              // token 过期，触发刷新后重试
               const app = getApp()
               app.refreshAccessToken()
                 .then((success) => {
                   if (success) {
-                    // 刷新成功，重试上传
                     that.uploadImageFile(filePath, scene).then(resolve).catch(reject)
                   } else {
                     reject({ code: 401, message: '登录已过期' })
