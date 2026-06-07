@@ -97,8 +97,8 @@ Page({
 
     request(API_CONFIG.community.list, { page, size: this.data.pageSize, category }, { showLoading: false })
       .then(res => {
-        const list = res.data.list || res.data || []
-        const hasMore = res.data.hasMore ?? (list.length >= this.data.pageSize)
+        const list = res.list || res.data || []
+        const hasMore = res.hasMore ?? (list.length >= this.data.pageSize)
 
         this.appendCards(list, isRefresh)
 

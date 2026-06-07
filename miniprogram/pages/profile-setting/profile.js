@@ -143,12 +143,12 @@ Page({
   // 选择头像
   onChooseAvatar() {
     const that = this
+    this._updating = true
     wx.chooseMedia({
       count: 1,
       mediaType: ['image'],
       sourceType: ['album', 'camera'],
       success(res) {
-        that._updating = true
         const tempFilePath = res.tempFiles[0].tempFilePath
 
         that.uploadImageFile(tempFilePath, 'avatar')
@@ -172,6 +172,9 @@ Page({
           .finally(() => {
             that._updating = false
           })
+      },
+      fail() {
+        that._updating = false
       }
     })
   },
@@ -310,12 +313,12 @@ Page({
   // 选择背景图
   onChooseBackground() {
     const that = this
+    this._updating = true
     wx.chooseMedia({
       count: 1,
       mediaType: ['image'],
       sourceType: ['album', 'camera'],
       success(res) {
-        that._updating = true
         const tempFilePath = res.tempFiles[0].tempFilePath
 
         that.uploadImageFile(tempFilePath, 'background')
@@ -339,6 +342,9 @@ Page({
           .finally(() => {
             that._updating = false
           })
+      },
+      fail() {
+        that._updating = false
       }
     })
   }

@@ -6,23 +6,8 @@
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	padding: 0 40rpx 0;
+	padding: 200rpx 40rpx 0;
 	position: relative;
-}
-
-.top-bar {
-	width: 750rpx;
-	height: 201rpx;
-
-	background-color: rgba(255, 225, 207, 1);
-	border-radius: 0 0 60rpx 60rpx;
-	display: flex;
-	align-items: center;
-	gap: 20rpx;
-	padding: 90rpx 61rpx 0;
-
-	font-size: 36rpx;
-	color: rgba(87, 30, 0, 1);
 }
 
 .description {

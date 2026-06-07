@@ -3,19 +3,7 @@
 	width: 750rpx;
 	height: 100vh;
 	background-color: rgba(255, 238, 209, 1);
-}
-
-.top-bar {
-	display: flex;
-	align-items: center;
-	background-color: rgba(255, 225, 207, 1);
-	height: 201rpx;
-	width: 750rpx;
-	border-radius: 0 0 60rpx 60rpx;
-	padding: 100rpx 61rpx 0;
-	gap: 20rpx;
-	color: rgba(87, 30, 0, 1);
-	font-size: 36rpx;
+	padding-top: 200rpx;
 }
 
 .main {

@@ -290,24 +290,29 @@ Component({
 				}
 			}
 
-			const requestData = {
-				ingredients: selectedIngredients,
-				preferences: preferences
-			}
+		const difficultyMap = { '简单': 1, '普通': 2, '困难': 3 }
 
-			request(API_CONFIG.recipe.apply, requestData)
+		const requestData = {
+			ingredients: selectedIngredients,
+			preferences: {
+				cookTime: preferences.cookTime,
+				difficulty: difficultyMap[preferences.difficulty] || 1
+			}
+		}
+
+		request(API_CONFIG.recipe.apply, requestData)
 				.then(res => {
 					wx.setStorageSync('recipeRequest', requestData)
 					wx.setStorageSync('recipeResult', res)
+					wx.navigateTo({
+						url: '/pages/choose-recipes/choose-recipes'
+					})
 				})
 				.catch(err => {
 					console.error('菜谱匹配失败:', err)
-					wx.setStorageSync('recipeRequest', requestData)
-					wx.setStorageSync('recipeResult', null)
-				})
-				.finally(() => {
-					wx.navigateTo({
-						url: '/pages/choose-recipes/choose-recipes'
+					wx.showToast({
+						title: '菜谱匹配失败，请重试',
+						icon: 'none'
 					})
 				})
 		}

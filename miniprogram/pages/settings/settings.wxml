@@ -1,12 +1,7 @@
 <!--pages/settings/settings.wxml-->
 <view class="settings-page">
 <!-- 顶部导航栏 -->
-  <view class="top-mask">
-		<view class="nav-bar">
-			<back-btn/>
-			<view class="nav-title">设置</view>
-  	</view>
-	</view>
+  <top-bar title="设置"/>
   
   <!-- 内容区域 -->
   <scroll-view class="content" scroll-y="true" enhanced="true" show-scrollbar="false">

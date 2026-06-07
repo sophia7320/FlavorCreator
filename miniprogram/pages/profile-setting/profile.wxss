@@ -8,26 +8,10 @@
   background-color: rgba(255, 238, 209, 1);
 }
 
-.top-title {
-	height: 201rpx;
-	width: 100%;
-
-	display: flex;
-	align-items: center;
-	gap: 20rpx;
-	padding: 115rpx 61rpx 24rpx;
-
-	background-color: rgba(255, 225, 207, 1);
-	color: rgba(87, 30, 0, 1);
-	font-size: 36rpx;
-
-	border-radius: 0 0 60rpx 60rpx;
-}
-
 .user-info-container {
 	height: 312rpx;
 
-	margin-top: 40rpx;
+	margin-top: 240rpx;
 
 	display: flex;
 	flex-direction: column;

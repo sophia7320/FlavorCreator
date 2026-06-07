@@ -251,7 +251,7 @@ function request(apiConfig, data = {}, options = {}) {
 function handleResponse(res, resolve, reject, showError, apiConfig, data, options, isCloud) {
   if (res.statusCode === 200) {
     if (res.data.code === 0 || res.data.code === 200) {
-      resolve(res.data)
+      resolve(res.data.data)
     } else if (res.data.code === 401) {
       // 业务 code 401：token 过期，与 HTTP 401 同样处理
       if (isRefreshPath(apiConfig)) {

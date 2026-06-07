@@ -254,6 +254,14 @@ swiper {
 	gap: 10rpx;
 }
 
+.default-mode-text {
+	transition: color 0.3s ease;
+}
+
+.default-mode-text.active {
+	color: rgba(185, 89, 33, 1);
+}
+
 .main-container .create-process-container .default-mode .rectangle {
 	width: 50rpx;
 	height: 28rpx;

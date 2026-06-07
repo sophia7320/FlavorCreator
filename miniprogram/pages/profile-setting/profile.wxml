@@ -1,9 +1,6 @@
 <!--pages/profile-setting/profile.wxml-->
 <view class="profile-page">
-	<view class="top-title">
-		 <back-btn/>
-		<view class="title">个人资料设置</view>
-	</view>
+	<top-bar title="个人资料设置"/>
 
 	<view class="user-info-container">
 		<image src="{{userInfo.avatarUrl}}" mode="aspectFit" class="user-avatar" bindtap="onChooseAvatar"/>

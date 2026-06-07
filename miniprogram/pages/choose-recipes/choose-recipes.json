@@ -1,5 +1,5 @@
 {
   "usingComponents": {
-		"back-btn": "/components/back-btn/back-btn"
+		"top-bar": "/components/top-bar/top-bar"
 	}
 }

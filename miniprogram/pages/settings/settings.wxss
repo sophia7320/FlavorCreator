@@ -9,37 +9,6 @@
   overflow: hidden;
 }
 
-/* 顶部导航栏 */
-.top-mask {
-  height: 201rpx;
-  background: rgba(255, 225, 207, 1);
-
-  border-radius: 0 0 60rpx 60rpx;
-  z-index: 10;
-
-	position: absolute;
-	top: 0;
-  left: 0;
-}
-
-.nav-bar {
-  width: 750rpx;
-  height: 180rpx;
-
-  display: flex;
-  align-items: center;
-
-  padding: 80rpx 0 0 61rpx;
-  position: relative;
-  z-index: 10;
-}
-
-.nav-title {
-	margin-left: 20rpx;
-  font-size: 36rpx;
-  color: rgba(87, 30, 0, 1);
-}
-
 /* 内容区域 */
 .content {
   width: 750rpx;
