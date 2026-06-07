@@ -69,7 +69,9 @@ public class LocalFileStorageServiceImpl implements FileStorageService {
             file.transferTo(targetFile.toFile());
 
             String relativePath = "/" + dir + "/" + dateDir + "/" + fileName;
-            String url = storageProperties.getUrlPrefix() + relativePath;
+            String url = storageProperties.getBaseUrl() != null && !storageProperties.getBaseUrl().isEmpty()
+                    ? storageProperties.getBaseUrl() + storageProperties.getUrlPrefix() + relativePath
+                    : storageProperties.getUrlPrefix() + relativePath;
 
             log.info("文件上传成功: {}", url);
             return url;

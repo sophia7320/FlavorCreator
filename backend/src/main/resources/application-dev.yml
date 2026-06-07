@@ -34,7 +34,8 @@ logging:
 
 flcr:
   storage:
-    type: cos
+    type: local
+    base-url: ${FLCR_BASE_URL:http://localhost:8080}
     cos:
       secret-id: AKIDZ1ECvPeeQ1PYXKyPcaNxSq5MUqIjCoS6
       secret-key: cEg3T1dK1kXJ5utsx68C8JXpCYyRnCc5
