@@ -84,16 +84,12 @@ Page({
     const { id } = e.currentTarget.dataset
     console.log('点击菜谱:', id)
     
-    // 显示加载状态
-    wx.showLoading({ title: '加载中...' })
-    
     // 调用获取详情接口
     const apiConfig = { ...API_CONFIG.recipe.getDetail }
     apiConfig.path = apiConfig.path.replace('{id}', id)
     
     request(apiConfig)
       .then(detail => {
-        wx.hideLoading()
         console.log('菜谱详情:', detail)
         
         // 将详情数据存储到本地
@@ -106,7 +102,6 @@ Page({
         })
       })
       .catch(err => {
-        wx.hideLoading()
         console.error('获取菜谱详情失败:', err)
         wx.showToast({
           title: '获取详情失败',
@@ -122,16 +117,12 @@ Page({
     const { id } = e.currentTarget.dataset
     console.log('开始制作菜谱:', id)
     
-    // 显示加载状态
-    wx.showLoading({ title: '加载中...' })
-    
     // 调用获取详情接口
     const apiConfig = { ...API_CONFIG.recipe.getDetail }
     apiConfig.path = apiConfig.path.replace('{id}', id)
     
     request(apiConfig)
       .then(detail => {
-        wx.hideLoading()
         console.log('菜谱详情:', detail)
         
         // 将详情数据存储到本地
@@ -144,7 +135,6 @@ Page({
         })
       })
       .catch(err => {
-        wx.hideLoading()
         console.error('获取菜谱详情失败:', err)
         wx.showToast({
           title: '获取详情失败',
@@ -171,12 +161,10 @@ Page({
     
     // 显示加载状态
     this.setData({ aiGenerating: true })
-    wx.showLoading({ title: 'AI 生成中...', mask: true })
     
     // 调用 AI 生成接口
     request(API_CONFIG.recipe.aiGenerate, recipeRequest)
       .then(res => {
-        wx.hideLoading()
         this.setData({ aiGenerating: false })
         console.log('AI 生成成功:', res)
         
@@ -201,7 +189,6 @@ Page({
         }
       })
       .catch(err => {
-        wx.hideLoading()
         this.setData({ aiGenerating: false })
         console.error('AI 生成失败:', err)
         wx.showToast({

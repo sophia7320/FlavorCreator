@@ -11,6 +11,7 @@ public class StorageProperties {
     private String type = "local";
     private String localPath = "./uploads";
     private String urlPrefix = "/uploads";
+    private String baseUrl = "";
     private Cos cos = new Cos();
 
     @Data

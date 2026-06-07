@@ -1,0 +1,80 @@
+/* pages/feedback/feedback.wxss */
+.feedback-page {
+  width: 750rpx;
+	height: 100vh;
+	background-color: var(--bg-primary);
+	padding: 201rpx 33rpx 0;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	position: relative;
+}
+
+.description {
+	color: rgba(191, 191, 191, 1);
+	font-size: 22rpx;
+	margin-top: 30rpx;
+}
+
+.feedback-form {
+	width: 100%;
+	height: 1029rpx;
+	margin-top: 40rpx;
+	background-color: rgba(255, 250, 241, 1);
+	border-radius: 16rpx 16rpx 0 0;
+	border: 2rpx solid rgba(232, 167, 167, 1);
+	display: flex;
+	flex-direction: column;
+	
+}
+
+.feedback-form .title-container {
+	height: 80rpx;
+	padding: 0 21rpx;
+	display: flex;
+	align-items: center;
+	border-bottom: 2rpx solid rgba(232, 167, 167, 1);
+}
+
+.feedback-form .title-container .title {
+	width: 100%;
+	font-size: 28rpx;
+}
+
+.feedback-form .content-container {
+	width: 100%;
+	height: 100%;
+	padding: 21rpx;
+}
+
+.feedback-form .content-container .content {
+	width: 100%;
+	height: 100%;
+	overflow-y: scroll;
+}
+
+.foot-info {
+	position: absolute;
+	left: 33rpx;
+	bottom: 187rpx;
+	color: rgba(191, 191, 191, 1);
+	font-size: 22rpx;
+}
+
+.send-btn {
+	position: absolute;
+	right: 33rpx;
+	bottom: 90rpx;
+	width: 173rpx;
+	height: 71rpx;
+	background-color: rgba(255, 255, 255, 1);
+	border-radius: 20rpx;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: rgba(185, 89, 33, 1);
+	font-size: 24rpx;
+	font-weight: 700;
+	border: 2rpx solid rgba(232, 167, 167, 1);
+	box-shadow: 0 4rpx 0 0 rgba(232, 167, 167, 1);
+}

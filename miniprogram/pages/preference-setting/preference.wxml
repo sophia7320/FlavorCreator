@@ -1,9 +1,6 @@
 <!--pages/preference-setting/preference.wxml-->
 <view class="preference-page">
-	<view class="top-bar">
-		<back-btn></back-btn>
-		<text class="top-title">口味偏好设置</text>
-	</view>
+	<top-bar title="口味偏好设置"/>
 
 	<view class="description">你可以设置默认偏好，打开默认模式，更方便！</view>
 

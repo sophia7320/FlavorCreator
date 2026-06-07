@@ -86,14 +86,20 @@ App({
 
   // 用 refreshToken 刷新 token（被动兜底，允许弹 toast）
   refreshAccessToken() {
+    // 防止并发重复调用
+    if (this._refreshing) {
+      return Promise.resolve(false)
+    }
+
     const refreshToken = this.getRefreshToken()
     if (!refreshToken) return Promise.resolve(false)
 
+    this._refreshing = true
     return request(API_CONFIG.auth.refresh, { refreshToken }, { showLoading: false })
       .then((res) => {
-        if (res.code === 0 || res.code === 200) {
-          const data = res.data
-          this.saveLoginInfo(data.token, data.refreshToken, this.getUserInfo(), data.expiresIn)
+        this._refreshing = false
+        if (res && res.token) {
+          this.saveLoginInfo(res.token, res.refreshToken, this.getUserInfo(), res.expiresIn)
           return true
         } else {
           this.clearLoginState()
@@ -101,6 +107,7 @@ App({
         }
       })
       .catch(() => {
+        this._refreshing = false
         this.clearLoginState()
         return false
       })
@@ -116,9 +123,8 @@ App({
       showError: false
     })
       .then((res) => {
-        if ((res.code === 0 || res.code === 200) && res.data) {
-          const data = res.data
-          this.saveLoginInfo(data.token, data.refreshToken, this.getUserInfo(), data.expiresIn)
+        if (res && res.token) {
+          this.saveLoginInfo(res.token, res.refreshToken, this.getUserInfo(), res.expiresIn)
           return true
         }
         return false

@@ -54,7 +54,7 @@
 					<view class="rectangle {{isDefaultMode ? 'active' : ''}}"  bind:tap="onDefaultModeTap">
 						<view class="circle" ></view>
 					</view>
-					<view class="default-mode-text">默认模式</view>
+					<view class="default-mode-text {{isDefaultMode ? 'active' : ''}}">默认模式</view>
 				</view>
 				<view class="selected-line" style="left: {{ indicatorLeft }}rpx"></view>
 			</view>
@@ -170,7 +170,6 @@
 					<view class="basket-ingredient-item" wx:for="{{selectedIngredients}}" wx:key="name">
 						<view class="ingredient-info">
 							<view class="ingredient-name">{{item.name}}</view>
-							<view class="ingredient-unit">{{item.unit}}</view>
 						</view>
 						<view class="ingredient-remove" bindtap="onRemoveIngredient" data-item="{{item}}">
 							<image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/remove.svg" mode="aspectFit" class="remove-icon"/>

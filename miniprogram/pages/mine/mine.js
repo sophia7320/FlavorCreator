@@ -120,7 +120,7 @@ Page({
       { showLoading: false }
     )
       .then(res => {
-        const list = res.data.list || res.data || []
+        const list = res.list || res.data || []
         const transformed = list.map(item => this.transformCardData(item))
         const hasMore = list.length >= this.data.pageSize
         const newCards = isRefresh ? transformed : [...this.data.sharedCards, ...transformed]
@@ -155,7 +155,7 @@ Page({
       { showLoading: false }
     )
       .then(res => {
-        const list = res.data.list || res.data || []
+        const list = res.list || res.data || []
         const transformed = list.map(item => this.transformCardData(item))
         const hasMore = list.length >= this.data.pageSize
         const newCards = isRefresh ? transformed : [...this.data.likeCards, ...transformed]

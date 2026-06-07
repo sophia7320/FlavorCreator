@@ -1,0 +1,21 @@
+<!--pages/feedback/feedback.wxml-->
+<view class="feedback-page">
+	<top-bar title="反馈"></top-bar>
+	<view class="description">如果有任何建议和意见，欢迎向我们提出来哦~</view>
+
+	<view class="feedback-form">
+		<view class="title-container">
+			<input type="text" class="title" bindinput="onTitleInput" placeholder="标题" value="{{title}}" />
+		</view>
+		<view class="content-container">
+			<textarea class="content" bindinput="onContentInput" placeholder="正文" value="{{content}}" maxlength="1300"></textarea>
+		</view>
+	</view>
+
+	<view class="foot-info">
+		<view class="text">也可以通过联系我们的邮箱哦~</view>
+		<view class="email">xxxxxxxxxxx@xxx.com</view>
+	</view>
+
+	<view class="send-btn" bind:tap="onSend">发送</view>
+</view>

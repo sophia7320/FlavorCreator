@@ -1,9 +1,6 @@
 <!--pages/help-center/help.wxml-->
 <view class="help-page">
-	<view class="top-bar">
-		<back-btn></back-btn>
-		<text class="top-title">帮助中心</text>
-	</view>
+	<top-bar title="帮助中心"/>
 
 	<scroll-view class="main" scroll-y>
 		<block wx:for="{{helpList}}">

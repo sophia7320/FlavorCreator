@@ -32,8 +32,7 @@ Page({
     }
 
     request(apiConfig, {}, { showLoading: true })
-      .then(res => {
-        const data = res.data
+      .then(data => {
         // 同步本地收藏状态
         const favorites = wx.getStorageSync('favorites') || []
         const isLiked = favorites.some(f => f.id == id)

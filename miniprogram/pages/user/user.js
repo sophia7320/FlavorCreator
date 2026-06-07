@@ -52,7 +52,7 @@ Page({
       userId: this.data.userId
     }, { showLoading: false })
       .then(res => {
-        const list = res.data.list || res.data || []
+        const list = res.list || res.data || []
         const hasMore = list.length >= this.data.pageSize
 
         const cards = list.map((item, index) => ({

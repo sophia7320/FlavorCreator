@@ -1,0 +1,7 @@
+<!--components/top-bar/top-bar.wxml-->
+<view class="top-mask">
+  <view class="nav-bar">
+    <back-btn/>
+    <view class="nav-title">{{title}}</view>
+  </view>
+</view>

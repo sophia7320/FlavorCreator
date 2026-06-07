@@ -155,6 +155,8 @@ Page({
 
 		if (newMode) {
 			this.applyDefaultPreferences()
+		} else {
+			this.resetPreferences()
 		}
 	},
 
@@ -286,17 +288,19 @@ Page({
 
 		const { index } = e.currentTarget.dataset
 		const cookTimeOptions = [...this.data.cookTimeOptions]
+		const isCurrentlySelected = cookTimeOptions[index].selected
 		
 		// 先取消所有选择
 		cookTimeOptions.forEach(item => item.selected = false)
-		// 选中当前项
-		cookTimeOptions[index].selected = true
 
-		// 获取选中的时长和难度
-		const selectedCookTime = cookTimeOptions[index].value
-		let difficulty = '简单'
-		if (index === 1) difficulty = '普通'
-		if (index === 2) difficulty = '困难'
+		// 如果当前项之前未选中，则选中它；否则保持全取消（即取消选择）
+		if (!isCurrentlySelected) {
+			cookTimeOptions[index].selected = true
+		}
+
+		const difficultyMap = ['简单', '普通', '困难']
+		const selectedCookTime = isCurrentlySelected ? null : cookTimeOptions[index].value
+		const difficulty = isCurrentlySelected ? null : difficultyMap[index]
 
 		this.setData({
 			cookTimeOptions: cookTimeOptions,
@@ -315,11 +319,15 @@ Page({
 
 		const { index } = e.currentTarget.dataset
 		const servingsOptions = [...this.data.servingsOptions]
+		const isCurrentlySelected = servingsOptions[index].selected
 		
 		// 先取消所有选择
 		servingsOptions.forEach(item => item.selected = false)
-		// 选中当前项
-		servingsOptions[index].selected = true
+
+		// 如果当前项之前未选中，则选中它；否则保持全取消（即取消选择）
+		if (!isCurrentlySelected) {
+			servingsOptions[index].selected = true
+		}
 
 		this.setData({
 			servingsOptions: servingsOptions
@@ -656,6 +664,33 @@ Page({
 		if (Object.keys(updates).length > 0) {
 			this.setData(updates)
 		}
+	},
+
+	// 重置所有偏好选择（关闭默认模式时调用）
+	resetPreferences() {
+		const tasteOptions = this.data.tasteOptions.map(item => ({
+			...item,
+			selected: false
+		}))
+		const cookTimeOptions = this.data.cookTimeOptions.map(item => ({
+			...item,
+			selected: false
+		}))
+		const servingsOptions = this.data.servingsOptions.map(item => ({
+			...item,
+			selected: false
+		}))
+
+		this.setData({
+			tasteOptions,
+			cookTimeOptions,
+			servingsOptions,
+			selectedPreferences: {
+				taste: [],
+				cookTime: null,
+				difficulty: null
+			}
+		})
 	},
 
 	// 移除单个食材

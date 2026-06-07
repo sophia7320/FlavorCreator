@@ -1,10 +1,7 @@
 <!--pages/choose-recipes/choose-recipes.wxml-->
 <view class="choose-recipes-page">
 	<!-- 顶部导航栏 -->
-	<view class="header">
-		<back-btn></back-btn>
-		<view class="header-title">匹配结果</view>
-	</view>
+	<top-bar title="匹配结果"/>
 	
 	<!-- 菜谱列表 -->
 	<view class="recipes-container" wx:if="{{!loading && recipes.length > 0}}">
@@ -36,9 +33,11 @@
 	<!-- 空状态 -->
 	<view class="empty-section" wx:if="{{!loading && recipes.length === 0}}">
 		<view class="empty-text">暂无匹配的菜谱</view>
-		<view class="ai-btn" wx:if="{{needAiGenerate}}" bindtap="onAiGenerate">
-			<text class="ai-btn-text">AI 生成菜谱</text>
-		</view>
+	</view>
+
+	<!-- AI 生成链接 - 始终显示在所有卡片下方 -->
+	<view class="ai-link-section" wx:if="{{!loading && needAiGenerate}}" bindtap="onAiGenerate">
+		<text class="ai-btn-text">没有心仪的？试试AI生成吧！</text>
 	</view>
 	
 	<!-- 加载中 -->

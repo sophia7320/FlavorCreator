@@ -60,8 +60,8 @@ public class LocalFileStorageServiceImpl implements FileStorageService {
         String dateDir = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMM"));
         String fileName = UUID.randomUUID().toString() + ext;
 
-        String basePath = storageProperties.getLocalPath();
-        Path targetDir = Paths.get(basePath, dir, dateDir);
+        Path baseDir = Paths.get(storageProperties.getLocalPath()).toAbsolutePath().normalize();
+        Path targetDir = baseDir.resolve(dir).resolve(dateDir);
 
         try {
             Files.createDirectories(targetDir);
@@ -69,7 +69,9 @@ public class LocalFileStorageServiceImpl implements FileStorageService {
             file.transferTo(targetFile.toFile());
 
             String relativePath = "/" + dir + "/" + dateDir + "/" + fileName;
-            String url = storageProperties.getUrlPrefix() + relativePath;
+            String url = storageProperties.getBaseUrl() != null && !storageProperties.getBaseUrl().isEmpty()
+                    ? storageProperties.getBaseUrl() + storageProperties.getUrlPrefix() + relativePath
+                    : storageProperties.getUrlPrefix() + relativePath;
 
             log.info("文件上传成功: {}", url);
             return url;

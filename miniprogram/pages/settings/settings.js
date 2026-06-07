@@ -144,15 +144,13 @@ Page({
         })
         break
       case 'help':
-        wx.showToast({
-          title: '帮助中心功能开发中',
-          icon: 'none'
+        wx.navigateTo({
+          url: '/pages/help-center/help'
         })
         break
       case 'feedback':
-        wx.showToast({
-          title: '反馈功能开发中',
-          icon: 'none'
+        wx.navigateTo({
+          url: '/pages/feedback/feedback'
         })
         break
     }
