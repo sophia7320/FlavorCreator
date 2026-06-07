@@ -11,14 +11,13 @@ import flcr.backend.recipe.DTO.response.ApplyRecipeResponseDTO;
 import flcr.backend.recipe.DTO.response.RecipeDetailResponseDTO;
 import flcr.backend.recipe.DTO.response.RecipeGenerateResponseDTO;
 import flcr.backend.recipe.DTO.response.RecipeListItemResponseDTO;
+import flcr.backend.recipe.DTO.response.RecipeRecommendResponseDTO;
 import flcr.backend.recipe.service.RecipeGenerateService;
 import flcr.backend.recipe.service.RecipeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import java.util.List;
 
 @Slf4j
 @RestController
@@ -36,11 +35,8 @@ public class RecipeController {
     }
 
     @PostMapping
-    public Response<Long> publishRecipe(
-            @Valid @RequestPart("request") PublishRecipeRequestDTO request,
-            @RequestParam("cover") MultipartFile cover,
-            @RequestParam(value = "images", required = false) List<MultipartFile> images) {
-        Long recipeId = recipeService.publishRecipe(request, cover, images);
+    public Response<Long> publishRecipe(@Valid @RequestBody PublishRecipeRequestDTO request) {
+        Long recipeId = recipeService.publishRecipe(request);
         return Response.success(recipeId);
     }
 
@@ -62,5 +58,10 @@ public class RecipeController {
     public Response<ApplyRecipeResponseDTO> apply(@Valid @RequestBody ApplyRecipeRequestDTO request) {
         ApplyRecipeResponseDTO result = recipeService.apply(request);
         return Response.success(result);
+    }
+
+    @GetMapping("/recommend")
+    public Response<RecipeRecommendResponseDTO> recommend() {
+        return Response.success(recipeService.recommend());
     }
 }

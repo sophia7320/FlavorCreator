@@ -9,12 +9,12 @@ import flcr.backend.recipe.DTO.response.RecipeListItemResponseDTO;
 import flcr.backend.recipe.service.RecipeService;
 import flcr.backend.recipe.DTO.request.RecipeGenerateRequestDTO;
 import flcr.backend.recipe.DTO.response.RecipeGenerateResponseDTO;
+import flcr.backend.recipe.DTO.response.RecipeRecommendResponseDTO;
 import flcr.backend.recipe.service.RecipeGenerateService;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -32,20 +32,21 @@ class RecipeControllerTest {
     @Test
     @DisplayName("发布菜谱成功返回id")
     void testPublishRecipe_ReturnsId() {
-        MultipartFile cover = mock(MultipartFile.class);
-        List<MultipartFile> images = List.of(mock(MultipartFile.class));
-        when(recipeService.publishRecipe(any(), eq(cover), eq(images))).thenReturn(1L);
+        PublishRecipeRequestDTO dto = new PublishRecipeRequestDTO();
+        dto.setCoverUrl("https://example.com/cover.jpg");
+        dto.setImageUrls(List.of("https://example.com/img1.jpg"));
+        when(recipeService.publishRecipe(any())).thenReturn(1L);
 
-        assertEquals(1L, controller.publishRecipe(new PublishRecipeRequestDTO(), cover, images).getData());
+        assertEquals(1L, controller.publishRecipe(dto).getData());
     }
 
     @Test
     @DisplayName("发布菜谱无图片")
     void testPublishRecipe_NoImages() {
-        MultipartFile cover = mock(MultipartFile.class);
-        when(recipeService.publishRecipe(any(), eq(cover), isNull())).thenReturn(2L);
+        PublishRecipeRequestDTO dto = new PublishRecipeRequestDTO();
+        when(recipeService.publishRecipe(any())).thenReturn(2L);
 
-        assertEquals(2L, controller.publishRecipe(new PublishRecipeRequestDTO(), cover, null).getData());
+        assertEquals(2L, controller.publishRecipe(dto).getData());
     }
 
     @Test
@@ -79,5 +80,20 @@ class RecipeControllerTest {
 
         assertEquals(200, response.getCode());
         assertEquals("番茄炒蛋", response.getData().getRecipe().getName());
+    }
+
+    @Test
+    @DisplayName("今日推荐返回200")
+    void testRecommend_ReturnsOk() {
+        RecipeRecommendResponseDTO dto = RecipeRecommendResponseDTO.builder()
+                .title("今天吃什么？")
+                .recipes(List.of(
+                        RecipeRecommendResponseDTO.RecommendItem.builder()
+                                .id(1L).name("测试菜").cover("https://...").reason("推荐").build()))
+                .build();
+        when(recipeService.recommend()).thenReturn(dto);
+        Response<RecipeRecommendResponseDTO> response = controller.recommend();
+        assertEquals(200, response.getCode());
+        assertEquals(1, response.getData().getRecipes().size());
     }
 }
