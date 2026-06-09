@@ -3,7 +3,7 @@
 	<top-bar title="个人资料设置"/>
 
 	<view class="user-info-container">
-		<image src="{{userInfo.avatarUrl}}" mode="aspectFit" class="user-avatar" bindtap="onChooseAvatar"/>
+		<image src="{{userInfo.avatarUrl}}" mode="aspectFill" class="user-avatar" bindtap="onChooseAvatar"/>
 		<view class="decoration-tick"></view>
 		<view class="user-name">{{userInfo.nickName}}</view>
 	</view>

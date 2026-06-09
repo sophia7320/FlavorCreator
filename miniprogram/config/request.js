@@ -1,3 +1,3 @@
 module.exports = {
-  useCallContainer: false
+  useCallContainer: true
 }

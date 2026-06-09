@@ -24,7 +24,7 @@
 			"list": [
 				{
 					"name": "test",
-					"pathName": "pages/help-center/help",
+					"pathName": "pages/post/post",
 					"query": "",
 					"scene": null,
 					"launchMode": "default"

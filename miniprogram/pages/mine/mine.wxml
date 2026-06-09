@@ -5,7 +5,7 @@
 
 		<view class="user-info-container">
 			<view class="user-avatar-container">
-				<image src="{{userInfo.avatarUrl}}" mode="aspectFit" class="user-avatar-img"/>
+				<image src="{{userInfo.avatarUrl}}" mode="aspectFill" class="user-avatar-img"/>
 			</view>
 			<view class="user-name">{{userInfo.nickName === '默认用户' ? 'Bill Rizer' : userInfo.nickName}}</view>
 		</view>
