@@ -75,8 +75,8 @@ const API_CONFIG = {
     },
     // AI 生成菜谱
     aiGenerate: {
-      path: '/api/recipe/ai-generate',
-      method: 'POST'
+      path: '/api/recipe/generate',
+      method: 'POST' 
     },
     // 获取菜谱详情
     getDetail: {
