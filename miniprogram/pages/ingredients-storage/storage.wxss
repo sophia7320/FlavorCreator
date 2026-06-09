@@ -1,0 +1,282 @@
+/* pages/ingredients-storage/storage.wxss */
+.storage-page {
+  width: 750rpx;
+	height: 100vh;
+	background-color: var(--bg-primary);
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding: 201rpx 0rpx 52rpx 0;
+}
+
+.tool-bar {
+	width: 682rpx;
+	height: 62rpx;
+	display: flex;
+	gap: 22rpx;
+	align-items: center;
+	margin-top: 17rpx;
+}
+
+.tool-bar .search-container {
+	width: 491rpx;
+	height: 62rpx;
+	border-radius: 30rpx;
+	display: flex;
+	align-items: center;
+	background-color: rgba(255, 250, 241, 1);
+	padding: 16rpx 25rpx;
+	gap: 23rpx;
+}
+
+.tool-bar .search-container .search-icon {
+	width: 28rpx;
+	height: 28rpx;
+}
+
+.tool-bar .search-container .search-input {
+	width: 100%;
+}
+
+.tool-bar .btns {
+	display: flex;
+	gap: 30rpx;
+}
+
+.tool-bar .sort-btn {
+	width: 62rpx;
+	height: 62rpx;
+	background-color: rgba(255, 225, 207, 1);
+	border-radius: 20rpx;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 12rpx;
+	font-size: 22rpx;
+	color: rgba(87, 30, 0, 1);
+}
+
+.more-btn {
+	width: 62rpx;
+	height: 62rpx;
+	background-color: rgba(255, 225, 207, 1);
+	border-radius: 20rpx;
+	position: relative;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.more-btn::before,
+.more-btn::after {
+	content: '';
+	position: absolute;
+	background-color: #000;
+	border-radius: 4rpx;
+}
+
+.more-btn::before {
+	width: 26rpx;
+	height: 4rpx;
+}
+
+.more-btn::after {
+	width: 4rpx;
+	height: 26rpx;
+}
+
+.sort-icon {
+	width: 22rpx;
+	height: 22rpx;
+}
+
+.main {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	gap: 40rpx;
+	padding: 35rpx 51rpx 52rpx 0;
+}
+
+.left-container {
+	width: 186rpx;
+	height: 1256rpx;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 144rpx;
+	padding: 80rpx 0;
+	background-color: rgba(255, 250, 241, 1);
+	border-radius: 0 50rpx 50rpx 0;
+	box-shadow: inset -4rpx -4rpx 4rpx 0 rgba(0, 0, 0, 0.25);
+	position: relative;
+}
+
+.left-container .item {
+	font-size: 24rpx;
+	color: rgba(87, 30, 0, 1);
+	font-weight: 700;
+	position: relative;
+	z-index: 2;
+	transition: color 0.3s ease;
+}
+
+.left-container .item.selected {
+	color: #fff;
+}
+
+.left-container .red-point {
+	position: absolute;
+	border-radius: 50%;
+	width: 27rpx;
+	height: 27rpx;
+	top: -30rpx;
+	right: -40rpx;
+	background-color: rgba(249, 90, 44, 1);
+	border: 2rpx solid rgba(255, 255, 255, 1);
+}
+
+.selected-background {
+	position: absolute;
+	left: 50%;
+	transform: translateX(-50%);
+	width: 119rpx;
+	height: 119rpx;
+	background-color: rgba(208, 114, 59, 1);
+	border-radius: 24rpx;
+	z-index: 1;
+	box-shadow: 4rpx 4rpx 4rpx 0 rgba(0, 0, 0, 0.25);
+}
+
+.selected-background.animated {
+	transition: top 0.45s cubic-bezier(0.34, 1.1, 0.64, 1.1);
+}
+
+/* 小程序的scroll-view不支持grid */
+.right-container {
+	width: 525rpx;
+	height: 1256rpx;
+}
+
+.right-content {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 23rpx;
+	padding-top: 10rpx;
+}
+
+.ingredient-card {
+	width: 224rpx;
+	height: 305rpx;
+	background-color: rgba(255, 255, 255, 1);
+	border-radius: 25rpx;
+	display: flex;
+	flex-direction: column;
+	gap: 22rpx;
+	padding: 16rpx;
+	position: relative;
+	box-shadow: 0 4rpx 4rpx 0 rgba(0, 0, 0, 0.25);
+}
+
+.ingredient-card .food-cover {
+	width: 100%;
+	height: 170rpx;
+	border-radius: 25rpx;
+}
+
+.ingredient-card .info {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.ingredient-card .info .title {
+	color: rgba(0, 0, 0, 1);
+	font-size: 18rpx;
+	font-weight: 600;
+}
+
+.ingredient-card .info .status-light {
+	width: 19rpx;
+	height: 19rpx;
+	border-radius: 50%;
+}
+
+.ingredient-card .info .status-light.red {
+	background-color: rgba(232, 54, 54, 1);
+	box-shadow: 1rpx 4rpx 0 0 rgba(232, 54, 54, 1);
+}
+
+.ingredient-card .info .status-light.green {
+	background-color: rgba(144, 223, 22, 1);
+	box-shadow: 0 1rpx 4rpx 0 rgba(144, 223, 22, 1);
+}
+
+.ingredient-card .info .status-light.yellow {
+	background-color: rgba(253, 198, 11, 1);
+	box-shadow: 0 1rpx 4rpx 0 rgba(253, 198, 11, 1);
+}
+
+.ingredient-card .amount-container {
+	width: 95rpx;
+	height: 30rpx;
+	display: flex;
+	align-items: center;
+	gap: 5rpx;
+	margin-left: auto;
+}
+
+.ingredient-card .amount-container .action-container {
+	display: flex;
+	align-items: center;
+	border-radius: 12rpx;
+	border: 1.5rpx solid #000;
+}
+
+.ingredient-card .amount-container .action-container .amount {
+	width: 62rpx;
+	height: 100%;
+	text-align: center;
+	background-color: rgba(0, 0, 0, 0.05);
+	font-size: 17rpx;
+	font-weight: 600;
+	color: #333;
+}
+
+.amount-container .unit {
+	font-size: 16rpx;
+
+}
+
+.delete-btn {
+	position: absolute;
+	top: -6rpx;
+	right: -12rpx;
+	width: 24rpx;
+	height: 24rpx;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 10;
+	border: 2rpx solid #000;
+}
+
+/* 叉号的两条线 */
+.delete-btn::before,
+.delete-btn::after {
+	content: '';
+	position: absolute;
+	width: 10rpx;
+	height: 2rpx;
+	border-radius: 1rpx;
+	background-color: #333;
+}
+
+.delete-btn::before {
+	transform: rotate(45deg);
+}
+
+.delete-btn::after {
+	transform: rotate(-45deg);
+}

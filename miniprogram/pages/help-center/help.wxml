@@ -5,12 +5,9 @@
 	<scroll-view class="main" scroll-y>
 		<block wx:for="{{helpList}}">
 			<view class="card-container">
-				<view class="question-container">问：
-				<view class="question-content">{{item.question}}
-				</view>
-				</view>
-				<view class="answer-container">答：
-				<view class="answer-content">{{item.answer}}</view></view>
+			<!-- white-space会导致WXML中标记之间的空白文本也被保留，所以要横向放做一团 -->
+				<view class="question-container">问：<view class="question-content">{{item.question}}</view></view>
+				<view class="answer-container">答：<view class="answer-content">{{item.answer}}</view></view>
 			</view>
 		</block>
 	</scroll-view>

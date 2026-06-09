@@ -23,15 +23,15 @@
 		"miniprogram": {
 			"list": [
 				{
-					"name": "new-page",
-					"pathName": "pages/post/post",
+					"name": "test",
+					"pathName": "pages/help-center/help",
 					"query": "",
 					"scene": null,
 					"launchMode": "default"
 				},
 				{
-					"name": "test",
-					"pathName": "pages/community/community",
+					"name": "new-page",
+					"pathName": "pages/ingredients-storage/storage",
 					"query": "",
 					"launchMode": "default",
 					"scene": null
