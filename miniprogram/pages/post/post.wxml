@@ -1,4 +1,26 @@
 <!--pages/post/post.wxml-->
 <view class="post-page">
-	
+	<top-bar title="发布"></top-bar>
+
+	<view class="main">
+		<view class="header-container">
+			<view class="img-container">
+				<image src="{{post.cover}}" mode="aspectFill" class="recipe-cover"/>
+			</view>
+			<view class="title-input-container">
+				<input type="text" class="title" bindinput="onTitleInput"/>
+			</view>
+			<view class="divider-line"></view>
+			<view class="description-container">
+				<input type="text" class="description" bindinput="onDescriptionInput"/>
+			</view>
+		</view>
+
+		<view class="ingredients-container">
+			<view class="title">用料</view>
+			<view class="content-container">
+				.
+			</view>
+		</view>
+	</view>
 </view>

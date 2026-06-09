@@ -1,0 +1,53 @@
+<!--pages/ingredients-storage/storage.wxml-->
+<view class="storage-page">
+	<top-bar title="食材存储库"></top-bar>
+
+	<view class="tool-bar">
+		<view class="search-container">
+			<image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/search-icon.svg" mode="aspectFit" class="search-icon"/>
+			<input type="text" class="search-input" placeholder="搜索你想要找到的食材" placeholder-style="color:rgba(191, 191, 191, 1); font-size: 24rpx;" value="{{keyword}}" bindinput="onSearchInput"/>
+		</view>
+		
+		<view class="btns">
+			<view class="sort-btn" bindtap="onSort">
+				<image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/switch-sort.svg" mode="aspectFit" class="sort-icon"/>
+			</view>
+			<view class="more-btn">
+			</view>
+		</view>
+	
+	</view>
+
+	<view class="main">
+		<view class="left-container">
+			<block wx:for="{{typeList}}" wx:key="index">
+				<view class="item {{currentIndex === index ? 'selected' : ''}}"
+					  bindtap="onTypeTap"
+					  data-index="{{index}}">{{item.name}}
+				<view wx:if="{{item.redPoint}}" class="red-point"></view>
+				</view>
+			</block>
+			<view class="selected-background {{ready ? 'animated' : ''}}" style="top: {{selectedTop}}px;"></view>
+		</view>
+
+		<scroll-view class="right-container" scroll-y>
+			<view class="right-content">
+				<block wx:for="{{ingredientList}}">
+					<view class="ingredient-card">
+						<image src="{{item.cover}}" mode="aspectFill" class="food-cover"/>
+						<view class="info">
+							<view class="title">{{item.name}}</view>
+						</view>
+						<view class="amount-container">
+							<view class="action-container">
+								<view class="amount">{{item.amount}}</view>
+							</view>
+							<view class="unit">{{item.unit}}</view>
+						</view>
+						<view class="delete-btn" bindtap="onDelete" data-id="{{item.id}}"></view>
+					</view>
+				</block>
+			</view>
+		</scroll-view>
+	</view>
+</view>

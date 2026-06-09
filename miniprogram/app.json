@@ -17,11 +17,11 @@
     "pages/profile-setting/profile",
     "pages/preference-setting/preference",
     "pages/help-center/help",
-    "components/AI-btn/AI-btn",
     "pages/feedback/feedback",
     "pages/post/post",
     "pages/account-management/account",
-    "pages/history/history"
+    "pages/history/history",
+    "pages/ingredients-storage/storage"
   ],
   "tabBar": {
     "custom": true,

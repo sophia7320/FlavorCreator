@@ -713,6 +713,12 @@ Page({
 				this.getTabBar().updateCreateVisibility(selectedIngredients.length >= 1)
 			}
 		}
-	}
+	},
+
+	onIngredientsStorageTap() {
+		wx.navigateTo({
+			url: '/pages/ingredients-storage/storage'
+		})
+	},
 
 })
