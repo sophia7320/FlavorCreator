@@ -7,4 +7,5 @@ backend/logs/
 .lsp.json
 lsp.json
 .sisyphus
+.vscode/
 doc/演讲稿.md

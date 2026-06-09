@@ -1,0 +1,28 @@
+<!--pages/history/history.wxml-->
+<view class="history-page">
+	<top-bar title="历史记录"></top-bar>
+	
+	<scroll-view scroll-y>
+
+	<view class="title-container">
+		<image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/time.svg" mode="aspectFit" class="time-icon" />
+		<text>今天</text>
+	</view>
+	<view class="recipe-cards-container">
+		<block wx:for="{{todayRecipes}}" wx:key="id">
+			<recipe-card cardData="{{item}}"></recipe-card>
+		</block>
+	</view>
+
+	<view class="title-container">
+		<image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/time.svg" mode="aspectFit" class="time-icon" />
+		<text>近三天</text>
+	</view>
+	<view class="recipe-cards-container">
+		<block wx:for="{{recentRecipes}}" wx:key="id">
+			<recipe-card cardData="{{item}}"></recipe-card>
+		</block>
+	</view>
+
+	</scroll-view>
+</view>

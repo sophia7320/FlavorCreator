@@ -18,7 +18,10 @@
     "pages/preference-setting/preference",
     "pages/help-center/help",
     "components/AI-btn/AI-btn",
-    "pages/feedback/feedback"
+    "pages/feedback/feedback",
+    "pages/post/post",
+    "pages/account-management/account",
+    "pages/history/history"
   ],
   "tabBar": {
     "custom": true,

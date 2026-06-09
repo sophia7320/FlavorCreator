@@ -25,10 +25,10 @@
 					<recipe-card
 						cardData="{{item}}"
 						isFirst="{{index === 0}}"
-						isLiked="{{item.isLiked}}"
+						isCollected="{{item.isCollected}}"
 						bind:cardtap="onCardTap"
 						bind:usertap="onUserTap"
-						bind:liketap="onLike"
+						bind:collecttap="onCollect"
 						bind:sharetap="onShare"
 					/>
 				</block>
@@ -38,10 +38,10 @@
 				<block wx:for="{{rightList}}" wx:key="{{item.id}}">
 					<recipe-card
 						cardData="{{item}}"
-						isLiked="{{item.isLiked}}"
+						isCollected="{{item.isCollected}}"
 						bind:cardtap="onCardTap"
 						bind:usertap="onUserTap"
-						bind:liketap="onLike"
+						bind:collecttap="onCollect"
 						bind:sharetap="onShare"
 					/>
 				</block>

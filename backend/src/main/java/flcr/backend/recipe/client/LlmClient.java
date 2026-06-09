@@ -1,9 +1,8 @@
 package flcr.backend.recipe.client;
 
-import flcr.backend.common.constants.ResultCode;
-import flcr.backend.common.exception.BusinessException;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -14,8 +13,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.List;
-import java.util.Map;
+import flcr.backend.common.constants.ResultCode;
+import flcr.backend.common.exception.BusinessException;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
@@ -74,10 +75,10 @@ public class LlmClient {
         Map<String, String> responseFormat = Map.of("type", "json_object");
 
         return Map.of(
-                "model", modelName,
-                "messages", List.of(systemMsg),
-                "temperature", 0.7,
-                "response_format", responseFormat
+            "model", modelName,
+            "messages", List.of(systemMsg),
+            "temperature", 0.7,
+            "response_format", responseFormat
         );
     }
 

@@ -1,0 +1,108 @@
+/* pages/account-management/account.wxss */
+.account-page {
+	width: 750rpx;
+	height: 100vh;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+  background-color: var(--bg-primary);
+	padding: 200rpx 37rpx 0;
+}
+
+.main {
+	flex: 1;
+	margin-top: 60rpx;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 40rpx;
+}
+
+.wx-connection, .phone-connection {
+	width: 676rpx;
+	height: 261rpx;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+
+	position: relative;
+	margin-bottom: 20rpx;
+	background-color: rgba(255, 250, 241, 1);
+	border-radius: 20rpx;
+
+	padding: 42rpx;
+}
+
+.wx-connection .title, .phone-connection .title {
+	font-size: 24rpx;
+	font-weight: 700;
+}
+
+.wx-connection .content, .phone-connection .content {
+	display: flex;
+	gap: 20rpx;
+	align-items: center;
+}
+
+.wx-connection .statues, .phone-connection .statues {
+	color: rgba(128, 127, 127, 1);
+	font-size: 20rpx;
+}
+
+.unbind-btn {
+	background-color: rgba(255, 255, 255, 1);
+	width: 90rpx;
+	height: 40rpx;
+	border: 2rpx solid rgba(185, 89, 33, 1);
+	border-radius: 15rpx;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	font-size: 18rpx;
+	color: rgba(185, 89, 33, 1);
+	margin-left: 500rpx;
+}
+
+.divider-line {
+	margin-top: -18rpx;
+	width: 100%;
+	height: 1rpx;
+	background-color: rgba(128, 127, 127, 1);
+}
+
+.image-container {
+	width: 44rpx;
+	height: 44rpx;
+	padding: 9rpx;
+	background-color: rgba(232, 167, 167, 1);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	border-radius: 12rpx;
+}
+
+.image-container image {
+	width: 100%;
+	height: 100%;
+}
+
+.delete-btn	{
+	width: 100%;
+	height: 89rpx;
+	background-color: rgba(254, 112, 88, 1);
+	border-radius: 40rpx;
+	display: flex;
+	gap: 16rpx;
+	justify-content: center;
+	align-items: center;
+	font-size: 24rpx;
+	font-weight: 700;
+	color: white;
+	margin-bottom: 100rpx;
+	box-shadow: 0 4rpx 11rpx 0 rgba(254, 112, 88, 0.5);
+}
+
+.delete-btn image {
+	width: 30rpx;
+	height: 30rpx;
+}

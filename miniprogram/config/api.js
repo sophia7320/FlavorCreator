@@ -58,6 +58,11 @@ const API_CONFIG = {
     upload: {
       path: '/api/image/upload',
       method: 'POST'
+    },
+    // 云模式上传（传 fileID 而非文件）
+    uploadCloud: {
+      path: '/api/image/upload',
+      method: 'POST'
     }
   },
 

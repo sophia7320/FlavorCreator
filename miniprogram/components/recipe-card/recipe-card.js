@@ -12,7 +12,7 @@ Component({
       type: Boolean,
       value: false
     },
-    isLiked: {
+    isCollected: {
       type: Boolean,
       value: false
     }
@@ -31,9 +31,9 @@ Component({
       const { authorId, userName, userImg } = this.data.cardData
       this.triggerEvent('usertap', { authorId, userName, userImg })
     },
-    onLikeTap() {
+    onCollectTap() {
       if (this.data.cardData.isPlaceholder) return
-      this.triggerEvent('liketap', { cardId: this.data.cardData.id })
+      this.triggerEvent('collecttap', { cardId: this.data.cardData.id })
     },
     onShareTap() {
       if (this.data.cardData.isPlaceholder) return
