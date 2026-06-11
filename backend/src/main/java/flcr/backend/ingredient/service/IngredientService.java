@@ -20,6 +20,10 @@ public interface IngredientService {
 
     void delete(Long id);
 
+    void markRead(Long id);
+
+    void markBatchRead(List<Long> ids);
+
     List<Long> batchAdd(IngredientBatchAddRequestDTO request);
 
     ExpiringNoticeResponseDTO expiringNotice();

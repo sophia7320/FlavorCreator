@@ -76,4 +76,19 @@ class IngredientControllerTest {
         when(ingredientService.commonList()).thenReturn(CommonIngredientResponseDTO.builder().build());
         assertEquals(200, controller.commonList().getCode());
     }
+
+    @Test
+    @DisplayName("markRead单条确认返回200")
+    void testMarkRead_Returns200() {
+        assertDoesNotThrow(() -> controller.markRead(1L));
+        verify(ingredientService).markRead(1L);
+    }
+
+    @Test
+    @DisplayName("markBatchRead批量确认返回200")
+    void testMarkBatchRead_Returns200() {
+        List<Long> ids = List.of(1L, 2L, 3L);
+        assertDoesNotThrow(() -> controller.markBatchRead(ids));
+        verify(ingredientService).markBatchRead(ids);
+    }
 }

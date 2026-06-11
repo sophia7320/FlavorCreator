@@ -8,6 +8,8 @@ import flcr.backend.ingredient.DTO.request.*;
 import flcr.backend.ingredient.DTO.response.*;
 import flcr.backend.ingredient.entity.CommonIngredient;
 import flcr.backend.ingredient.entity.Ingredient;
+import flcr.backend.ingredient.cache.CachedIngredient;
+import flcr.backend.ingredient.cache.IngredientHeapCache;
 import flcr.backend.ingredient.mapper.CommonIngredientMapper;
 import flcr.backend.ingredient.mapper.IngredientMapper;
 import org.junit.jupiter.api.*;
@@ -20,6 +22,7 @@ import java.time.LocalDate;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -28,6 +31,7 @@ class IngredientServiceImplTest {
 
     @Mock private IngredientMapper ingredientMapper;
     @Mock private CommonIngredientMapper commonIngredientMapper;
+    @Mock private IngredientHeapCache heapCache;
     @InjectMocks private IngredientServiceImpl ingredientService;
 
     private static final Long USER_ID = 1001L;
@@ -55,7 +59,7 @@ class IngredientServiceImplTest {
 
         assertEquals(1, result.getIngredients().size());
         assertEquals("西红柿", result.getIngredients().get(0).getName());
-        assertEquals("normal", result.getIngredients().get(0).getStatus());
+        assertEquals(3, result.getIngredients().get(0).getStatus());
     }
 
     @Test
@@ -166,21 +170,27 @@ class IngredientServiceImplTest {
     }
 
     @Test
-    @DisplayName("expiringNotice区分临期和过期")
-    void testExpiringNotice_DistinguishesExpiringAndExpired() {
-        Ingredient expiring = buildIngredient(1L, "牛奶");
-        expiring.setExpireDate(LocalDate.now().plusDays(2)); // 临期
-        Ingredient expired = buildIngredient(2L, "青菜");
-        expired.setExpireDate(LocalDate.now().minusDays(1)); // 过期
+    @DisplayName("expiringNotice返回食材提醒列表")
+    void testExpiringNotice_ReturnsItems() {
+        CachedIngredient urgent = CachedIngredient.builder()
+                .id(1L).userId(USER_ID).name("牛奶")
+                .expireDate(LocalDate.now().plusDays(2))
+                .readed(false).status(1).build();
+        CachedIngredient expired = CachedIngredient.builder()
+                .id(2L).userId(USER_ID).name("青菜")
+                .expireDate(LocalDate.now().minusDays(1))
+                .readed(false).status(0).build();
 
-        when(ingredientMapper.selectList(any(LambdaQueryWrapper.class))).thenReturn(List.of(expiring, expired));
+        when(heapCache.peekExpired(anyInt())).thenReturn(List.of(expired));
+        when(heapCache.peekUrgent(anyInt())).thenReturn(List.of(urgent));
+        when(heapCache.peekWarning(anyInt())).thenReturn(Collections.emptyList());
 
         ExpiringNoticeResponseDTO result = ingredientService.expiringNotice();
 
-        assertEquals(1, result.getExpiring().size());
-        assertEquals(1, result.getExpired().size());
-        assertEquals("牛奶", result.getExpiring().get(0).getName());
-        assertEquals("青菜", result.getExpired().get(0).getName());
+        assertEquals(2, result.getItems().size());
+        assertEquals("青菜", result.getItems().get(0).getName());
+        assertEquals("牛奶", result.getItems().get(1).getName());
+        assertTrue(result.getSummary().getHasnUnread());
     }
 
     @Test
@@ -206,7 +216,7 @@ class IngredientServiceImplTest {
         ingredient.setQuantity(new BigDecimal("1"));
         ingredient.setUnit("个");
         ingredient.setCategory("其他");
-        ingredient.setExpireDate(LocalDate.now().plusDays(14));
+        ingredient.setExpireDate(LocalDate.now().plusDays(20));
         return ingredient;
     }
 }

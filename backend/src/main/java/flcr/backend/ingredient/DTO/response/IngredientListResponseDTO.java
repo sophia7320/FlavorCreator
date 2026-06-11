@@ -21,7 +21,9 @@ public class IngredientListResponseDTO {
     @AllArgsConstructor
     public static class Summary {
         private Integer totalCount;
-        private Integer expiringCount;
         private Integer expiredCount;
+        private Integer urgentCount;
+        private Integer warningCount;
+        private Integer normalCount;
     }
 }

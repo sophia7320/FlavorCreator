@@ -23,6 +23,13 @@ public class UpdateUserInfoRequestDTO {
     private Integer gender;
     private String avatar;
 
+    @Size(max = 100, message = "地区最长100字")
+    private String address;
+
+    @Min(value = 0, message = "年龄不能为负数")
+    @Max(value = 150, message = "年龄取值0-150")
+    private Integer age;
+
     private Preferences preferences;
 
     @Data
