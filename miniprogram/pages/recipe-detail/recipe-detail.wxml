@@ -67,11 +67,11 @@
 		<view class="tool-bar">
 			<view class="left-action">
 				<view class="collect-btn" bind:tap="onCollectBtnTap">
-					<image src="{{isCollected ? 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/like_filled.svg' : 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/like.svg'}}" mode="aspectFit" class="collect-icon"/>
+					<image src="{{isCollected ? 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/red-heart.svg' : 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/like.svg'}}" mode="aspectFit" class="collect-icon"/>
 				</view>
-				<view class="share-btn" bind:tap="onShareBtnTap">
+				<button class="share-btn" open-type="share">
 					<image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/share.svg" mode="aspectFit" class="share-icon"/>
-				</view>
+				</button>
 			</view>
 			<view class="finish-btn" bind:tap="onFinishBtnTap">
 				<image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/finish.svg" mode="aspectFit" class="finish-icon"/>

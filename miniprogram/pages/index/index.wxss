@@ -311,9 +311,9 @@ swiper {
 
 .basket-wrapper {
 	position: relative;
-	/* display: flex;
-	flex-direction: column;
-	align-items: center; */
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-end;
 }
 
 .basket {
@@ -349,19 +349,6 @@ swiper {
 .basket .basket-icon {
 	width: 36rpx;
 	height: 36rpx;
-}
-
-.basket-tip {
-	margin-top: 20rpx;
-	font-size: 24rpx;
-	color: rgba(49, 39, 36, 0.8);
-	text-align: center;
-	display: inline-flex;
-	width: auto;
-	white-space: nowrap;
-	border-radius: 10rpx;
-	background-color: rgba(237, 186, 186, 0.8);
-	padding: 4rpx 12rpx;
 }
 
 /* 偏好设置容器 */
@@ -413,13 +400,7 @@ swiper {
 
 /* 选中状态 */
 .preference-item.selected {
-	/* background-color: var(--bg-light-green);
-	color: var(--color-primary);
-	border: 2rpx solid var(--color-primary); */
-	background-color: rgba(232, 167, 167, 1);
-
-	box-shadow: 0 3rpx 3rpx 0 rgba(232, 167, 167, 0.4);
-	color: #FFF;
+	background-color: rgba(252, 182, 182, 1);
 }
 
 .preference-item.selected .preference-icon {

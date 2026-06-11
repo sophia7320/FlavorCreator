@@ -12,7 +12,7 @@
 			<view class="sort-btn" bindtap="onSort">
 				<image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/switch-sort.svg" mode="aspectFit" class="sort-icon"/>
 			</view>
-			<view class="more-btn">
+			<view class="more-btn" bind:tap="onMore">
 			</view>
 		</view>
 	
@@ -33,7 +33,7 @@
 		<scroll-view class="right-container" scroll-y>
 			<view class="right-content">
 				<block wx:for="{{ingredientList}}" wx:key="id">
-					<ingredient-card item="{{item}}" bind:delete="onDelete"/>
+					<ingredient-card item="{{item}}" bind:tap="onIngredientTap" bind:delete="onDelete"/>
 				</block>
 			</view>
 		</scroll-view>

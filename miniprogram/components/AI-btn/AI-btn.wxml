@@ -1,2 +1,4 @@
 <!--components/AI-btn/AI-btn.wxml-->
-<text>components/AI-btn/AI-btn.wxml</text>
+<view class="AI-btn {{selected ? 'selected' : ''}}" bindtap="onTap">
+	AI
+</view>

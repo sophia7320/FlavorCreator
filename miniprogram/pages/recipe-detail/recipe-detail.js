@@ -5,6 +5,7 @@ const { request } = require('../../utils/request')
 Page({
   data: {
     recipeId: 0,
+    isAI: false,
     name: '',
     cover: '',
     desc: '',
@@ -23,6 +24,14 @@ Page({
 
   onLoad(options) {
     const id = options.id
+    const isAI = options.ai === 'true'
+
+    if (isAI) {
+      this.setData({ isAI: true })
+      this.loadAIRecipe()
+      return
+    }
+
     if (!id) {
       wx.showToast({ title: '缺少菜谱ID', icon: 'none' })
       setTimeout(() => wx.navigateBack(), 1500)
@@ -30,6 +39,38 @@ Page({
     }
     this.setData({ recipeId: id })
     this.fetchDetail(id)
+  },
+
+  // 从本地存储加载 AI 生成的菜谱
+  loadAIRecipe() {
+    const recipe = wx.getStorageSync('aiRecipeResult')
+    if (!recipe) {
+      wx.showToast({ title: '获取菜谱数据失败', icon: 'none' })
+      setTimeout(() => wx.navigateBack(), 1500)
+      return
+    }
+
+    this.setData({
+      name: recipe.name || '',
+      cover: recipe.cover || '',
+      desc: recipe.tips || '',
+      author: recipe.author || null,
+      ingredients: (recipe.ingredients || []).map(item => ({
+        name: item.name,
+        quantity: item.quantity,
+        unit: item.unit
+      })),
+      procedure: (recipe.steps || []).map((s, i) => ({
+        step: s.order || i + 1,
+        desc: s.description || '',
+        image: ''
+      })),
+      tags: recipe.tags || [],
+      cookTime: recipe.cookTime || '',
+      difficulty: recipe.difficulty || '',
+      calories: recipe.calories || '',
+      stats: recipe.stats || null
+    })
   },
 
   fetchDetail(id) {

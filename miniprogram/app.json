@@ -21,7 +21,8 @@
     "pages/post/post",
     "pages/account-management/account",
     "pages/history/history",
-    "pages/ingredients-storage/storage"
+    "pages/ingredients-storage/storage",
+    "pages/add-ingredients/add"
   ],
   "tabBar": {
     "custom": true,

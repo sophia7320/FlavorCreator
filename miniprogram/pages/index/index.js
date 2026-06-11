@@ -70,7 +70,8 @@ Page({
 			showBasketAnimation: false,
 			showBasketTip: false,
 			basketTipText: '',
-			showBasketPanel: false
+			showBasketPanel: false,
+		aiMode: false
   },
 
 	timerId: null,
@@ -691,6 +692,12 @@ Page({
 				difficulty: null
 			}
 		})
+	},
+
+	// AI 模式切换
+	onAITap(e) {
+		const aiMode = e.detail.selected
+		this.setData({ aiMode })
 	},
 
 	// 移除单个食材

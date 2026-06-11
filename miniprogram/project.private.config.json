@@ -24,7 +24,7 @@
 			"list": [
 				{
 					"name": "new-page",
-					"pathName": "pages/recipe-detail/recipe-detail",
+					"pathName": "pages/add-ingredients/add",
 					"query": "",
 					"scene": null,
 					"launchMode": "default"

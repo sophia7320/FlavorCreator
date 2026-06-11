@@ -149,10 +149,11 @@ Page({
         console.log('AI 生成成功:', res)
         
         if (res.recipe) {
-          const recipeId = res.recipe.id
-          // 跳转到菜谱详情页展示 AI 生成的菜谱
+          // 存储完整的 AI 菜谱数据
+          wx.setStorageSync('aiRecipeResult', res.recipe)
+          // 跳转时用 ai=true 参数，详情页会走 loadAIRecipe 路径
           wx.navigateTo({
-            url: `/pages/recipe-detail/recipe-detail?id=${recipeId}`
+            url: '/pages/recipe-detail/recipe-detail?ai=true'
           })
         }
       })

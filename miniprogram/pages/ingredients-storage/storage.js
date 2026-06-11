@@ -23,22 +23,8 @@ Page({
       { name: '调味品', redPoint: false },
       { name: '其他', redPoint: false },
     ],
-    ingredientList: [
-      { id: 'sample_1', name: '番茄', cover: DEFAULT_COVER, amount: 3, unit: 'g', category: '蔬菜类' },
-      { id: 'sample_2', name: '鸡蛋', cover: DEFAULT_COVER, amount: 12, unit: 'g', category: '肉蛋类' },
-      { id: 'sample_3', name: '牛奶', cover: DEFAULT_COVER, amount: 2, unit: 'ml', category: '其他' },
-      { id: 'sample_4', name: '苹果', cover: DEFAULT_COVER, amount: 5, unit: 'g', category: '水果类' },
-      { id: 'sample_5', name: '鸡胸肉', cover: DEFAULT_COVER, amount: 1, unit: '斤', category: '肉蛋类' },
-      { id: 'sample_6', name: '盐', cover: DEFAULT_COVER, amount: 1, unit: 'g', category: '调味品' },
-    ],
-    allIngredients: [
-      { id: 'sample_1', name: '番茄', cover: DEFAULT_COVER, amount: 3, unit: 'g', category: '蔬菜类' },
-      { id: 'sample_2', name: '鸡蛋', cover: DEFAULT_COVER, amount: 12, unit: 'g', category: '肉蛋类' },
-      { id: 'sample_3', name: '牛奶', cover: DEFAULT_COVER, amount: 2, unit: 'ml', category: '其他' },
-      { id: 'sample_4', name: '苹果', cover: DEFAULT_COVER, amount: 5, unit: 'g', category: '水果类' },
-      { id: 'sample_5', name: '鸡胸肉', cover: DEFAULT_COVER, amount: 1, unit: '斤', category: '肉蛋类' },
-      { id: 'sample_6', name: '盐', cover: DEFAULT_COVER, amount: 1, unit: 'g', category: '调味品' },
-    ],
+    ingredientList: [],
+    allIngredients: [],
     currentCategory: '全部',
     sortBy: 'createTime',
     sortOrder: 'desc',
@@ -87,11 +73,8 @@ Page({
         amount: item.quantity,
       }));
 
-      // 只有API真正返回了数据才覆盖，否则保留样例/已有数据
-      if (ingredients.length > 0) {
-        this.setData({ allIngredients: ingredients });
-        this.updateRedPoints(ingredients, this.data.typeList);
-      }
+      this.setData({ allIngredients: ingredients });
+      this.updateRedPoints(ingredients, this.data.typeList);
       this.filterByCategory();
     } catch (err) {
       console.error('获取食材列表失败', err);
@@ -186,6 +169,16 @@ Page({
     this.fetchIngredients();
   },
 
+  // 点击食材卡片 → 编辑
+  onIngredientTap(e) {
+    const item = e.detail.item
+    if (!item) return
+    const params = this.buildItemParams(item)
+    wx.navigateTo({
+      url: '/pages/add-ingredients/add?' + params
+    })
+  },
+
   // 删除食材
   async onDelete(e) {
     const id = e.detail.id;
@@ -245,5 +238,23 @@ Page({
    */
   onShareAppMessage() {
 
-  }
+  },
+
+	buildItemParams(item) {
+		const parts = []
+		if (item.id) parts.push('id=' + encodeURIComponent(item.id))
+		if (item.name) parts.push('name=' + encodeURIComponent(item.name))
+		if (item.quantity != null) parts.push('quantity=' + encodeURIComponent(item.quantity))
+		if (item.unit) parts.push('unit=' + encodeURIComponent(item.unit))
+		if (item.category) parts.push('category=' + encodeURIComponent(item.category))
+		if (item.expireDate) parts.push('expireDate=' + encodeURIComponent(item.expireDate))
+		if (item.createdAt) parts.push('createdAt=' + encodeURIComponent(item.createdAt))
+		return parts.join('&')
+	},
+
+	onMore() {
+		wx.navigateTo({
+			url: '/pages/add-ingredients/add'
+		})
+	}
 })

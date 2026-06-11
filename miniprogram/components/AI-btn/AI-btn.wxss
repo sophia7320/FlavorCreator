@@ -1,1 +1,16 @@
 /* components/AI-btn/AI-btn.wxss */
+.AI-btn{
+  width: 80rpx;
+  height:80rpx;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	background-color: rgba(253, 239, 237, 1);
+	border-radius: 50%;
+	box-shadow: 0 4rpx 4rpx 0 rgba(0, 0, 0, 0.25);
+	transition: all 0.3s ease;
+}
+
+.AI-btn.selected {
+  background-color: rgba(252, 182, 182, 1);
+}

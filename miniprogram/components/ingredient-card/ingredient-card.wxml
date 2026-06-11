@@ -1,5 +1,5 @@
 <!--components/ingredient-card/ingredient-card.wxml-->
-<view class="ingredient-card">
+<view class="ingredient-card" bindtap="onTap">
   <image src="{{item.cover}}" mode="aspectFill" class="food-cover"/>
   <view class="info">
     <view class="title">{{item.name}}</view>
@@ -10,5 +10,5 @@
     </view>
     <view class="unit">{{item.unit}}</view>
   </view>
-  <view class="delete-btn" bindtap="onDelete"></view>
+  <view class="delete-btn" catchtap="onDelete"></view>
 </view>

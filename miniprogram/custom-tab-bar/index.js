@@ -309,7 +309,7 @@ Component({
 				return
 			}
 
-			const { selectedIngredients, selectedPreferences, isDefaultMode } = currentPage.data
+			const { selectedIngredients, selectedPreferences, isDefaultMode, aiMode } = currentPage.data
 
 			// 默认模式开启时，使用保存的默认偏好
 			let preferences
@@ -340,6 +340,39 @@ Component({
 					cookTime: selectedPreferences.cookTime || 30,
 					difficulty: selectedPreferences.difficulty || '简单'
 				}
+			}
+
+			// ======== AI 模式：调用 AI 生成接口 ========
+			if (aiMode) {
+				const requestData = {
+					ingredients: selectedIngredients,
+					preferences: {
+						taste: preferences.taste,
+						cookTime: preferences.cookTime,
+						difficulty: preferences.difficulty
+					}
+				}
+
+				wx.showLoading({ title: 'AI 生成中...' })
+
+				request(API_CONFIG.recipe.aiGenerate, requestData)
+					.then(res => {
+						wx.hideLoading()
+						const recipe = res.recipe || res
+						wx.setStorageSync('aiRecipeResult', recipe)
+						wx.navigateTo({
+							url: '/pages/recipe-detail/recipe-detail?ai=true'
+						})
+					})
+					.catch(err => {
+						wx.hideLoading()
+						console.error('AI 生成失败:', err)
+						wx.showToast({
+							title: 'AI 生成失败，请重试',
+							icon: 'none'
+						})
+					})
+				return
 			}
 
 		const difficultyMap = { '简单': 1, '普通': 2, '困难': 3 }
