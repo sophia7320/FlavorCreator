@@ -53,5 +53,5 @@ flcr:
 llm:
   api:
     url: "https://api.siliconflow.cn/v1/chat/completions"
-    model: "Pro/zai-org/GLM-4.7"
-    key: "sk-pwtinglhtvzmzvbgempceozorwujlepqtxarjfslbzsvmrnx"
+    model: deepseek-ai/DeepSeek-V3
+    key: "sk-amjtbkioiescaqxtbkersgkugvmtgqiwqjfffnkmqhvcpwdp"
