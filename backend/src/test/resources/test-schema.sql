@@ -49,6 +49,7 @@ CREATE TABLE IF NOT EXISTS `recipe` (
     `ingredients` TEXT,
     `steps` TEXT,
     `tips` TEXT,
+    `desc` VARCHAR(255) DEFAULT NULL,
     `cook_time` VARCHAR(16),
     `difficulty` TINYINT,
     `calories` INT,

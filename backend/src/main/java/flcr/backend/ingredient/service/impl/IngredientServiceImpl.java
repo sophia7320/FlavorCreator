@@ -259,7 +259,9 @@ public class IngredientServiceImpl implements IngredientService {
 
         List<CachedIngredient> expired = heapCache.peekExpired(Integer.MAX_VALUE);
         for (CachedIngredient ingredient : expired) {
-            if (!ingredient.getUserId().equals(userId)) continue;
+            if (!ingredient.getUserId().equals(userId)) {
+                continue;
+            }
             long daysLeft = ChronoUnit.DAYS.between(today, ingredient.getExpireDate());
             items.add(ExpiringNoticeResponseDTO.Item.builder()
                     .id(ingredient.getId())
@@ -276,7 +278,9 @@ public class IngredientServiceImpl implements IngredientService {
 
         List<CachedIngredient> urgent = heapCache.peekUrgent(Integer.MAX_VALUE);
         for (CachedIngredient ingredient : urgent) {
-            if (!ingredient.getUserId().equals(userId)) continue;
+            if (!ingredient.getUserId().equals(userId)) {
+                continue;
+            }
             long daysLeft = ChronoUnit.DAYS.between(today, ingredient.getExpireDate());
             items.add(ExpiringNoticeResponseDTO.Item.builder()
                     .id(ingredient.getId())
@@ -293,7 +297,9 @@ public class IngredientServiceImpl implements IngredientService {
 
         List<CachedIngredient> warning = heapCache.peekWarning(Integer.MAX_VALUE);
         for (CachedIngredient ingredient : warning) {
-            if (!ingredient.getUserId().equals(userId)) continue;
+            if (!ingredient.getUserId().equals(userId)) {
+                continue;
+            }
             long daysLeft = ChronoUnit.DAYS.between(today, ingredient.getExpireDate());
             items.add(ExpiringNoticeResponseDTO.Item.builder()
                     .id(ingredient.getId())
@@ -331,9 +337,9 @@ public class IngredientServiceImpl implements IngredientService {
 
         List<CommonIngredientResponseDTO.CategoryGroup> categories = grouped.entrySet().stream()
                 .map(entry -> CommonIngredientResponseDTO.CategoryGroup.builder()
-                        .name(entry.getKey())
-                        .items(entry.getValue())
-                        .build())
+                .name(entry.getKey())
+                .items(entry.getValue())
+                .build())
                 .collect(Collectors.toList());
 
         return CommonIngredientResponseDTO.builder()

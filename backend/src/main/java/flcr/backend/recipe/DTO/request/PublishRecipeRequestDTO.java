@@ -18,6 +18,7 @@ public class PublishRecipeRequestDTO {
     private List<String> imageUrls = new ArrayList<>();
     private String tags;
     private String category;
+    private String desc;
     private String tips;
     private String cookTime;
     private Integer difficulty;

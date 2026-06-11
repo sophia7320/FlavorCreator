@@ -30,6 +30,9 @@ public class RecipeGenerateResponseDTO {
         @Schema(description = "菜谱名称", example = "青椒炒鸡蛋")
         private String name;
 
+        @Schema(description = "简单描述", example = "外酥里嫩，家常快手菜")
+        private String desc;
+
         @Schema(description = "所需食材列表（包含AI补充的调料）")
         private List<IngredientItem> ingredients;
 

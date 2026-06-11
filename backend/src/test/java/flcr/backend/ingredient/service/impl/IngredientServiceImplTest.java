@@ -208,6 +208,42 @@ class IngredientServiceImplTest {
         assertEquals(2, result.getCategories().size());
     }
 
+    // ==================== markRead 测试 ====================
+
+    @Test
+    @DisplayName("markRead 食材存在且属于当前用户 → 更新 readed 并同步缓存")
+    void testMarkRead_Success() {
+        Ingredient ingredient = buildIngredient(10L, "牛奶");
+        ingredient.setReaded(false);
+        when(ingredientMapper.selectById(10L)).thenReturn(ingredient);
+        when(ingredientMapper.updateById(any(Ingredient.class))).thenReturn(1);
+
+        ingredientService.markRead(10L);
+
+        assertTrue(ingredient.getReaded());
+        verify(ingredientMapper).updateById(ingredient);
+        verify(heapCache).markRead(eq(10L), eq(USER_ID), eq(true));
+    }
+
+    @Test
+    @DisplayName("markBatchRead 批量已读 → 所有食材 update + 缓存同步")
+    void testMarkBatchRead_Success() {
+        Ingredient i1 = buildIngredient(10L, "牛奶");
+        i1.setReaded(false);
+        Ingredient i2 = buildIngredient(11L, "青菜");
+        i2.setReaded(false);
+        when(ingredientMapper.selectById(10L)).thenReturn(i1);
+        when(ingredientMapper.selectById(11L)).thenReturn(i2);
+        when(ingredientMapper.updateById(any(Ingredient.class))).thenReturn(1);
+
+        ingredientService.markBatchRead(List.of(10L, 11L));
+
+        assertTrue(i1.getReaded());
+        assertTrue(i2.getReaded());
+        verify(heapCache).markRead(eq(10L), eq(USER_ID), eq(true));
+        verify(heapCache).markRead(eq(11L), eq(USER_ID), eq(true));
+    }
+
     private Ingredient buildIngredient(Long id, String name) {
         Ingredient ingredient = new Ingredient();
         ingredient.setId(id);

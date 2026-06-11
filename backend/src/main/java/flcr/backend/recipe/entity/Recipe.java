@@ -47,6 +47,11 @@ public class Recipe {
     private String steps;
 
     /**
+     * 简单描述
+     */
+    private String desc;
+
+    /**
      * 小贴士
      */
     private String tips;

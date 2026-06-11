@@ -14,6 +14,7 @@ public class RecipeListItemResponseDTO {
     private String name;
     private String cover;
     private AuthorInfo author;
+    private String desc;
     private String cookTime;
     private String difficulty;
     private Integer calories;

@@ -19,6 +19,7 @@ public class RecipeDetailResponseDTO {
     private AuthorInfo author;
     private List<IngredientItem> ingredients;
     private List<StepItem> steps;
+    private String desc;
     private String tips;
     private String cookTime;
     private String difficulty;

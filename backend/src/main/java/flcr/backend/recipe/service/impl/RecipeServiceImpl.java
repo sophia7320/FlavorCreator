@@ -74,6 +74,7 @@ public class RecipeServiceImpl implements RecipeService {
             throw new BusinessException(ResultCode.SYSTEM_ERROR, "JSON处理失败");
         }
         recipe.setAuthorId(userId);
+        recipe.setDesc(request.getDesc());
         recipe.setCategory(request.getCategory());
         recipe.setTips(request.getTips());
         recipe.setCookTime(request.getCookTime());
@@ -456,6 +457,7 @@ public class RecipeServiceImpl implements RecipeService {
                         .build())
                 .cookTime(recipe.getCookTime())
                 .difficulty(convertDifficultyToString(recipe.getDifficulty()))
+                .desc(recipe.getDesc())
                 .calories(recipe.getCalories())
                 .tags(tags)
                 .stats(RecipeListItemResponseDTO.RecipeStats.builder()
@@ -513,6 +515,7 @@ public class RecipeServiceImpl implements RecipeService {
                 .ingredients(ingredients)
                 .steps(steps)
                 .tips(recipe.getTips())
+                .desc(recipe.getDesc())
                 .cookTime(recipe.getCookTime())
                 .difficulty(convertDifficultyToString(recipe.getDifficulty()))
                 .calories(recipe.getCalories())

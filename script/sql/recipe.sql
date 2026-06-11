@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS `recipe` (
     `author_id` BIGINT NOT NULL COMMENT '作者ID',
     `ingredients` JSON COMMENT '食材列表',
     `steps` JSON COMMENT '步骤列表',
+    `desc` VARCHAR(255) DEFAULT NULL COMMENT '简单描述',
     `tips` TEXT COMMENT '小贴士',
     `cook_time` VARCHAR(16) COMMENT '烹饪时长(分钟)',
     `difficulty` TINYINT COMMENT '难度: 1-简单 2-中等 3-困难',
