@@ -62,4 +62,16 @@ public class IngredientController {
     public Response<CommonIngredientResponseDTO> commonList() {
         return Response.success(ingredientService.commonList());
     }
+
+    @PostMapping("/{id}/read")
+    public Response<Void> markRead(@PathVariable Long id) {
+        ingredientService.markRead(id);
+        return Response.success();
+    }
+
+    @PostMapping("/read")
+    public Response<Void> markBatchRead(@RequestBody List<Long> ids) {
+        ingredientService.markBatchRead(ids);
+        return Response.success();
+    }
 }

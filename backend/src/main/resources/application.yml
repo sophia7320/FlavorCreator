@@ -32,6 +32,11 @@ flcr:
     url-prefix: /uploads
   token:
     store: memory
+  cache:
+    type: memory
+  notification:
+    enabled: false
+    wx-template-id: ""
 
 springdoc:
   swagger-ui:

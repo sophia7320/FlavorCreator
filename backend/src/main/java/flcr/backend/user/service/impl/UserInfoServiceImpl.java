@@ -69,6 +69,12 @@ public class UserInfoServiceImpl implements UserInfoService {
         if (request.getAvatar() != null){
             user.setAvatar(request.getAvatar());
         }
+        if (request.getAddress() != null) {
+            user.setAddress(request.getAddress());
+        }
+        if (request.getAge() != null) {
+            user.setAge(request.getAge());
+        }
         if (request.getPreferences() != null) {
             try {
                 user.setPreferences(objectMapper.writeValueAsString(request.getPreferences()));
@@ -153,6 +159,8 @@ public class UserInfoServiceImpl implements UserInfoService {
                 .background(user.getBackground())
                 .signature(user.getSignature())
                 .gender(user.getGender())
+                .address(user.getAddress())
+                .age(user.getAge())
                 .preferences(preferences)
                 .stats(UserInfoResponseDTO.StatsInfo.builder()
                         .followingCount(0)
