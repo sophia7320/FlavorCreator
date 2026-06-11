@@ -1,0 +1,14 @@
+<!--components/ingredient-card/ingredient-card.wxml-->
+<view class="ingredient-card">
+  <image src="{{item.cover}}" mode="aspectFill" class="food-cover"/>
+  <view class="info">
+    <view class="title">{{item.name}}</view>
+  </view>
+  <view class="amount-container">
+    <view class="action-container">
+      <view class="amount">{{item.amount}}</view>
+    </view>
+    <view class="unit">{{item.unit}}</view>
+  </view>
+  <view class="delete-btn" bindtap="onDelete"></view>
+</view>

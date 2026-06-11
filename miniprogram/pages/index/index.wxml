@@ -35,7 +35,6 @@
 				<view class="autocomplete-dropdown" wx:if="{{showDropdown && autocompleteList.length > 0}}">
 					<view class="autocomplete-item" wx:for="{{autocompleteList}}" wx:key="id" bindtap="onSelectAutocomplete" data-item="{{item}}">
 						<view class="item-name">{{item.name}}</view>
-						<view class="item-unit">{{item.unit}}</view>
 					</view>
 				</view>
 			</view>

@@ -80,4 +80,7 @@ page {
   --font-weight-light: 350;
   --font-weight-normal: 400;
   --font-weight-bold: 700;
+
+  overflow: hidden;
+  height: 100vh;
 }

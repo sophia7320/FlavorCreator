@@ -1,8 +1,16 @@
 /* pages/choose-recipes/choose-recipes.wxss */
 .choose-recipes-page {
   width: 750rpx;
-  min-height: 100vh;
+  height: 100vh;
   background-color: rgba(255, 238, 209, 1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+	padding-top: 201rpx;
+}
+
+.content-scroll {
+  flex: 1;
   padding-bottom: 40rpx;
 }
 

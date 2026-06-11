@@ -1,9 +1,10 @@
 /* pages/user/user.wxss */
 .page {
-  min-height: 100vh;
+  height: 100vh;
   background-color: #fff;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 /* 用户头部 */

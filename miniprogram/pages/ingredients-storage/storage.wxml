@@ -32,20 +32,8 @@
 
 		<scroll-view class="right-container" scroll-y>
 			<view class="right-content">
-				<block wx:for="{{ingredientList}}">
-					<view class="ingredient-card">
-						<image src="{{item.cover}}" mode="aspectFill" class="food-cover"/>
-						<view class="info">
-							<view class="title">{{item.name}}</view>
-						</view>
-						<view class="amount-container">
-							<view class="action-container">
-								<view class="amount">{{item.amount}}</view>
-							</view>
-							<view class="unit">{{item.unit}}</view>
-						</view>
-						<view class="delete-btn" bindtap="onDelete" data-id="{{item.id}}"></view>
-					</view>
+				<block wx:for="{{ingredientList}}" wx:key="id">
+					<ingredient-card item="{{item}}" bind:delete="onDelete"/>
 				</block>
 			</view>
 		</scroll-view>

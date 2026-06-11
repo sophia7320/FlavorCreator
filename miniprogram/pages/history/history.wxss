@@ -6,11 +6,12 @@
 	display: flex;
 	flex-direction: column;
 	padding: 201rpx 28rpx 0;
+	overflow: hidden;
 }
 
 scroll-view {
 	margin-top: 50rpx;
-	height: 1300rpx;
+	flex: 1;
 }
 
 .title-container {

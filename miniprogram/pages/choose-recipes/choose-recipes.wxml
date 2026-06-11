@@ -3,6 +3,7 @@
 	<!-- 顶部导航栏 -->
 	<top-bar title="匹配结果"/>
 	
+	<scroll-view class="content-scroll" scroll-y>
 	<!-- 菜谱列表 -->
 	<view class="recipes-container" wx:if="{{!loading && recipes.length > 0}}">
 		<view class="recipe-card" wx:for="{{recipes}}" wx:key="id" data-id="{{item.id}}" bindtap="onRecipeTap">
@@ -44,4 +45,5 @@
 	<view class="loading-section" wx:if="{{loading}}">
 		<view class="loading-text">加载中...</view>
 	</view>
+	</scroll-view>
 </view>

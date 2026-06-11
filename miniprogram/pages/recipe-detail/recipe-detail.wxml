@@ -1,0 +1,82 @@
+<!--pages/recipe-detail/recipe-detail.wxml-->
+<view class="recipe-detail-page">
+	<top-bar title='菜谱'></top-bar>
+	<scroll-view scroll-y>
+		
+		<view class="head-container">
+			<image src="{{cover}}" mode="aspectFill" class="recipe-cover"/>
+			<view class="recipe-name">{{name}}</view>
+			<view class="desc">{{desc}}</view>
+		</view>
+
+		<!-- 标签 & 基础信息 -->
+		<view class="meta-info" wx:if="{{tags.length || cookTime || difficulty || calories}}">
+			<view class="tags-row" wx:if="{{tags.length}}">
+				<view class="tag" wx:for="{{tags}}" wx:key="*this">{{item}}</view>
+			</view>
+			<view class="info-row" wx:if="{{cookTime || difficulty || calories}}">
+				<view class="info-item" wx:if="{{cookTime}}">
+					<text class="info-value">{{cookTime}}分钟</text>
+				</view>
+				<view class="info-item" wx:if="{{difficulty}}">
+					<text class="info-value">{{difficulty}}</text>
+				</view>
+				<view class="info-item" wx:if="{{calories}}">
+					<text class="info-value">{{calories}}大卡</text>
+				</view>
+			</view>
+		</view>
+
+		<view class="ingredients-container">
+			<view class="title">用料</view>
+
+			<view class="divider-dashed-line"></view>
+
+			<block wx:for="{{ingredients}}" wx:key="index">
+				<view class="item-list">
+					<view class="item">
+						<view class="item-info">
+							<view class="item-name">{{item.name}}</view>
+							<view class="item-quantity">{{item.quantity}}{{item.unit}}</view>
+						</view>
+						<view class="divider-item-line" wx:if="{{index < ingredients.length - 1}}"></view>
+					</view>
+				</view>
+			</block>
+		</view>
+
+		<view class="procedure-container">
+			<view class="title">步骤</view>
+			<view class="divider-dashed-line"></view>
+
+			<block wx:for="{{procedure}}" wx:key="index">
+				<view class="item-container">
+					<view class="item-head-container">
+						<view class="step">步骤{{item.step}}</view>
+						<view class="step-cover-wrapper" wx:if="{{item.image}}">
+							<image src="{{item.image}}" mode="aspectFill" class="step-cover"/>
+						</view>
+					</view>
+					<view class="step-desc">{{item.desc}}</view>
+				</view>
+			</block>
+		</view>
+
+		<view class="divider-line"></view>
+
+		<view class="tool-bar">
+			<view class="left-action">
+				<view class="collect-btn" bind:tap="onCollectBtnTap">
+					<image src="{{isCollected ? 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/like_filled.svg' : 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/like.svg'}}" mode="aspectFit" class="collect-icon"/>
+				</view>
+				<view class="share-btn" bind:tap="onShareBtnTap">
+					<image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/share.svg" mode="aspectFit" class="share-icon"/>
+				</view>
+			</view>
+			<view class="finish-btn" bind:tap="onFinishBtnTap">
+				<image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/finish.svg" mode="aspectFit" class="finish-icon"/>
+				<view class="finish-text">同步清除仓库的食材</view>
+			</view>		
+		</view>
+	</scroll-view>
+</view>

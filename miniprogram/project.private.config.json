@@ -23,15 +23,15 @@
 		"miniprogram": {
 			"list": [
 				{
-					"name": "test",
-					"pathName": "pages/post/post",
+					"name": "new-page",
+					"pathName": "pages/recipe-detail/recipe-detail",
 					"query": "",
 					"scene": null,
 					"launchMode": "default"
 				},
 				{
-					"name": "new-page",
-					"pathName": "pages/ingredients-storage/storage",
+					"name": "test",
+					"pathName": "pages/recipe-detail/recipe-detail",
 					"query": "",
 					"launchMode": "default",
 					"scene": null

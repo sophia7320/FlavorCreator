@@ -12,7 +12,7 @@
     "pages/community/community",
     "pages/mine/mine",
     "pages/settings/settings",
-    "pages/detail/detail",
+    "pages/recipe-detail/recipe-detail",
     "pages/user/user",
     "pages/profile-setting/profile",
     "pages/preference-setting/preference",
@@ -46,8 +46,7 @@
     "navigationBarTitleText": "Weixin",
     "navigationStyle": "custom",
     "navigationBarBackgroundColor": "#ffffff",
-    "enablePullDownRefresh": false,
-    "disableScroll": true
+    "enablePullDownRefresh": false
   },
   "usingComponents": {},
   "sitemapLocation": "sitemap.json",

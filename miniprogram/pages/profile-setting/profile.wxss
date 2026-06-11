@@ -146,7 +146,7 @@
 .info-list .divider-line {
 	width: 604rpx;
 	height: 1px;
-	background-color: #000;
+	background-color: rgba(191, 191, 191, 1);
 }
 
 .background-thumb {

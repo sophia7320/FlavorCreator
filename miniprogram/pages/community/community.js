@@ -241,7 +241,7 @@ Page({
   onCardTap(e) {
     const { cardId } = e.detail
     wx.navigateTo({
-      url: `/pages/detail/detail?id=${cardId}`
+      url: `/pages/recipe-detail/recipe-detail?id=${cardId}`
     })
   },
 
@@ -262,7 +262,7 @@ Page({
 
     return {
       title: card ? card.recipeName : '看看这道菜谱',
-      path: `/pages/detail/detail?id=${cardId || ''}`,
+      path: `/pages/recipe-detail/recipe-detail?id=${cardId || ''}`,
       imageUrl: card ? card.recipeImage : ''
     }
   }

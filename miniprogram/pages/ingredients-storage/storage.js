@@ -15,9 +15,30 @@ Page({
     selectedTop: 0,
     typeList: [
       { name: '全部', redPoint: false },
+      { name: '谷薯类', redPoint: false },
+      { name: '肉蛋类', redPoint: false },
+      { name: '蔬菜类', redPoint: false },
+      { name: '水果类', redPoint: false },
+      { name: '豆类', redPoint: false },
+      { name: '调味品', redPoint: false },
+      { name: '其他', redPoint: false },
     ],
-    ingredientList: [],
-    allIngredients: [],
+    ingredientList: [
+      { id: 'sample_1', name: '番茄', cover: DEFAULT_COVER, amount: 3, unit: 'g', category: '蔬菜类' },
+      { id: 'sample_2', name: '鸡蛋', cover: DEFAULT_COVER, amount: 12, unit: 'g', category: '肉蛋类' },
+      { id: 'sample_3', name: '牛奶', cover: DEFAULT_COVER, amount: 2, unit: 'ml', category: '其他' },
+      { id: 'sample_4', name: '苹果', cover: DEFAULT_COVER, amount: 5, unit: 'g', category: '水果类' },
+      { id: 'sample_5', name: '鸡胸肉', cover: DEFAULT_COVER, amount: 1, unit: '斤', category: '肉蛋类' },
+      { id: 'sample_6', name: '盐', cover: DEFAULT_COVER, amount: 1, unit: 'g', category: '调味品' },
+    ],
+    allIngredients: [
+      { id: 'sample_1', name: '番茄', cover: DEFAULT_COVER, amount: 3, unit: 'g', category: '蔬菜类' },
+      { id: 'sample_2', name: '鸡蛋', cover: DEFAULT_COVER, amount: 12, unit: 'g', category: '肉蛋类' },
+      { id: 'sample_3', name: '牛奶', cover: DEFAULT_COVER, amount: 2, unit: 'ml', category: '其他' },
+      { id: 'sample_4', name: '苹果', cover: DEFAULT_COVER, amount: 5, unit: 'g', category: '水果类' },
+      { id: 'sample_5', name: '鸡胸肉', cover: DEFAULT_COVER, amount: 1, unit: '斤', category: '肉蛋类' },
+      { id: 'sample_6', name: '盐', cover: DEFAULT_COVER, amount: 1, unit: 'g', category: '调味品' },
+    ],
     currentCategory: '全部',
     sortBy: 'createTime',
     sortOrder: 'desc',
@@ -66,26 +87,11 @@ Page({
         amount: item.quantity,
       }));
 
-      // 动态构建分类列表
-      const categorySet = new Set();
-      ingredients.forEach(item => {
-        if (item.category) categorySet.add(item.category);
-      });
-      const categories = ['全部', ...Array.from(categorySet)];
-
-      const typeList = categories.map(name => ({
-        name,
-        redPoint: false
-      }));
-
-      this.setData({
-        allIngredients: ingredients,
-        typeList,
-      });
-
-      // 更新红点
-      this.updateRedPoints(ingredients, typeList);
-      // 按当前分类筛选
+      // 只有API真正返回了数据才覆盖，否则保留样例/已有数据
+      if (ingredients.length > 0) {
+        this.setData({ allIngredients: ingredients });
+        this.updateRedPoints(ingredients, this.data.typeList);
+      }
       this.filterByCategory();
     } catch (err) {
       console.error('获取食材列表失败', err);
@@ -113,6 +119,7 @@ Page({
   // 按分类筛选
   filterByCategory() {
     const { allIngredients, currentCategory, keyword } = this.data;
+
     let filtered = currentCategory === '全部'
       ? allIngredients
       : allIngredients.filter(item => item.category === currentCategory);
@@ -164,34 +171,24 @@ Page({
     this.filterByCategory();
   },
 
-  // 排序切换
+  // 排序切换（按食材提醒时间正倒序）
   onSort() {
-    const sortLabels = ['最新添加', '最早添加', '即将过期', '保质期最长'];
-    const sortConfigs = [
-      { sortBy: 'createTime', sortOrder: 'desc' },
-      { sortBy: 'createTime', sortOrder: 'asc' },
-      { sortBy: 'expireDate', sortOrder: 'asc' },
-      { sortBy: 'expireDate', sortOrder: 'desc' },
-    ];
-
-    let currentIdx = sortConfigs.findIndex(
-      c => c.sortBy === this.data.sortBy && c.sortOrder === this.data.sortOrder
-    );
-    if (currentIdx === -1) currentIdx = 0;
-    const nextIdx = (currentIdx + 1) % sortConfigs.length;
+    const currentOrder = this.data.sortOrder;
+    const nextOrder = currentOrder === 'asc' ? 'desc' : 'asc';
+    const label = nextOrder === 'asc' ? '即将过期优先' : '保质期最长优先';
 
     this.setData({
-      sortBy: sortConfigs[nextIdx].sortBy,
-      sortOrder: sortConfigs[nextIdx].sortOrder
+      sortBy: 'expireDate',
+      sortOrder: nextOrder
     });
 
-    wx.showToast({ title: sortLabels[nextIdx], icon: 'none', duration: 1000 });
+    wx.showToast({ title: label, icon: 'none', duration: 1000 });
     this.fetchIngredients();
   },
 
   // 删除食材
   async onDelete(e) {
-    const id = e.currentTarget.dataset.id;
+    const id = e.detail.id;
     if (!id) return;
 
     wx.showModal({

@@ -2,24 +2,156 @@
 <view class="post-page">
 	<top-bar title="发布"></top-bar>
 
-	<view class="main">
+	<scroll-view class="main" scroll-y>
+		<!-- 头图 & 标题 & 描述 -->
 		<view class="header-container">
-			<view class="img-container">
-				<image src="{{post.cover}}" mode="aspectFill" class="recipe-cover"/>
+			<view class="img-container" bindtap="onChooseCover">
+				<image
+					wx:if="{{cover}}"
+					src="{{cover}}"
+					mode="aspectFill"
+					class="recipe-cover"
+				/>
+				<view wx:else class="recipe-cover recipe-cover-placeholder">
+					<view class="add-icon"></view>
+					<text class="add-description">点击添加封面图</text>
+				</view>
 			</view>
 			<view class="title-input-container">
-				<input type="text" class="title" bindinput="onTitleInput"/>
+				<input type="text" class="title" bindinput="onTitleInput" value="{{title}}" placeholder="请添加菜谱标题" placeholder-style="color: rgba(191, 191, 191, 1); font-size: 30rpx;"/>
 			</view>
 			<view class="divider-line"></view>
 			<view class="description-container">
-				<input type="text" class="description" bindinput="onDescriptionInput"/>
+				<textarea type="text" class="input-description" bindinput="onDescriptionInput" value="{{description}}" placeholder="描述一下这道菜吧~" placeholder-style="color: rgba(191, 191, 191, 1); font-size: 30rpx;" maxlength="100"></textarea>
 			</view>
 		</view>
 
+		<!-- 用料 -->
 		<view class="ingredients-container">
-			<view class="title">用料</view>
-			<view class="content-container">
-				.
+			<view class="section-title">用料</view>
+			<view class="ingredients-content">
+				<view wx:if="{{ingredients.length === 0}}" class="description">点击加号，添加各种的用料说明~</view>
+				<view wx:else class="ingredient-tags">
+					<block wx:for="{{ingredients}}" wx:key="index">
+						<view class="ingredient-tag" bindtap="onEditIngredient" data-index="{{index}}" bindlongpress="onDeleteIngredient" data-index="{{index}}">
+							<text class="ing-tag-name">{{item.name}}</text>
+							<text class="ing-tag-amount">{{item.quantity}}{{item.unit}}</text>
+						</view>
+					</block>
+				</view>
+				<view class="add-btn" bindtap="onAddIngredient"></view>
+			</view>
+		</view>
+
+		<!-- 步骤 -->
+		<view class="procedure-container">
+			<view class="section-title">步骤</view>
+			<block wx:for="{{procedures}}" wx:key="index">
+				<view class="procedure-step">
+					<view class="step-header">
+						<text class="step-index">步骤{{item.index}}</text>
+						<view wx:if="{{procedures.length > 1}}" class="step-delete-btn" bindtap="onDeleteProcedure" data-index="{{index}}">× 删除</view>
+					</view>
+					<!-- 步骤图片 -->
+					<view class="add-cover-container" bindtap="onChooseStepImage" data-index="{{index}}">
+						<image
+							wx:if="{{item.image}}"
+							src="{{item.image}}"
+							mode="aspectFill"
+							class="step-image"
+						/>
+						<block wx:else>
+							<view class="add-icon"></view>
+							<text class="add-description">添加照片，让更多人读懂你的菜谱</text>
+						</block>
+						<view wx:if="{{item.image}}" class="step-image-delete" catchtap="onDeleteStepImage" data-index="{{index}}">×</view>
+					</view>
+					<!-- 步骤说明 -->
+					<view class="step-input-container">
+						<input
+							type="text"
+							class="more-description"
+							placeholder="添加更详细的说明吧~"
+							placeholder-style="color:rgba(191, 191, 191, 1);"
+							bindinput="onStepDescriptionInput"
+							data-index="{{index}}"
+							value="{{item.description}}"
+						/>
+					</view>
+					<view wx:if="{{index < procedures.length - 1}}" class="divider-dots-line"></view>
+				</view>
+			</block>
+		</view>
+
+		<!-- 添加步骤 -->
+		<view class="add-procedure-btn" bindtap="onAddProcedure">+ 添加步骤</view>
+
+		<!-- 类别 -->
+		<view class="category-container">
+			<view class="section-title">类别</view>
+			<view class="description">选择菜谱的类别，让更多人找到你的菜谱</view>
+			<view class="items-container">
+				<block wx:for="{{categories}}" wx:key="*this">
+					<view
+						class="item {{selectedCategory === item ? 'item-selected' : ''}}"
+						bindtap="onSelectCategory"
+						data-category="{{item}}"
+					>{{item}}</view>
+				</block>
+			</view>
+			<view class="divider-line"></view>
+		</view>
+
+		<!-- 发布 -->
+		<view class="send-btn" bindtap="onPublish">发布</view>
+	</scroll-view>
+
+	<!-- 用料编辑弹窗 -->
+	<view wx:if="{{showIngredientModal}}" class="modal-mask" bindtap="onCancelIngredient">
+		<view class="modal-container" catchtap>
+			<view class="modal-title">{{editingIngredientIndex >= 0 ? '编辑用料' : '添加用料'}}</view>
+			<view class="modal-form">
+				<view class="modal-form-item">
+					<text class="modal-label">食材名称</text>
+					<input
+						class="modal-input"
+						placeholder="如：鸡蛋"
+						placeholder-style="color: rgba(191, 191, 191, 1);"
+						bindinput="onIngredientNameInput"
+						value="{{editingIngredient.name}}"
+					/>
+				</view>
+				<view class="modal-form-item">
+					<text class="modal-label">用量</text>
+					<input
+						class="modal-input"
+						type="digit"
+						placeholder="如：3"
+						placeholder-style="color: rgba(191, 191, 191, 1);"
+						bindinput="onIngredientQuantityInput"
+						value="{{editingIngredient.quantity}}"
+					/>
+				</view>
+				<view class="modal-form-item">
+					<text class="modal-label">单位</text>
+					<picker
+						class="modal-input"
+						mode="selector"
+						range="{{unitList}}"
+						bindchange="onIngredientUnitChange"
+						value="{{unitList.indexOf(editingIngredient.unit) >= 0 ? unitList.indexOf(editingIngredient.unit) : -1}}"
+					>
+						<view class="picker-unit">
+							<text wx:if="{{editingIngredient.unit}}">{{editingIngredient.unit}}</text>
+							<text wx:else style="color: rgba(191, 191, 191, 1);">选择单位</text>
+							<text style="margin-left: auto; color: rgba(191, 191, 191, 0.6);">▾</text>
+						</view>
+					</picker>
+				</view>
+			</view>
+			<view class="modal-actions">
+				<view class="modal-btn modal-btn-cancel" bindtap="onCancelIngredient">取消</view>
+				<view class="modal-btn modal-btn-confirm" bindtap="onConfirmIngredient">确定</view>
 			</view>
 		</view>
 	</view>

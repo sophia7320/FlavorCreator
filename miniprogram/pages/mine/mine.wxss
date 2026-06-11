@@ -146,7 +146,7 @@
 	height: 300rpx;
 	position: fixed;
 	top: 210rpx;
-	background-image: linear-gradient(to top, rgba(255, 238, 209, 1), rgba(225,225,225,.1));
+	background-image: linear-gradient(to top, rgba(255, 238, 209, 1), transparent);
 	z-index: 5;
 }
 

@@ -200,13 +200,7 @@ swiper {
 	color: #5D4037;
 }
 
-.item-unit {
-	font-size: 24rpx;
-	color: #8D6E63;
-	background-color: rgba(226, 138, 80, 0.15);
-	padding: 6rpx 16rpx;
-	border-radius: 12rpx;
-}
+
 
 .main-container .search-container .add-Btn {
 	width: 43rpx;

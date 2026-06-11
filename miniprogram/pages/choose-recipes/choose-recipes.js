@@ -83,31 +83,11 @@ Page({
   onRecipeTap(e) {
     const { id } = e.currentTarget.dataset
     console.log('点击菜谱:', id)
-    
-    // 调用获取详情接口
-    const apiConfig = { ...API_CONFIG.recipe.getDetail }
-    apiConfig.path = apiConfig.path.replace('{id}', id)
-    
-    request(apiConfig)
-      .then(detail => {
-        console.log('菜谱详情:', detail)
-        
-        // 将详情数据存储到本地
-        wx.setStorageSync('recipeDetail', detail)
-        
-        // TODO: 跳转到菜谱详情页
-        wx.showToast({
-          title: '获取详情成功',
-          icon: 'success'
-        })
-      })
-      .catch(err => {
-        console.error('获取菜谱详情失败:', err)
-        wx.showToast({
-          title: '获取详情失败',
-          icon: 'none'
-        })
-      })
+
+    // 直接跳转到菜谱详情页，由详情页自行获取数据
+    wx.navigateTo({
+      url: `/pages/recipe-detail/recipe-detail?id=${id}`
+    })
   },
 
   /**
@@ -169,22 +149,10 @@ Page({
         console.log('AI 生成成功:', res)
         
         if (res.recipe) {
-          // 将生成的菜谱添加到列表中
-          const newRecipe = {
-            ...res.recipe,
-            id: `ai_${Date.now()}`,
-            matchDegree: 100,
-            isAiGenerated: true
-          }
-          
-          this.setData({
-            recipes: [newRecipe, ...this.data.recipes],
-            needAiGenerate: false
-          })
-          
-          wx.showToast({
-            title: 'AI 生成成功',
-            icon: 'success'
+          const recipeId = res.recipe.id
+          // 跳转到菜谱详情页展示 AI 生成的菜谱
+          wx.navigateTo({
+            url: `/pages/recipe-detail/recipe-detail?id=${recipeId}`
           })
         }
       })
