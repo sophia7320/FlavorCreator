@@ -15,7 +15,7 @@ NULL, NULL, 1,
 '一道酸甜开胃的家常菜肴，嫩滑的鸡蛋裹着软烂多汁的西红柿',
 '可根据口味选择甜味或咸味版本，可加番茄酱增加汤汁',
 '15', 1, 252,
-'["家常菜","快手菜"]', '素菜', 1, 0, 0, 0, 0);
+'["下饭菜"]', '家常菜', 1, 0, 0, 0, 0);
 
 -- 酸辣土豆丝
 INSERT INTO `recipe` (`name`, `cover`, `images`, `author_id`, `ingredients`, `steps`, `desc`, `tips`, `cook_time`, `difficulty`, `calories`, `tags`, `category`, `source`, `like_count`, `collection_count`, `comment_count`, `view_count`)
@@ -27,7 +27,7 @@ NULL, NULL, 1,
 '酸辣开胃的经典家常菜，口感脆爽，色泽鲜亮',
 '清洗土豆丝淀粉一定要去干净，不然会黏在一起\n加入蒜末、盐后应尽快出锅保留蒜香',
 '20', 1, 374,
-'["家常菜","快手菜"]', '素菜', 1, 0, 0, 0, 0);
+'["下饭菜","酸辣"]', '家常菜', 1, 0, 0, 0, 0);
 
 -- 地三鲜
 INSERT INTO `recipe` (`name`, `cover`, `images`, `author_id`, `ingredients`, `steps`, `desc`, `tips`, `cook_time`, `difficulty`, `calories`, `tags`, `category`, `source`, `like_count`, `collection_count`, `comment_count`, `view_count`)
@@ -39,7 +39,7 @@ NULL, NULL, 1,
 '东北经典家常菜，茄子软糯、土豆绵香、尖椒清脆，酱香咸鲜',
 '糖比淀粉多非常合理，淀粉只作为物理增稠剂\n茄子在煎炸以后体积会缩小4倍',
 '40', 2, 264,
-'["特色菜","家常菜"]', '素菜', 1, 0, 0, 0, 0);
+'["东北菜","家常菜","下饭菜"]', '特色菜', 1, 0, 0, 0, 0);
 
 -- 麻婆豆腐
 INSERT INTO `recipe` (`name`, `cover`, `images`, `author_id`, `ingredients`, `steps`, `desc`, `tips`, `cook_time`, `difficulty`, `calories`, `tags`, `category`, `source`, `like_count`, `collection_count`, `comment_count`, `view_count`)
@@ -51,7 +51,7 @@ NULL, NULL, 1,
 '香辣滑嫩的豆腐菜，咸鲜中带着微麻微辣，格外开胃下饭',
 '期间一定要注意观察，防止糊锅',
 '40', 2, 476,
-'["特色菜","家常菜"]', '素菜', 1, 0, 0, 0, 0);
+'["川菜","下饭菜","麻辣","家常菜"]', '特色菜', 1, 0, 0, 0, 0);
 
 -- 手撕包菜
 INSERT INTO `recipe` (`name`, `cover`, `images`, `author_id`, `ingredients`, `steps`, `desc`, `tips`, `cook_time`, `difficulty`, `calories`, `tags`, `category`, `source`, `like_count`, `collection_count`, `comment_count`, `view_count`)
@@ -63,7 +63,7 @@ NULL, NULL, 1,
 '酸辣脆爽的经典湘菜，包菜脆嫩入味，五花肉干香不腻，开胃下饭',
 '包菜炒至七分熟即可，加盐可以锁住水分\n翻炒时间可根据个人口感灵活调整',
 '20', 2, 1663,
-'["家常菜","快手菜"]', '素菜', 1, 0, 0, 0, 0);
+'["湘菜","下饭菜"]', '家常菜', 1, 0, 0, 0, 0);
 
 -- 蚝油生菜
 INSERT INTO `recipe` (`name`, `cover`, `images`, `author_id`, `ingredients`, `steps`, `desc`, `tips`, `cook_time`, `difficulty`, `calories`, `tags`, `category`, `source`, `like_count`, `collection_count`, `comment_count`, `view_count`)
@@ -75,7 +75,7 @@ NULL, NULL, 1,
 '爽口鲜香的家常菜，脆嫩生菜淋上蒜香蚝油汁，咸中带甜',
 '这道菜富含维生素，做法简单，爽口又不上火',
 '15', 1, 125,
-'["家常菜","快手菜","减脂菜"]', '素菜', 1, 0, 0, 0, 0);
+'["快手菜","减脂菜","清淡"]', '家常菜', 1, 0, 0, 0, 0);
 
 -- ============================================
 -- 荤菜 (10)
@@ -91,7 +91,7 @@ NULL, NULL, 1,
 '川味名菜以糊辣荔枝味见长，鸡丁嫩滑、花生酥脆',
 '辣椒依据个人口味酌量添加，怕辣可去籽',
 '90', 3, 1790,
-'["特色菜"]', '荤菜', 1, 0, 0, 0, 0);
+'["川菜","经典","下饭菜"]', '特色菜', 1, 0, 0, 0, 0);
 
 -- 回锅肉
 INSERT INTO `recipe` (`name`, `cover`, `images`, `author_id`, `ingredients`, `steps`, `desc`, `tips`, `cook_time`, `difficulty`, `calories`, `tags`, `category`, `source`, `like_count`, `collection_count`, `comment_count`, `view_count`)
@@ -103,7 +103,7 @@ NULL, NULL, 1,
 '四川传统名菜，色泽红亮，肥而不腻，咸鲜微辣',
 '回锅肉过冷水晾凉后肉质会更紧致\n切记不要切厚了，不然很腻',
 '40', 3, 997,
-'["特色菜","家常菜"]', '荤菜', 1, 0, 0, 0, 0);
+'["川菜","经典","下饭菜","家常菜"]', '特色菜', 1, 0, 0, 0, 0);
 
 -- 糖醋排骨
 INSERT INTO `recipe` (`name`, `cover`, `images`, `author_id`, `ingredients`, `steps`, `desc`, `tips`, `cook_time`, `difficulty`, `calories`, `tags`, `category`, `source`, `like_count`, `collection_count`, `comment_count`, `view_count`)
@@ -115,7 +115,7 @@ NULL, NULL, 1,
 '酸甜可口、外酥里嫩的传统名菜，排骨富含优质蛋白和钙质',
 '炸排骨时可轻撒干淀粉提升酥脆口感\n收汁时应快速翻炒使排骨均匀裹上调料',
 '45', 3, 1022,
-'["特色菜","家常菜"]', '荤菜', 1, 0, 0, 0, 0);
+'["传统菜","酸甜","家常菜"]', '特色菜', 1, 0, 0, 0, 0);
 
 -- 鱼香肉丝
 INSERT INTO `recipe` (`name`, `cover`, `images`, `author_id`, `ingredients`, `steps`, `desc`, `tips`, `cook_time`, `difficulty`, `calories`, `tags`, `category`, `source`, `like_count`, `collection_count`, `comment_count`, `view_count`)
@@ -127,7 +127,7 @@ NULL, NULL, 1,
 '经典川菜，口味酸甜微辣，肉丝滑嫩，荤素搭配营养均衡',
 '干木耳需提前泡发4小时\n鱼香汁要提前调好，炒制过程动作要快',
 '40', 3, 421,
-'["特色菜","家常菜"]', '荤菜', 1, 0, 0, 0, 0);
+'["川菜","经典","下饭菜","家常菜"]', '特色菜', 1, 0, 0, 0, 0);
 
 -- 简易红烧肉
 INSERT INTO `recipe` (`name`, `cover`, `images`, `author_id`, `ingredients`, `steps`, `desc`, `tips`, `cook_time`, `difficulty`, `calories`, `tags`, `category`, `source`, `like_count`, `collection_count`, `comment_count`, `view_count`)
@@ -139,7 +139,7 @@ NULL, NULL, 1,
 '色泽红润油亮，口感软糯，肥而不腻，酱香浓郁',
 '刀工差的同学切大块请自觉延长炖煮时间\n收汁切记不可收干',
 '90', 2, 2775,
-'["家常菜"]', '荤菜', 1, 0, 0, 0, 0);
+'["下饭菜","经典"]', '家常菜', 1, 0, 0, 0, 0);
 
 -- 可乐鸡翅
 INSERT INTO `recipe` (`name`, `cover`, `images`, `author_id`, `ingredients`, `steps`, `desc`, `tips`, `cook_time`, `difficulty`, `calories`, `tags`, `category`, `source`, `like_count`, `collection_count`, `comment_count`, `view_count`)
@@ -151,7 +151,7 @@ NULL, NULL, 1,
 '色泽红亮、口感嫩滑，味道咸甜适口',
 '加入生姜爆香能防止鸡翅粘锅\n最后收汁勿开过大火，防止味道偏苦',
 '40', 2, 960,
-'["家常菜"]', '荤菜', 1, 0, 0, 0, 0);
+'["创意菜","下饭菜"]', '家常菜', 1, 0, 0, 0, 0);
 
 -- 黄焖鸡
 INSERT INTO `recipe` (`name`, `cover`, `images`, `author_id`, `ingredients`, `steps`, `desc`, `tips`, `cook_time`, `difficulty`, `calories`, `tags`, `category`, `source`, `like_count`, `collection_count`, `comment_count`, `view_count`)
@@ -163,7 +163,7 @@ NULL, NULL, 1,
 '汤汁浓郁，鸡肉滑嫩，咸鲜微甜，十分下饭',
 '炒糖色有难度，新手可用老抽替代\n汤汁不要收得太干',
 '40', 2, 766,
-'["家常菜"]', '荤菜', 1, 0, 0, 0, 0);
+'["下饭菜","焖菜"]', '家常菜', 1, 0, 0, 0, 0);
 
 -- 辣椒炒肉
 INSERT INTO `recipe` (`name`, `cover`, `images`, `author_id`, `ingredients`, `steps`, `desc`, `tips`, `cook_time`, `difficulty`, `calories`, `tags`, `category`, `source`, `like_count`, `collection_count`, `comment_count`, `view_count`)
@@ -175,7 +175,7 @@ NULL, NULL, 1,
 '湘味浓郁的家常菜，辣椒干香微焦，肉片滑嫩入味',
 '辣椒只能选择青椒，螺丝椒为最优解，切勿选择其他品种辣椒',
 '30', 2, 425,
-'["家常菜","快手菜"]', '荤菜', 1, 0, 0, 0, 0);
+'["湘菜","下饭菜","快手菜"]', '家常菜', 1, 0, 0, 0, 0);
 
 -- 小炒肉
 INSERT INTO `recipe` (`name`, `cover`, `images`, `author_id`, `ingredients`, `steps`, `desc`, `tips`, `cook_time`, `difficulty`, `calories`, `tags`, `category`, `source`, `like_count`, `collection_count`, `comment_count`, `view_count`)
@@ -187,7 +187,7 @@ NULL, NULL, 1,
 '香辣下饭的经典湘式家常菜，五花肉焦香不腻',
 '腌制时间至少半小时入味更佳',
 '60', 2, 2873,
-'["特色菜","家常菜"]', '荤菜', 1, 0, 0, 0, 0);
+'["湘菜","下饭菜","香辣","家常菜"]', '特色菜', 1, 0, 0, 0, 0);
 
 -- 红烧猪蹄
 INSERT INTO `recipe` (`name`, `cover`, `images`, `author_id`, `ingredients`, `steps`, `desc`, `tips`, `cook_time`, `difficulty`, `calories`, `tags`, `category`, `source`, `like_count`, `collection_count`, `comment_count`, `view_count`)
@@ -199,7 +199,7 @@ NULL, NULL, 1,
 '汤汁浓郁、肉质软糯的经典家常菜，咸香甜美',
 '没有高压锅可在大火转小火熬制\n红烧猪蹄汤也很下饭可多留些',
 '60', 3, 639,
-'["特色菜","家常菜"]', '荤菜', 1, 0, 0, 0, 0);
+'["经典","胶原蛋白","家常菜"]', '特色菜', 1, 0, 0, 0, 0);
 
 -- ============================================
 -- 水产 (4)
@@ -215,7 +215,7 @@ NULL, NULL, 1,
 '粤式经典蒸菜，鱼肉细嫩爽滑，味道清淡鲜美',
 '大火蒸鱼一般在10分钟内较佳\n蒸鱼需用筷子隔开盘子使鱼均匀受热且不腥',
 '30', 2, 385,
-'["家常菜","减脂菜"]', '水产', 1, 0, 0, 0, 0);
+'["粤菜","清蒸","鲜嫩","减脂菜"]', '家常菜', 1, 0, 0, 0, 0);
 
 -- 白灼虾
 INSERT INTO `recipe` (`name`, `cover`, `images`, `author_id`, `ingredients`, `steps`, `desc`, `tips`, `cook_time`, `difficulty`, `calories`, `tags`, `category`, `source`, `like_count`, `collection_count`, `comment_count`, `view_count`)
@@ -227,7 +227,7 @@ NULL, NULL, 1,
 '粤式经典快手菜，虾肉鲜甜弹嫩，原汁原味',
 '开始不能大火防止糊底\n蘸料也可以只用纯醋，原味虾口感味道都非常棒',
 '15', 1, 519,
-'["快手菜","减脂菜"]', '水产', 1, 0, 0, 0, 0);
+'["粤菜","鲜嫩","减脂菜"]', '快手菜', 1, 0, 0, 0, 0);
 
 -- 红烧鱼
 INSERT INTO `recipe` (`name`, `cover`, `images`, `author_id`, `ingredients`, `steps`, `desc`, `tips`, `cook_time`, `difficulty`, `calories`, `tags`, `category`, `source`, `like_count`, `collection_count`, `comment_count`, `view_count`)
@@ -239,7 +239,7 @@ NULL, NULL, 1,
 '家常风味浓郁的经典菜，咸鲜微甜，鱼肉嫩滑入味',
 '新手建议以中等大小的鲫鱼上手，提前划好花刀方便成熟',
 '40', 3, 570,
-'["家常菜"]', '水产', 1, 0, 0, 0, 0);
+'["下饭菜","经典"]', '家常菜', 1, 0, 0, 0, 0);
 
 -- 油焖大虾
 INSERT INTO `recipe` (`name`, `cover`, `images`, `author_id`, `ingredients`, `steps`, `desc`, `tips`, `cook_time`, `difficulty`, `calories`, `tags`, `category`, `source`, `like_count`, `collection_count`, `comment_count`, `view_count`)
@@ -251,7 +251,7 @@ NULL, NULL, 1,
 '鲁菜经典，咸甜交融的酱汁包裹整虾，红亮油润',
 '做法参考B站老饭骨视频\n中途不能再加汤水，不要开盖',
 '40', 3, 584,
-'["特色菜"]', '水产', 1, 0, 0, 0, 0);
+'["鲁菜","经典","宴客"]', '特色菜', 1, 0, 0, 0, 0);
 
 -- ============================================
 -- 主食 (4)
@@ -267,7 +267,7 @@ NULL, NULL, 1,
 '金黄蛋丝裹着粒粒分明的米饭，搭配火腿蔬菜口感丰富',
 '使用隔夜的冷饭炒饭最佳\n炒饭要做到粒粒分明需将饭炒干',
 '25', 2, 853,
-'["家常菜","快手菜"]', '主食', 1, 0, 0, 0, 0);
+'["快手菜"]', '家常菜', 1, 0, 0, 0, 0);
 
 -- 扬州炒饭
 INSERT INTO `recipe` (`name`, `cover`, `images`, `author_id`, `ingredients`, `steps`, `desc`, `tips`, `cook_time`, `difficulty`, `calories`, `tags`, `category`, `source`, `like_count`, `collection_count`, `comment_count`, `view_count`)
@@ -279,7 +279,7 @@ NULL, NULL, 1,
 '配料丰富的升级版炒饭，粒粒分明，属于淮扬菜经典主食',
 '如做完后胳膊酸痛为正常现象，需加强上肢锻炼',
 '60', 3, 1769,
-'["特色菜"]', '主食', 1, 0, 0, 0, 0);
+'["淮扬菜","经典"]', '特色菜', 1, 0, 0, 0, 0);
 
 -- 西红柿鸡蛋挂面
 INSERT INTO `recipe` (`name`, `cover`, `images`, `author_id`, `ingredients`, `steps`, `desc`, `tips`, `cook_time`, `difficulty`, `calories`, `tags`, `category`, `source`, `like_count`, `collection_count`, `comment_count`, `view_count`)
@@ -291,7 +291,7 @@ NULL, NULL, 1,
 '家常快手面食，酸甜咸鲜，汤汁浓郁，面条劲道',
 '煮面条多次加冷水可使面条口感劲道不粘黏\n鸡蛋液中可加少许黑胡椒提味',
 '20', 1, 654,
-'["家常菜","快手菜"]', '主食', 1, 0, 0, 0, 0);
+'["汤面","快手菜"]', '家常菜', 1, 0, 0, 0, 0);
 
 -- 手工水饺
 INSERT INTO `recipe` (`name`, `cover`, `images`, `author_id`, `ingredients`, `steps`, `desc`, `tips`, `cook_time`, `difficulty`, `calories`, `tags`, `category`, `source`, `like_count`, `collection_count`, `comment_count`, `view_count`)
@@ -303,7 +303,7 @@ NULL, NULL, 1,
 '中式经典主食，皮薄馅大、鲜美多汁，饱腹又美味',
 '煮水饺不需要盖锅盖，加三次水防止饺子破损\n搭配黑醋和姜丝做蘸料味道更丰富',
 '180', 3, 1313,
-'["特色菜","家常菜"]', '主食', 1, 0, 0, 0, 0);
+'["经典","面食","家常菜"]', '特色菜', 1, 0, 0, 0, 0);
 
 -- ============================================
 -- 汤羹 (4)
@@ -319,7 +319,7 @@ NULL, NULL, 1,
 '酸甜开胃、口感滑嫩的家常汤品，老少皆宜',
 '味素可加可不加',
 '15', 1, 258,
-'["家常菜","快手菜"]', '汤羹', 1, 0, 0, 0, 0);
+'["快手菜"]', '家常菜', 1, 0, 0, 0, 0);
 
 -- 紫菜蛋花汤
 INSERT INTO `recipe` (`name`, `cover`, `images`, `author_id`, `ingredients`, `steps`, `desc`, `tips`, `cook_time`, `difficulty`, `calories`, `tags`, `category`, `source`, `like_count`, `collection_count`, `comment_count`, `view_count`)
@@ -331,7 +331,7 @@ NULL, NULL, 1,
 '清淡鲜美的家常汤品，紫菜富含碘钙，鸡蛋提供优质蛋白',
 '水开后关小火倒入蛋液可使蛋花更嫩\n喜欢浓稠口感可加入2g淀粉',
 '20', 1, 217,
-'["快手菜","减脂菜"]', '汤羹', 1, 0, 0, 0, 0);
+'["清淡","减脂菜"]', '快手菜', 1, 0, 0, 0, 0);
 
 -- 玉米排骨汤
 INSERT INTO `recipe` (`name`, `cover`, `images`, `author_id`, `ingredients`, `steps`, `desc`, `tips`, `cook_time`, `difficulty`, `calories`, `tags`, `category`, `source`, `like_count`, `collection_count`, `comment_count`, `view_count`)
@@ -343,7 +343,7 @@ NULL, NULL, 1,
 '鲜美清甜的家常汤品，排骨软烂，玉米和胡萝卜带来自然甜味',
 '这道菜制作简单，食材不复杂，对新手友好\n适合降温的时候来上一大碗',
 '90', 2, 1724,
-'["家常菜"]', '汤羹', 1, 0, 0, 0, 0);
+'["营养"]', '家常菜', 1, 0, 0, 0, 0);
 
 -- 皮蛋瘦肉粥
 INSERT INTO `recipe` (`name`, `cover`, `images`, `author_id`, `ingredients`, `steps`, `desc`, `tips`, `cook_time`, `difficulty`, `calories`, `tags`, `category`, `source`, `like_count`, `collection_count`, `comment_count`, `view_count`)
@@ -355,7 +355,7 @@ NULL, NULL, 1,
 '广东经典家常粥品，粥底绵密顺滑，皮蛋醇香与瘦肉鲜嫩融合',
 '作为早餐可提前一夜准备好主料保温到第二天再加配料',
 '90', 2, 776,
-'["特色菜","家常菜"]', '汤羹', 1, 0, 0, 0, 0);
+'["广东","家常菜"]', '特色菜', 1, 0, 0, 0, 0);
 
 -- ============================================
 -- 早餐 (2)
@@ -371,7 +371,7 @@ NULL, NULL, 1,
 '传统小吃茶香浓郁，鲜香可口，富含优质蛋白质',
 '鸡蛋捞出过冷水是为了让蛋壳之间产生间隙\n想入味更快可剥壳划刀浸泡2天以上',
 '30', 2, 193,
-'["特色菜","家常菜"]', '早餐', 1, 0, 0, 0, 0);
+'["小吃","传统","家常菜"]', '特色菜', 1, 0, 0, 0, 0);
 
 -- 牛奶燕麦
 INSERT INTO `recipe` (`name`, `cover`, `images`, `author_id`, `ingredients`, `steps`, `desc`, `tips`, `cook_time`, `difficulty`, `calories`, `tags`, `category`, `source`, `like_count`, `collection_count`, `comment_count`, `view_count`)
@@ -383,4 +383,4 @@ NULL, NULL, 1,
 '高蛋白高纤维的便捷营养早餐，入口温热柔和',
 '不同微波炉火力不同无法精确\n混合物不超过容器容量50%防止溢出\n不建议使用玻璃杯烹饪',
 '5', 1, 421,
-'["快手菜","减脂菜"]', '早餐', 1, 0, 0, 0, 0);
+'["营养","减脂菜"]', '快手菜', 1, 0, 0, 0, 0);
