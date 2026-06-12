@@ -19,18 +19,22 @@
 			<view class="point-decoration red"></view>
 			<view class="name-title">单位：</view>
 			<picker class="unit-picker" mode="selector" range="{{units}}" value="{{selectedUnitIndex}}" bindchange="bindUnitChange">
-				<view class="unit-picker-value">{{selectedUnit}}</view>
+				<view class="picker-row">
+					<view class="unit-picker-value">{{selectedUnit}}</view>
+					<view class="down-arrow"><image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/down.svg" mode="aspectFit"/></view>
+				</view>
 			</picker>
-			<view class="down-arrow"><image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/down.svg" mode="aspectFit"/></view>
 		</view>
 
 		<view class="reminder-time">
 			<view class="point-decoration yellow"></view>
 			<view class="name-title">提醒时间：</view>
 			<picker class="reminder-picker" mode="date" value="{{reminderDate}}" bindchange="bindReminderChange">
-				<view class="reminder-picker-value">{{reminderDate}}</view>
+				<view class="picker-row">
+					<view class="reminder-picker-value">{{reminderDate}}</view>
+					<view class="down-arrow"><image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/down.svg" mode="aspectFit"/></view>
+				</view>
 			</picker>
-			<view class="down-arrow"><image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/down.svg" mode="aspectFit"/></view>
 		</view>
 
 		<view class="entry-time">

@@ -1,6 +1,7 @@
 // pages/recipe-detail/recipe-detail.js
 const { API_CONFIG } = require('../../config/api')
 const { request } = require('../../utils/request')
+const { formatPublishDate } = require('../../utils/util')
 
 Page({
   data: {
@@ -17,13 +18,12 @@ Page({
     difficulty: '',
     calories: '',
     stats: null,
-    isLiked: false,
     isCollected: false,
     images: []
   },
 
   onLoad(options) {
-    const id = options.id
+    const recipeid = options.recipeid
     const isAI = options.ai === 'true'
 
     if (isAI) {
@@ -32,13 +32,13 @@ Page({
       return
     }
 
-    if (!id) {
+    if (!recipeid) {
       wx.showToast({ title: '缺少菜谱ID', icon: 'none' })
       setTimeout(() => wx.navigateBack(), 1500)
       return
     }
-    this.setData({ recipeId: id })
-    this.fetchDetail(id)
+    this.setData({ recipeId: recipeid })
+    this.fetchDetail(recipeid)
   },
 
   // 从本地存储加载 AI 生成的菜谱
@@ -50,7 +50,17 @@ Page({
       return
     }
 
+    // 使用后端返回的 recipeid，无效时统一为 0 走纯本地逻辑
+    const rawId = recipe.recipeid
+    const recipeId = (rawId !== null && rawId !== undefined && rawId !== 0 && rawId !== '0') ? rawId : 0
+
+    // 从本地存储恢复收藏状态
+    const favorites = wx.getStorageSync('favorites') || []
+    const isCollected = favorites.some(f => f.id === recipeId)
+
     this.setData({
+      recipeId,
+      isAI: true,
       name: recipe.name || '',
       cover: recipe.cover || '',
       desc: recipe.tips || '',
@@ -69,7 +79,8 @@ Page({
       cookTime: recipe.cookTime || '',
       difficulty: recipe.difficulty || '',
       calories: recipe.calories || '',
-      stats: recipe.stats || null
+      stats: recipe.stats || null,
+      isCollected
     })
   },
 
@@ -101,7 +112,6 @@ Page({
           difficulty: res.difficulty || '',
           calories: res.calories || '',
           stats: res.stats || null,
-          isLiked: res.isLiked || false,
           isCollected: res.isCollected || false,
           images: res.images || []
         })
@@ -116,7 +126,14 @@ Page({
 
   /** 收藏 / 取消收藏 */
   onCollectBtnTap() {
-    const { recipeId, isCollected } = this.data
+    const { recipeId, isCollected, isAI } = this.data
+
+    // AI 菜谱且没有有效后端 ID 时，走纯本地收藏逻辑（不调后端 API）
+    if (isAI && (!recipeId || recipeId === 0 || recipeId === '0')) {
+      this.toggleLocalCollect()
+      return
+    }
+
     const apiConfig = {
       ...(isCollected ? API_CONFIG.community.uncollect : API_CONFIG.community.collect),
       path: (isCollected ? API_CONFIG.community.uncollect.path : API_CONFIG.community.collect.path).replace('{id}', recipeId)
@@ -128,38 +145,69 @@ Page({
           isCollected: res.isCollected,
           'stats.collections': res.collectionCount
         })
+        // 同步本地存储（让 mine 页面可以读取）
+        this.syncFavoritesToStorage(res.isCollected, res.collectionCount)
         wx.showToast({
-          title: isCollected ? '已取消收藏' : '已收藏',
+          title: res.isCollected ? '已收藏' : '已取消收藏',
           icon: 'none'
         })
       })
       .catch((err) => {
         console.error('收藏操作失败', err)
+        // AI 菜谱在 API 不可用时降级为本地逻辑
+        if (isAI) {
+          this.toggleLocalCollect()
+        } else {
+          wx.showToast({ title: '操作失败', icon: 'none' })
+        }
       })
   },
 
-  /** 点赞 / 取消点赞 */
-  onLikeBtnTap() {
-    const { recipeId, isLiked } = this.data
-    const apiConfig = {
-      ...(isLiked ? API_CONFIG.community.unlike : API_CONFIG.community.like),
-      path: (isLiked ? API_CONFIG.community.unlike.path : API_CONFIG.community.like.path).replace('{id}', recipeId)
-    }
+  /** 纯本地收藏/取消收藏（AI 菜谱无后端 ID 时使用） */
+  toggleLocalCollect() {
+    const { isCollected, stats } = this.data
+    const newCollected = !isCollected
+    const newCount = (stats?.collections || 0) + (newCollected ? 1 : -1)
 
-    request(apiConfig, {}, { showLoading: false })
-      .then((res) => {
-        this.setData({
-          isLiked: res.isLiked,
-          'stats.likes': res.likeCount
-        })
-        wx.showToast({
-          title: isLiked ? '已取消点赞' : '已点赞',
-          icon: 'none'
-        })
-      })
-      .catch((err) => {
-        console.error('点赞操作失败', err)
-      })
+    this.setData({
+      isCollected: newCollected,
+      'stats.collections': Math.max(0, newCount)
+    })
+    this.syncFavoritesToStorage(newCollected, Math.max(0, newCount))
+
+    wx.showToast({
+      title: newCollected ? '已收藏' : '已取消收藏',
+      icon: 'none'
+    })
+  },
+
+  /** 同步收藏状态到本地存储 */
+  syncFavoritesToStorage(isCollected, collectionCount) {
+    const { recipeId, name, cover, author } = this.data
+    let favorites = wx.getStorageSync('favorites') || []
+
+    if (isCollected) {
+      // 拒绝对无效 ID 写入收藏
+      if (!recipeId || recipeId === 0 || recipeId === '0') {
+        console.warn('[recipe-detail] syncFavoritesToStorage: skipping invalid recipeId', recipeId)
+        return
+      }
+      const card = {
+        id: Number(recipeId),
+        recipeName: name,
+        publishDate: formatPublishDate(new Date().toISOString()),
+        recipeImage: cover,
+        userName: author?.nickname || '',
+        userImg: author?.avatar || '',
+        collectionCount: collectionCount || 1,
+        collectedAt: Date.now()
+      }
+      favorites = favorites.filter(f => String(f.id) !== String(recipeId))
+      favorites.unshift(card)
+    } else {
+      favorites = favorites.filter(f => String(f.id) !== String(recipeId))
+    }
+    wx.setStorageSync('favorites', favorites)
   },
 
   onShareBtnTap() {
@@ -184,7 +232,7 @@ Page({
     const { name, recipeId } = this.data
     return {
       title: name || '美味菜谱',
-      path: `/pages/recipe-detail/recipe-detail?id=${recipeId}`
+      path: `/pages/recipe-detail/recipe-detail?recipeid=${recipeId}`
     }
   }
 })

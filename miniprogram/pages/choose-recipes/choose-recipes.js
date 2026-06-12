@@ -86,7 +86,7 @@ Page({
 
     // 直接跳转到菜谱详情页，由详情页自行获取数据
     wx.navigateTo({
-      url: `/pages/recipe-detail/recipe-detail?id=${id}`
+      url: `/pages/recipe-detail/recipe-detail?recipeid=${id}`
     })
   },
 

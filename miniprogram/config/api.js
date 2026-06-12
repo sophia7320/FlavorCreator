@@ -117,11 +117,11 @@ const API_CONFIG = {
       path: '/api/user/collections',
       method: 'GET'
     },
-    // 获取点赞列表
-    likes: {
-      path: '/api/user/likes',
-      method: 'GET'
-    },
+    // 获取点赞列表（已废弃，统一使用收藏）
+    // likes: {
+    //   path: '/api/user/likes',
+    //   method: 'GET'
+    // },
     // 浏览历史
     history: {
       path: '/api/user/history',
@@ -151,16 +151,15 @@ const API_CONFIG = {
       path: '/api/recipe/list',
       method: 'GET'
     },
-    // 点赞
-    like: {
-      path: '/api/community/recipe/{id}/like',
-      method: 'POST'
-    },
-    // 取消点赞
-    unlike: {
-      path: '/api/community/recipe/{id}/like',
-      method: 'DELETE'
-    },
+    // 点赞/取消点赞（已废弃，统一使用收藏）
+    // like: {
+    //   path: '/api/community/recipe/{id}/like',
+    //   method: 'POST'
+    // },
+    // unlike: {
+    //   path: '/api/community/recipe/{id}/like',
+    //   method: 'DELETE'
+    // },
     // 收藏菜谱
     collect: {
       path: '/api/community/recipe/{id}/collect',
@@ -186,16 +185,15 @@ const API_CONFIG = {
       path: '/api/community/comment/{id}',
       method: 'DELETE'
     },
-    // 评论点赞
-    likeComment: {
-      path: '/api/community/comment/{id}/like',
-      method: 'POST'
-    },
-    // 取消评论点赞
-    unlikeComment: {
-      path: '/api/community/comment/{id}/like',
-      method: 'DELETE'
-    }
+    // 评论点赞/取消点赞（已废弃，统一使用收藏）
+    // likeComment: {
+    //   path: '/api/community/comment/{id}/like',
+    //   method: 'POST'
+    // },
+    // unlikeComment: {
+    //   path: '/api/community/comment/{id}/like',
+    //   method: 'DELETE'
+    // }
   },
 
   // 食材管理相关
@@ -234,6 +232,16 @@ const API_CONFIG = {
     expiringNotice: {
       path: '/api/ingredient/expiring-notice',
       method: 'GET'
+    },
+    // 标记已读（单条）
+    read: {
+      path: '/api/ingredient/{id}/read',
+      method: 'POST'
+    },
+    // 标记已读（批量）
+    batchRead: {
+      path: '/api/ingredient/read',
+      method: 'POST'
     }
   },
 

@@ -2,24 +2,25 @@
 <view class="card {{isFirst ? 'first' : ''}}" bindtap="onCardTap">
   <view class="card-header" catchtap="onUserTap">
     <view class="user-image">
-      <image src="{{cardData.userImg}}" mode="aspectFit" class="user-img"/>
+      <image src="{{cardData.userImg}}" mode="aspectFill" class="user-img"/>
     </view>
     <view class="name-container">
       <view class="user-name">{{cardData.userName}}</view>
-      <view class="recipe-name">{{cardData.recipeName}}</view>
+      <view class="publish-date">{{cardData.publishDate}}</view>
     </view>
   </view>
 
   <view class="card-image-contianer">
-    <image src="{{cardData.recipeImage}}" mode="aspectFit" class="card-img"/>  
+    <image src="{{cardData.recipeImage}}" mode="aspectFill" class="card-img"/>  
   </view>
+	<view class="recipe-name">{{cardData.recipeName}}</view>
 
   <view class="tool-bar">
-    <view class="collect {{isCollected ? 'collected' : ''}}" bindtap="onCollectTap">
+    <view class="collect {{isCollected ? 'collected' : ''}}" catchtap="onCollectTap">
       <image src="{{isCollected ? 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/red-heart.svg' : 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/like.svg'}}" mode="aspectFit" class="collect-btn"/>
       <text class="collect-count">{{cardData.collectionCount || ''}}</text>
     </view>
-    <button class="share" open-type="share" bindtap="onShareTap">
+    <button class="share" open-type="share" catchtap="onShareTap">
       <image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/share.svg" mode="aspectFit" class="share-btn"/>
     </button>
   </view>

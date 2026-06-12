@@ -147,6 +147,13 @@
 	border-color: rgba(255, 150, 146, 1);
 }
 
+.picker-row {
+	display: flex;
+	align-items: center;
+	height: 60rpx;
+	width: 100%;
+}
+
 .confirm-btn {
 	width: 127rpx;
 	height: 54rpx;

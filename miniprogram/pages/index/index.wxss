@@ -34,11 +34,40 @@
 	gap: 28rpx;
 	padding: 87rpx 53rpx 0 53rpx;
 	border-radius: 0 0 80rpx 80rpx;
-	background-image: url(https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/bg/top-bar-dish-bg.png);
 
 	background-size: 100% 100%;
 	position: relative;
 	z-index: 10;
+}
+
+/* 极淡白色提亮：几乎不可见，仅在偏黑背景上有微弱提亮效果 */
+.top-recommand-container::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	border-radius: 0 0 80rpx 80rpx;
+	background: rgba(255, 255, 255, 0.06);
+	pointer-events: none;
+	z-index: 0;
+}
+
+/* 文字用 text-shadow 保证深色背景可读 */
+.top-recommand-container .top-title,
+.top-recommand-container .name-date-container,
+.top-recommand-container .description {
+	position: relative;
+	z-index: 1;
+	font-weight: 500;
+	text-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.2);
+}
+
+/* 文字在遮罩之上 */
+.top-recommand-container .top-title,
+.top-recommand-container .name-date-container,
+.top-recommand-container .description {
+	position: relative;
+	z-index: 1;
+	font-weight: 500;
 }
 
 .top-recommand-container .name-date-container {
@@ -87,6 +116,25 @@
 	border-radius: 50%;
 
 	box-shadow: 0 4rpx 4rpx 0 var(--shadow-black);
+	position: relative;
+}
+
+.storage-badge {
+	position: absolute;
+	top: -8rpx;
+	right: -8rpx;
+	min-width: 32rpx;
+	height: 32rpx;
+	padding: 0 8rpx;
+	background-color: rgba(249, 90, 44, 1);
+	border-radius: 16rpx;
+	font-size: 20rpx;
+	color: #fff;
+	font-weight: 700;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	box-shadow: 0 2rpx 4rpx rgba(0,0,0,0.15);
 }
 
 .tool-bar-container .ingredients-storage .ingredients-storage-icon {

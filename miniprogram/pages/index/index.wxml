@@ -1,7 +1,7 @@
 <!--index.wxml-->
 <view class="index-page">
 
-	<view class="top-recommand-container">
+	<view class="top-recommand-container" style="background-image: url({{recommendCover}});">
 		<view class="top-title">每日推荐</view>
 		<view class="name-date-container">
 			<view class="dish-name">{{ dishName }}</view>
@@ -19,10 +19,11 @@
 		<view class="title">Cooking!</view>
 		<view class="ingredients-storage" bind:tap="onIngredientsStorageTap">
 			<image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/storage-icon.svg" mode="aspectFit" class="ingredients-storage-icon"/>
+			<view class="storage-badge" wx:if="{{storageBadgeCount > 0}}">{{storageBadgeCount > 99 ? '99+' : storageBadgeCount}}</view>
 		</view>
 	</view>
 
-	<scroll-view class="main-container" scroll-y="true" enhanced="true" show-scrollbar="false">
+	<scroll-view class="main-container"  enhanced="true" show-scrollbar="false">
 		<view class="search-container">
 			<view class="listener">
 				<image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/linstener.png" mode="aspectFit" class="listener-icon"/>

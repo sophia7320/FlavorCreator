@@ -9,6 +9,7 @@ Page({
 		weekDay: '',
 		solarDate: '',
 		description: '',
+		recommendCover: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/bg/top-bar-dish-bg.png',
 
 		steps: [
 			{ stepId: 1, name:'食材', selected: true },
@@ -34,6 +35,9 @@ Page({
 
 			// 所有食材数据（用于搜索）
 			allIngredientsList: [],
+
+			// 食材存储未读预警角标
+			storageBadgeCount: 0,
 
 			// 口味数据
 			tasteOptions: [
@@ -100,19 +104,38 @@ Page({
 
 	// 拉取每日推荐
 	fetchDailyRecommend() {
+		const DEFAULT_COVER = 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/bg/top-bar-dish-bg.png'
 		request(API_CONFIG.recipe.recommend, {}, { showLoading: false, showError: false })
 			.then((res) => {
 				const data = res.data || res
+				// 接口返回 { title, recipes: [{ name, cover, reason, ... }] }
+				const firstRecipe = data.recipes && data.recipes.length > 0 ? data.recipes[0] : null
+
+				// 菜名：优先取真实菜名 recipes[0].name，没有则回退到 title
+				const dishName = (firstRecipe && firstRecipe.name) || data.title || '今日推荐'
+
+				// 描述：优先取推荐理由 recipes[0].reason，其次取 data.description，最后拼接兜底
+				const description = (firstRecipe && firstRecipe.reason)
+					|| data.description
+					|| (firstRecipe
+						? `${firstRecipe.name || '推荐菜谱'} · 共${data.recipes.length}道推荐`
+						: '')
+
+				// 背景图：使用 recipes[0].cover，无则保留 CSS 默认图
+				const recommendCover = (firstRecipe && firstRecipe.cover) || DEFAULT_COVER
+
 				this.setData({
-					dishName: data.name || data.dishName || '今日推荐',
-					description: data.description || ''
+					dishName,
+					description,
+					recommendCover
 				})
 			})
 			.catch(() => {
 				// 接口失败时使用默认文案
 				this.setData({
 					dishName: '今日推荐',
-					description: '今天不知道吃什么？选选食材，让AI帮你搭配吧！'
+					description: '今天不知道吃什么？选选食材，让AI帮你搭配吧！',
+					recommendCover: DEFAULT_COVER
 				})
 			})
 	},
@@ -138,6 +161,8 @@ Page({
 				this.applyDefaultPreferences()
 			}
 		}
+		// 获取食材存储未读预警角标
+		this.fetchStorageBadge()
 	},
 
 	onReady() {
@@ -535,9 +560,7 @@ Page({
 		} else {
 			// 不存在，添加新项
 			selectedIngredients.push({
-				name: ingredient.name,
-				quantity: 1,
-				unit: ingredient.unit || 'g'
+				name: ingredient.name
 			})
 			message = `已添加${ingredient.name}`
 		}
@@ -720,6 +743,23 @@ Page({
 				this.getTabBar().updateCreateVisibility(selectedIngredients.length >= 1)
 			}
 		}
+	},
+
+	// 获取食材存储未读预警数量（角标）
+	fetchStorageBadge() {
+		request(API_CONFIG.ingredient.list, {
+			sortBy: 'createTime',
+			sort: 'desc'
+		}, { showLoading: false, showError: false })
+			.then((data) => {
+				const ingredients = data.ingredients || []
+				// 统计未读异常食材数（daysLeft ≤ 15 且 !readed）
+				const badgeCount = ingredients.filter(
+					item => item.daysLeft <= 15 && !item.readed
+				).length
+				this.setData({ storageBadgeCount: badgeCount })
+			})
+			.catch(() => {})
 	},
 
 	onIngredientsStorageTap() {

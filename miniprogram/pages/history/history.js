@@ -114,12 +114,8 @@ Page({
     if (this.data.loading) return Promise.resolve()
     this.setData({ loading: true })
 
-    return request({
-      url: API_CONFIG.userCenter.history,
-      method: 'GET',
-      data: { page: 1, size: 50 }
-    }).then(res => {
-      const list = res?.data?.list || []
+    return request(API_CONFIG.userCenter.history, { page: 1, size: 50 }).then(res => {
+      const list = res.list || res.records || res?.data?.list || []
       if (list.length > 0) {
         const cards = list.map(item => this.transformCardData(item))
         const { today, recent } = this.splitByDate(cards)
@@ -151,7 +147,7 @@ Page({
    */
   transformCardData(item) {
     return {
-      id: item.id,
+      id: item.recipeid || item.id || item._id,
       authorId: item.authorId || '',
       userName: item.author?.nickname || 'User Name',
       userImg: item.author?.avatar || 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/user.svg',

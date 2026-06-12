@@ -1,14 +1,16 @@
 <!--components/ingredient-card/ingredient-card.wxml-->
 <view class="ingredient-card" bindtap="onTap">
-  <image src="{{item.cover}}" mode="aspectFill" class="food-cover"/>
+  <image src="{{cover}}" mode="aspectFill" class="food-cover"/>
   <view class="info">
     <view class="title">{{item.name}}</view>
+		<view class="status-light {{statusClass}}"></view>
   </view>
   <view class="amount-container">
+		<view class="status-label" wx:if="{{showStatusLabel}}">{{statusLabelText}}</view>
     <view class="action-container">
       <view class="amount">{{item.amount}}</view>
     </view>
-    <view class="unit">{{item.unit}}</view>
+		<view class="unit">{{item.unit}}</view>
   </view>
   <view class="delete-btn" catchtap="onDelete"></view>
 </view>

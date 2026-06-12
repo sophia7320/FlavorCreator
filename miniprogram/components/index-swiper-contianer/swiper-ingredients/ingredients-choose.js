@@ -194,16 +194,13 @@ Component({
 			const selectedIngredients = allList
 				.filter(item => item.selected)
 				.map(item => ({
-					name: item.name,
-					quantity: item.quantity,
-					unit: item.unit
+					name: item.name
 				}))
 
 			this.triggerEvent('ingredientsChange', { 
 				selectedIngredients,
 				changedIngredient: changedIngredient ? {
-					name: changedIngredient.name,
-					unit: changedIngredient.unit
+					name: changedIngredient.name
 				} : null
 			})
 		},

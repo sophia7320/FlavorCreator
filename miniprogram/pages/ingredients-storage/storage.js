@@ -83,17 +83,21 @@ Page({
 
   // 更新分类红点（根据食材状态判断）
   updateRedPoints(ingredients, typeList) {
-    // 找出有临期/过期食材的分类
+    // 找出有未读临期/过期食材的分类
+    // status: 0=已过期, 1=红灯(≤3天), 2=黄灯(≤15天), 3=绿灯(>15天)
     const problemCategories = new Set();
     ingredients.forEach(item => {
-      if (item.category && item.status !== 'normal') {
+      if (item.category && item.daysLeft <= 15 && !item.readed) {
         problemCategories.add(item.category);
       }
     });
 
     const updatedList = typeList.map(cat => ({
       ...cat,
-      redPoint: problemCategories.has(cat.name)
+      // "全部"分类：只要有任何分类有红点，就亮红点
+      redPoint: cat.name === '全部'
+        ? problemCategories.size > 0
+        : problemCategories.has(cat.name)
     }));
 
     this.setData({ typeList: updatedList });
@@ -118,14 +122,72 @@ Page({
   // 点击分类项
   onTypeTap(e) {
     const index = e.currentTarget.dataset.index;
-    const category = this.data.typeList[index].name;
+    const category = this.data.typeList[index];
+
+    // 如果当前分类有红点，先标记已读
+    if (category.redPoint) {
+      this.markCategoryAsRead(category.name);
+    }
+
     this.setData({
       currentIndex: index,
-      currentCategory: category,
+      currentCategory: category.name,
       keyword: '',
     });
     this.calcSelectedTop(index);
     this.filterByCategory();
+  },
+
+  // 标记某个分类下的异常食材为已读
+  async markCategoryAsRead(categoryName) {
+    const { allIngredients } = this.data;
+
+    // 找出该分类下需要标记的食材 ID
+    const targetIds = allIngredients
+      .filter(item => {
+        const matchCategory = categoryName === '全部' || item.category === categoryName;
+        return matchCategory && item.daysLeft <= 15 && !item.readed;
+      })
+      .map(item => item.id);
+
+    if (targetIds.length === 0) return;
+
+    try {
+      await request(API_CONFIG.ingredient.batchRead, targetIds, { showLoading: false });
+
+      // 本地更新 allIngredients 的 readed 状态
+      const updatedIngredients = allIngredients.map(item =>
+        targetIds.includes(item.id) ? { ...item, readed: true } : item
+      );
+
+      // 本地更新 typeList 红点状态
+      const typeList = this.data.typeList.map(cat => {
+        if (categoryName === '全部') {
+          // 点击"全部" → 清除所有分类的红点
+          return { ...cat, redPoint: false };
+        }
+        if (cat.name === categoryName) {
+          // 清除该分类的红点
+          return { ...cat, redPoint: false };
+        }
+        if (cat.name === '全部') {
+          // 重新判断"全部"是否还有其他分类有红点
+          const hasOther = updatedIngredients.some(
+            item =>
+              item.category &&
+              item.category !== categoryName &&
+              item.daysLeft <= 15 &&
+              !item.readed
+          );
+          return { ...cat, redPoint: hasOther };
+        }
+        return cat;
+      });
+
+      this.setData({ allIngredients: updatedIngredients, typeList });
+    } catch (err) {
+      console.error('标记已读失败', err);
+    }
   },
 
   // 计算 selected-background 的 top 值

@@ -12,7 +12,14 @@ Page({
     wx.login({
       success: (res) => {
         const code = res.code
-        const loginParams = { code: code }
+        const loginParams = {
+          code: code,
+          userInfo: {
+            nickName: '微信用户',
+            avatarUrl: '',
+            gender: 0
+          }
+        }
 
         request(API_CONFIG.auth.loginWx, loginParams).then((data) => {
           app.saveLoginInfo(data.token, data.refreshToken, data.user, data.expiresIn)

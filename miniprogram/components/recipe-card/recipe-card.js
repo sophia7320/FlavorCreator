@@ -33,7 +33,10 @@ Component({
     },
     onCollectTap() {
       if (this.data.cardData.isPlaceholder) return
-      this.triggerEvent('collecttap', { cardId: this.data.cardData.id })
+      this.triggerEvent('collecttap', {
+        cardId: this.data.cardData.id,
+        isCollected: this.data.isCollected
+      })
     },
     onShareTap() {
       if (this.data.cardData.isPlaceholder) return
