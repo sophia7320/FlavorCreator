@@ -25,6 +25,7 @@ public class RecipeDetailResponseDTO {
     private String difficulty;
     private Integer calories;
     private String[] tags;
+    private String category;
     private RecipeStats stats;
     private Boolean isLiked;
     private Boolean isCollected;

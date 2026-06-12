@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
-public class PublishRecipeRequestDTO {
+public class CreateRecipeRequestDTO {
     @NotBlank(message = "菜谱名称不能为空")
     private String name;
     @NotBlank(message = "食材信息不能为空")

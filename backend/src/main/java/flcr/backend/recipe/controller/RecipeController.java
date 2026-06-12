@@ -4,7 +4,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import flcr.backend.common.aop.Public;
 import flcr.backend.common.response.Response;
 import flcr.backend.recipe.DTO.request.ApplyRecipeRequestDTO;
-import flcr.backend.recipe.DTO.request.PublishRecipeRequestDTO;
+import flcr.backend.recipe.DTO.request.CreateRecipeRequestDTO;
+import flcr.backend.recipe.DTO.request.RecipeUpdateRequestDTO;
 import flcr.backend.recipe.DTO.request.RecipeGenerateRequestDTO;
 import flcr.backend.recipe.DTO.request.RecipeListRequestDTO;
 import flcr.backend.recipe.DTO.response.ApplyRecipeResponseDTO;
@@ -35,7 +36,7 @@ public class RecipeController {
     }
 
     @PostMapping
-    public Response<Long> publishRecipe(@Valid @RequestBody PublishRecipeRequestDTO request) {
+    public Response<Long> publishRecipe(@Valid @RequestBody CreateRecipeRequestDTO request) {
         Long recipeId = recipeService.publishRecipe(request);
         return Response.success(recipeId);
     }
@@ -63,5 +64,17 @@ public class RecipeController {
     @GetMapping("/recommend")
     public Response<RecipeRecommendResponseDTO> recommend() {
         return Response.success(recipeService.recommend());
+    }
+
+    @PutMapping("/{id}")
+    public Response<RecipeDetailResponseDTO> updateRecipe(@PathVariable Long id,
+            @Valid @RequestBody RecipeUpdateRequestDTO request) {
+        return Response.success(recipeService.updateRecipe(id, request));
+    }
+
+    @DeleteMapping("/{id}")
+    public Response<Void> deleteRecipe(@PathVariable Long id) {
+        recipeService.deleteRecipe(id);
+        return Response.success();
     }
 }
