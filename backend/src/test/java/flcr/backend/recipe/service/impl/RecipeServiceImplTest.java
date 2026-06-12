@@ -369,21 +369,19 @@ class RecipeServiceImplTest {
         r2.setTags("[\"清淡\"]");
         when(recipeMapper.selectList(any(LambdaQueryWrapper.class))).thenReturn(List.of(r1, r2));
 
-        String llmResponse = "{\"recipes\":[{\"id\":1,\"reason\":\"匹配你的辣口味偏好\"},{\"id\":2,\"reason\":\"清淡搭配推荐\"}]}";
+        String llmResponse = "{\"recipes\":[{\"id\":1,\"reason\":\"匹配你的辣口味偏好\"}]}";
         when(llmClient.generateRecipeJson(anyString())).thenReturn(llmResponse);
         java.util.Map<String, Object> respMap = new java.util.LinkedHashMap<>();
         java.util.List<java.util.Map<String, Object>> respRecipes = new java.util.ArrayList<>();
         java.util.Map<String, Object> item1 = new java.util.LinkedHashMap<>();
         item1.put("id", 1); item1.put("reason", "匹配你的辣口味偏好");
-        java.util.Map<String, Object> item2 = new java.util.LinkedHashMap<>();
-        item2.put("id", 2); item2.put("reason", "清淡搭配推荐");
-        respRecipes.add(item1); respRecipes.add(item2);
+        respRecipes.add(item1);
         respMap.put("recipes", respRecipes);
         when(objectMapper.readValue(eq(llmResponse), eq(java.util.Map.class))).thenReturn(respMap);
 
         RecipeRecommendResponseDTO result = recipeService.recommend();
         assertNotNull(result);
-        assertEquals(2, result.getRecipes().size());
+        assertEquals(1, result.getRecipes().size());
         assertEquals("匹配你的辣口味偏好", result.getRecipes().get(0).getReason());
         assertTrue(result.getRecipes().get(0).getName() != null);
         verify(llmClient).generateRecipeJson(argThat(prompt ->
@@ -398,22 +396,18 @@ class RecipeServiceImplTest {
         when(recipeMapper.selectList(any(LambdaQueryWrapper.class))).thenReturn(List.of());
         when(objectMapper.readValue(anyString(), eq(UpdateUserInfoRequestDTO.Preferences.class))).thenReturn(null);
 
-        String llmResponse = "{\"recipes\":[{\"id\":0,\"name\":\"青椒肉丝\",\"reason\":\"[AI生成]简单下饭\"},{\"id\":0,\"reason\":\"[AI生成]营养均衡\"},{\"id\":0,\"reason\":\"[AI生成]快手菜\"}]}";
+        String llmResponse = "{\"recipes\":[{\"id\":0,\"name\":\"青椒肉丝\",\"reason\":\"[AI生成]简单下饭\"}]}";
         when(llmClient.generateRecipeJson(anyString())).thenReturn(llmResponse);
         java.util.Map<String, Object> respMap = new java.util.LinkedHashMap<>();
         java.util.List<java.util.Map<String, Object>> respRecipes = new java.util.ArrayList<>();
         java.util.Map<String, Object> item1 = new java.util.LinkedHashMap<>();
         item1.put("id", 0); item1.put("name", "青椒肉丝"); item1.put("reason", "[AI生成]简单下饭");
-        java.util.Map<String, Object> item2 = new java.util.LinkedHashMap<>();
-        item2.put("id", 0); item2.put("reason", "[AI生成]营养均衡");
-        java.util.Map<String, Object> item3 = new java.util.LinkedHashMap<>();
-        item3.put("id", 0); item3.put("reason", "[AI生成]快手菜");
-        respRecipes.add(item1); respRecipes.add(item2); respRecipes.add(item3);
+        respRecipes.add(item1);
         respMap.put("recipes", respRecipes);
         when(objectMapper.readValue(eq(llmResponse), eq(java.util.Map.class))).thenReturn(respMap);
 
         RecipeRecommendResponseDTO result = recipeService.recommend();
-        assertEquals(3, result.getRecipes().size());
+        assertEquals(1, result.getRecipes().size());
         assertNull(result.getRecipes().get(0).getId());
         assertTrue(result.getRecipes().get(0).getReason().startsWith("[AI生成]"));
     }
@@ -436,11 +430,9 @@ class RecipeServiceImplTest {
         when(llmClient.generateRecipeJson(anyString())).thenThrow(new RuntimeException("network error"));
 
         RecipeRecommendResponseDTO result = recipeService.recommend();
-        assertEquals(3, result.getRecipes().size());
+        assertEquals(1, result.getRecipes().size());
         assertEquals("热门菜1", result.getRecipes().get(0).getName());
         assertEquals("大家最近都在做", result.getRecipes().get(0).getReason());
-        assertEquals("热门菜2", result.getRecipes().get(1).getName());
-        assertEquals("热门菜3", result.getRecipes().get(2).getName());
     }
 
     // ==================== 辅助方法 ====================

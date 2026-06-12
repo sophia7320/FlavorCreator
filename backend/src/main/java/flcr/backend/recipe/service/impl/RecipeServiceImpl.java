@@ -233,9 +233,9 @@ public class RecipeServiceImpl implements RecipeService {
         }
 
         sb.append("\n返回JSON（必须纯JSON，不要任何其他文字）：\n");
-        sb.append("{\"recipes\":[{\"id\":1,\"reason\":\"推荐理由\"},{\"id\":2,\"reason\":\"推荐理由\"},{\"id\":3,\"reason\":\"推荐理由\"}]}\n");
+        sb.append("{\"recipes\":[{\"id\":1,\"reason\":\"推荐理由\"}]}\n");
         if (candidates.isEmpty()) {
-            sb.append("候选池为空时，生成3道推荐菜谱，id为0，reason以\"[AI生成]\"开头，name和reason自行拟定。\n");
+            sb.append("候选池为空时，生成1道推荐菜谱，id为0，reason以\"[AI生成]\"开头，name和reason自行拟定。\n");
         }
 
         return sb.toString();
@@ -287,7 +287,7 @@ public class RecipeServiceImpl implements RecipeService {
     private RecipeRecommendResponseDTO fallbackRecommendFromResponse(Map<Long, Recipe> recipeMap) {
         List<Recipe> sorted = new ArrayList<>(recipeMap.values());
         List<RecipeRecommendResponseDTO.RecommendItem> items = new ArrayList<>();
-        for (int i = 0; i < Math.min(3, sorted.size()); i++) {
+        for (int i = 0; i < Math.min(1, sorted.size()); i++) {
             Recipe r = sorted.get(i);
             items.add(RecipeRecommendResponseDTO.RecommendItem.builder()
                     .id(r.getId()).name(r.getName()).cover(r.getCover()).reason("大家最近都在做").build());
@@ -307,7 +307,7 @@ public class RecipeServiceImpl implements RecipeService {
         }
 
         List<RecipeRecommendResponseDTO.RecommendItem> items = new ArrayList<>();
-        for (int i = 0; i < Math.min(3, candidates.size()); i++) {
+        for (int i = 0; i < Math.min(1, candidates.size()); i++) {
             Recipe r = candidates.get(i);
             items.add(RecipeRecommendResponseDTO.RecommendItem.builder()
                     .id(r.getId()).name(r.getName()).cover(r.getCover()).reason("大家最近都在做").build());
