@@ -15,9 +15,11 @@ import flcr.backend.common.exception.BusinessException;
 import flcr.backend.community.entity.Collection;
 import flcr.backend.community.entity.Like;
 import flcr.backend.community.mapper.CollectionMapper;
+import flcr.backend.community.mapper.CommentMapper;
 import flcr.backend.community.mapper.LikeMapper;
 import flcr.backend.recipe.DTO.request.ApplyRecipeRequestDTO;
-import flcr.backend.recipe.DTO.request.PublishRecipeRequestDTO;
+import flcr.backend.recipe.DTO.request.CreateRecipeRequestDTO;
+import flcr.backend.recipe.DTO.request.RecipeUpdateRequestDTO;
 import flcr.backend.recipe.DTO.request.RecipeListRequestDTO;
 import flcr.backend.recipe.DTO.response.ApplyRecipeResponseDTO;
 import flcr.backend.recipe.DTO.response.RecipeDetailResponseDTO;
@@ -48,38 +50,102 @@ public class RecipeServiceImpl implements RecipeService {
     private final RecipeMapper recipeMapper;
     private final LikeMapper likeMapper;
     private final CollectionMapper collectionMapper;
+    private final CommentMapper commentMapper;
     private final UserMapper userMapper;
     private final ObjectMapper objectMapper;
     private final LlmClient llmClient;
 
     @Override
     @Transactional
-    public Long publishRecipe(PublishRecipeRequestDTO request) {
+    public Long publishRecipe(CreateRecipeRequestDTO request) {
         Long userId = UserContext.getUserId();
         Recipe recipe = buildRecipe(request, userId);
         recipeMapper.insert(recipe);
         return recipe.getId();
     }
 
-    private Recipe buildRecipe(PublishRecipeRequestDTO request, Long userId) {
-        Recipe recipe = new Recipe();
-        recipe.setName(request.getName());
-        recipe.setCover(request.getCoverUrl());
-        try {
-            recipe.setImages(objectMapper.writeValueAsString(request.getImageUrls()));
-            recipe.setIngredients(request.getIngredients());
-            recipe.setSteps(request.getSteps());
-            recipe.setTags(request.getTags());
-        } catch (JsonProcessingException e) {
-            throw new BusinessException(ResultCode.SYSTEM_ERROR, "JSON处理失败");
+    @Override
+    @Transactional
+    public RecipeDetailResponseDTO updateRecipe(Long recipeId, RecipeUpdateRequestDTO request) {
+        Long userId = UserContext.getUserId();
+        Recipe recipe = recipeMapper.selectById(recipeId);
+        if (recipe == null) {
+            throw new BusinessException(ResultCode.RESOURCE_NOT_EXIST, "菜谱不存在");
         }
+        if (!recipe.getAuthorId().equals(userId)) {
+            throw new BusinessException(ResultCode.PERMISSION_ERROR, "无权修改该菜谱");
+        }
+
+        if (request.getCategory() != null && !request.getCategory().isBlank()) {
+            validateCategory(request.getCategory());
+        }
+        if (request.getIngredients() != null && !request.getIngredients().isBlank()) {
+            validateJsonField(request.getIngredients(), "ingredients");
+        }
+        if (request.getSteps() != null && !request.getSteps().isBlank()) {
+            validateJsonField(request.getSteps(), "steps");
+        }
+        if (request.getTags() != null && !request.getTags().isBlank()) {
+            validateJsonField(request.getTags(), "tags");
+        }
+
+        if (request.getName() != null) recipe.setName(request.getName());
+        if (request.getCoverUrl() != null) recipe.setCover(request.getCoverUrl());
+        if (request.getDesc() != null) recipe.setDesc(request.getDesc());
+        if (request.getCategory() != null) recipe.setCategory(request.getCategory());
+        if (request.getTips() != null) recipe.setTips(request.getTips());
+        if (request.getCookTime() != null) recipe.setCookTime(request.getCookTime());
+        if (request.getDifficulty() != null) recipe.setDifficulty(request.getDifficulty());
+        if (request.getCalories() != null) recipe.setCalories(request.getCalories());
+        if (request.getImageUrls() != null) {
+            try {
+                recipe.setImages(objectMapper.writeValueAsString(request.getImageUrls()));
+            } catch (JsonProcessingException e) {
+                throw new BusinessException(ResultCode.SYSTEM_ERROR, "JSON处理失败");
+            }
+        }
+        if (request.getIngredients() != null) recipe.setIngredients(request.getIngredients());
+        if (request.getSteps() != null) recipe.setSteps(request.getSteps());
+        if (request.getTags() != null) recipe.setTags(request.getTags());
+
+        recipe.setUpdatedAt(LocalDateTime.now());
+        recipeMapper.updateById(recipe);
+
+        return convertToDetailDTO(recipe);
+    }
+
+    @Override
+    @Transactional
+    public void deleteRecipe(Long recipeId) {
+        Long userId = UserContext.getUserId();
+        Recipe recipe = recipeMapper.selectById(recipeId);
+        if (recipe == null) {
+            throw new BusinessException(ResultCode.RESOURCE_NOT_EXIST, "菜谱不存在");
+        }
+        if (!recipe.getAuthorId().equals(userId)) {
+            throw new BusinessException(ResultCode.PERMISSION_ERROR, "无权删除该菜谱");
+        }
+
+        LambdaQueryWrapper<flcr.backend.community.entity.Like> likeWrapper = new LambdaQueryWrapper<>();
+        likeWrapper.eq(flcr.backend.community.entity.Like::getTargetId, recipeId)
+                .eq(flcr.backend.community.entity.Like::getTargetType, 1);
+        likeMapper.delete(likeWrapper);
+
+        LambdaQueryWrapper<flcr.backend.community.entity.Collection> collectionWrapper = new LambdaQueryWrapper<>();
+        collectionWrapper.eq(flcr.backend.community.entity.Collection::getRecipeId, recipeId);
+        collectionMapper.delete(collectionWrapper);
+
+        LambdaQueryWrapper<flcr.backend.community.entity.Comment> commentWrapper = new LambdaQueryWrapper<>();
+        commentWrapper.eq(flcr.backend.community.entity.Comment::getRecipeId, recipeId);
+        commentMapper.delete(commentWrapper);
+
+        recipeMapper.deleteById(recipeId);
+    }
+
+    private Recipe buildRecipe(CreateRecipeRequestDTO request, Long userId) {
+        Recipe recipe = new Recipe();
+        applyDtoToRecipe(request, recipe);
         recipe.setAuthorId(userId);
-        recipe.setDesc(request.getDesc());
-        recipe.setCategory(request.getCategory());
-        recipe.setTips(request.getTips());
-        recipe.setCookTime(request.getCookTime());
-        recipe.setDifficulty(request.getDifficulty());
-        recipe.setCalories(request.getCalories());
         recipe.setSource(SourceConstants.USER);
         recipe.setLikeCount(0);
         recipe.setCollectionCount(0);
@@ -88,6 +154,51 @@ public class RecipeServiceImpl implements RecipeService {
         recipe.setCreatedAt(LocalDateTime.now());
         recipe.setUpdatedAt(LocalDateTime.now());
         return recipe;
+    }
+
+    private void applyDtoToRecipe(CreateRecipeRequestDTO dto, Recipe recipe) {
+        if (dto.getCategory() != null && !dto.getCategory().isBlank()) {
+            validateCategory(dto.getCategory());
+        }
+        validateJsonField(dto.getIngredients(), "ingredients");
+        validateJsonField(dto.getSteps(), "steps");
+        if (dto.getTags() != null && !dto.getTags().isBlank()) {
+            validateJsonField(dto.getTags(), "tags");
+        }
+
+        recipe.setName(dto.getName());
+        recipe.setCover(dto.getCoverUrl());
+        recipe.setDesc(dto.getDesc());
+        recipe.setCategory(dto.getCategory());
+        recipe.setTips(dto.getTips());
+        recipe.setCookTime(dto.getCookTime());
+        recipe.setDifficulty(dto.getDifficulty());
+        recipe.setCalories(dto.getCalories());
+        try {
+            recipe.setImages(objectMapper.writeValueAsString(dto.getImageUrls()));
+            recipe.setIngredients(dto.getIngredients());
+            recipe.setSteps(dto.getSteps());
+            recipe.setTags(dto.getTags());
+        } catch (JsonProcessingException e) {
+            throw new BusinessException(ResultCode.SYSTEM_ERROR, "JSON处理失败");
+        }
+    }
+
+    private void validateJsonField(String json, String fieldName) {
+        if (json != null && !json.isBlank()) {
+            try {
+                objectMapper.readTree(json);
+            } catch (Exception e) {
+                throw new BusinessException(ResultCode.PARAM_ERROR, fieldName + "格式不正确");
+            }
+        }
+    }
+
+    private void validateCategory(String category) {
+        Set<String> valid = Set.of("fast", "lowcal", "home", "special", "health");
+        if (!valid.contains(category)) {
+            throw new BusinessException(ResultCode.PARAM_ERROR, "无效的分类：" + category);
+        }
     }
 
     @Override
@@ -233,9 +344,9 @@ public class RecipeServiceImpl implements RecipeService {
         }
 
         sb.append("\n返回JSON（必须纯JSON，不要任何其他文字）：\n");
-        sb.append("{\"recipes\":[{\"id\":1,\"reason\":\"推荐理由\"},{\"id\":2,\"reason\":\"推荐理由\"},{\"id\":3,\"reason\":\"推荐理由\"}]}\n");
+        sb.append("{\"recipes\":[{\"id\":1,\"reason\":\"推荐理由\"}]}\n");
         if (candidates.isEmpty()) {
-            sb.append("候选池为空时，生成3道推荐菜谱，id为0，reason以\"[AI生成]\"开头，name和reason自行拟定。\n");
+            sb.append("候选池为空时，生成1道推荐菜谱，id为0，reason以\"[AI生成]\"开头，name和reason自行拟定。\n");
         }
 
         return sb.toString();
@@ -287,7 +398,7 @@ public class RecipeServiceImpl implements RecipeService {
     private RecipeRecommendResponseDTO fallbackRecommendFromResponse(Map<Long, Recipe> recipeMap) {
         List<Recipe> sorted = new ArrayList<>(recipeMap.values());
         List<RecipeRecommendResponseDTO.RecommendItem> items = new ArrayList<>();
-        for (int i = 0; i < Math.min(3, sorted.size()); i++) {
+        for (int i = 0; i < Math.min(1, sorted.size()); i++) {
             Recipe r = sorted.get(i);
             items.add(RecipeRecommendResponseDTO.RecommendItem.builder()
                     .id(r.getId()).name(r.getName()).cover(r.getCover()).reason("大家最近都在做").build());
@@ -307,7 +418,7 @@ public class RecipeServiceImpl implements RecipeService {
         }
 
         List<RecipeRecommendResponseDTO.RecommendItem> items = new ArrayList<>();
-        for (int i = 0; i < Math.min(3, candidates.size()); i++) {
+        for (int i = 0; i < Math.min(1, candidates.size()); i++) {
             Recipe r = candidates.get(i);
             items.add(RecipeRecommendResponseDTO.RecommendItem.builder()
                     .id(r.getId()).name(r.getName()).cover(r.getCover()).reason("大家最近都在做").build());
@@ -520,6 +631,7 @@ public class RecipeServiceImpl implements RecipeService {
                 .difficulty(convertDifficultyToString(recipe.getDifficulty()))
                 .calories(recipe.getCalories())
                 .tags(tags)
+                .category(recipe.getCategory())
                 .stats(RecipeDetailResponseDTO.RecipeStats.builder()
                         .likes(recipe.getLikeCount())
                         .collections(recipe.getCollectionCount())

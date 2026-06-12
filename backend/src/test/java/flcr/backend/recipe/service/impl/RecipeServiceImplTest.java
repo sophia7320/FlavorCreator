@@ -7,9 +7,11 @@ import flcr.backend.auth.entity.User;
 import flcr.backend.auth.mapper.UserMapper;
 import flcr.backend.common.context.UserContext;
 import flcr.backend.community.mapper.CollectionMapper;
+import flcr.backend.community.mapper.CommentMapper;
 import flcr.backend.community.mapper.LikeMapper;
 import flcr.backend.recipe.DTO.request.ApplyRecipeRequestDTO;
-import flcr.backend.recipe.DTO.request.PublishRecipeRequestDTO;
+import flcr.backend.recipe.DTO.request.CreateRecipeRequestDTO;
+import flcr.backend.recipe.DTO.request.RecipeUpdateRequestDTO;
 import flcr.backend.recipe.DTO.request.RecipeListRequestDTO;
 import flcr.backend.recipe.DTO.response.ApplyRecipeResponseDTO;
 import flcr.backend.recipe.DTO.response.RecipeDetailResponseDTO;
@@ -50,6 +52,7 @@ class RecipeServiceImplTest {
     @Mock private RecipeMapper recipeMapper;
     @Mock private LikeMapper likeMapper;
     @Mock private CollectionMapper collectionMapper;
+    @Mock private CommentMapper commentMapper;
     @Mock private UserMapper userMapper;
     @Mock private ObjectMapper objectMapper;
     @Mock private LlmClient llmClient;
@@ -77,9 +80,9 @@ class RecipeServiceImplTest {
             return 1;
         });
 
-        PublishRecipeRequestDTO request = new PublishRecipeRequestDTO();
+        CreateRecipeRequestDTO request = new CreateRecipeRequestDTO();
         request.setName("测试菜谱");
-        request.setCategory("家常菜");
+        request.setCategory("home");
         request.setCoverUrl("https://example.com/cover.jpg");
 
         Long id = recipeService.publishRecipe(request);
@@ -95,7 +98,7 @@ class RecipeServiceImplTest {
             return 1;
         });
 
-        PublishRecipeRequestDTO request = new PublishRecipeRequestDTO();
+        CreateRecipeRequestDTO request = new CreateRecipeRequestDTO();
         request.setName("无图菜谱");
         Long id = recipeService.publishRecipe(request);
         assertEquals(2L, id);
@@ -369,21 +372,19 @@ class RecipeServiceImplTest {
         r2.setTags("[\"清淡\"]");
         when(recipeMapper.selectList(any(LambdaQueryWrapper.class))).thenReturn(List.of(r1, r2));
 
-        String llmResponse = "{\"recipes\":[{\"id\":1,\"reason\":\"匹配你的辣口味偏好\"},{\"id\":2,\"reason\":\"清淡搭配推荐\"}]}";
+        String llmResponse = "{\"recipes\":[{\"id\":1,\"reason\":\"匹配你的辣口味偏好\"}]}";
         when(llmClient.generateRecipeJson(anyString())).thenReturn(llmResponse);
         java.util.Map<String, Object> respMap = new java.util.LinkedHashMap<>();
         java.util.List<java.util.Map<String, Object>> respRecipes = new java.util.ArrayList<>();
         java.util.Map<String, Object> item1 = new java.util.LinkedHashMap<>();
         item1.put("id", 1); item1.put("reason", "匹配你的辣口味偏好");
-        java.util.Map<String, Object> item2 = new java.util.LinkedHashMap<>();
-        item2.put("id", 2); item2.put("reason", "清淡搭配推荐");
-        respRecipes.add(item1); respRecipes.add(item2);
+        respRecipes.add(item1);
         respMap.put("recipes", respRecipes);
         when(objectMapper.readValue(eq(llmResponse), eq(java.util.Map.class))).thenReturn(respMap);
 
         RecipeRecommendResponseDTO result = recipeService.recommend();
         assertNotNull(result);
-        assertEquals(2, result.getRecipes().size());
+        assertEquals(1, result.getRecipes().size());
         assertEquals("匹配你的辣口味偏好", result.getRecipes().get(0).getReason());
         assertTrue(result.getRecipes().get(0).getName() != null);
         verify(llmClient).generateRecipeJson(argThat(prompt ->
@@ -398,22 +399,18 @@ class RecipeServiceImplTest {
         when(recipeMapper.selectList(any(LambdaQueryWrapper.class))).thenReturn(List.of());
         when(objectMapper.readValue(anyString(), eq(UpdateUserInfoRequestDTO.Preferences.class))).thenReturn(null);
 
-        String llmResponse = "{\"recipes\":[{\"id\":0,\"name\":\"青椒肉丝\",\"reason\":\"[AI生成]简单下饭\"},{\"id\":0,\"reason\":\"[AI生成]营养均衡\"},{\"id\":0,\"reason\":\"[AI生成]快手菜\"}]}";
+        String llmResponse = "{\"recipes\":[{\"id\":0,\"name\":\"青椒肉丝\",\"reason\":\"[AI生成]简单下饭\"}]}";
         when(llmClient.generateRecipeJson(anyString())).thenReturn(llmResponse);
         java.util.Map<String, Object> respMap = new java.util.LinkedHashMap<>();
         java.util.List<java.util.Map<String, Object>> respRecipes = new java.util.ArrayList<>();
         java.util.Map<String, Object> item1 = new java.util.LinkedHashMap<>();
         item1.put("id", 0); item1.put("name", "青椒肉丝"); item1.put("reason", "[AI生成]简单下饭");
-        java.util.Map<String, Object> item2 = new java.util.LinkedHashMap<>();
-        item2.put("id", 0); item2.put("reason", "[AI生成]营养均衡");
-        java.util.Map<String, Object> item3 = new java.util.LinkedHashMap<>();
-        item3.put("id", 0); item3.put("reason", "[AI生成]快手菜");
-        respRecipes.add(item1); respRecipes.add(item2); respRecipes.add(item3);
+        respRecipes.add(item1);
         respMap.put("recipes", respRecipes);
         when(objectMapper.readValue(eq(llmResponse), eq(java.util.Map.class))).thenReturn(respMap);
 
         RecipeRecommendResponseDTO result = recipeService.recommend();
-        assertEquals(3, result.getRecipes().size());
+        assertEquals(1, result.getRecipes().size());
         assertNull(result.getRecipes().get(0).getId());
         assertTrue(result.getRecipes().get(0).getReason().startsWith("[AI生成]"));
     }
@@ -436,11 +433,246 @@ class RecipeServiceImplTest {
         when(llmClient.generateRecipeJson(anyString())).thenThrow(new RuntimeException("network error"));
 
         RecipeRecommendResponseDTO result = recipeService.recommend();
-        assertEquals(3, result.getRecipes().size());
+        assertEquals(1, result.getRecipes().size());
         assertEquals("热门菜1", result.getRecipes().get(0).getName());
         assertEquals("大家最近都在做", result.getRecipes().get(0).getReason());
-        assertEquals("热门菜2", result.getRecipes().get(1).getName());
-        assertEquals("热门菜3", result.getRecipes().get(2).getName());
+    }
+
+    // ==================== updateRecipe 测试 ====================
+
+    @Test
+    @DisplayName("updateRecipe菜谱不存在抛异常")
+    void testUpdateRecipe_NotFound() {
+        when(recipeMapper.selectById(99L)).thenReturn(null);
+
+        RecipeUpdateRequestDTO request = new RecipeUpdateRequestDTO();
+        request.setName("新名字");
+
+        assertThrows(flcr.backend.common.exception.BusinessException.class,
+                () -> recipeService.updateRecipe(99L, request));
+    }
+
+    @Test
+    @DisplayName("updateRecipe非作者无权修改")
+    void testUpdateRecipe_Forbidden() {
+        Recipe recipe = buildRecipe(1L);
+        recipe.setAuthorId(9999L);
+        when(recipeMapper.selectById(1L)).thenReturn(recipe);
+
+        RecipeUpdateRequestDTO request = new RecipeUpdateRequestDTO();
+        request.setName("新名字");
+
+        assertThrows(flcr.backend.common.exception.BusinessException.class,
+                () -> recipeService.updateRecipe(1L, request));
+    }
+
+    @Test
+    @DisplayName("updateRecipe正常更新全字段返回详情")
+    void testUpdateRecipe_Success() throws Exception {
+        Recipe recipe = buildRecipe(1L);
+        recipe.setTags("[\"home\"]");
+        recipe.setIngredients("[{\"name\":\"鸡蛋\",\"quantity\":2,\"unit\":\"个\"}]");
+        recipe.setSteps("[{\"order\":1,\"description\":\"打散\"}]");
+
+        when(recipeMapper.selectById(1L)).thenReturn(recipe);
+        when(recipeMapper.updateById(any(Recipe.class))).thenReturn(1);
+        when(userMapper.selectById(USER_ID)).thenReturn(buildUser());
+        when(objectMapper.writeValueAsString(any())).thenReturn("[\"new.jpg\"]");
+        when(objectMapper.readValue(eq("[\"home\"]"), eq(String[].class))).thenReturn(new String[]{"home"});
+        when(objectMapper.readValue(anyString(), any(com.fasterxml.jackson.core.type.TypeReference.class)))
+                .thenAnswer(inv -> {
+                    String json = inv.getArgument(0);
+                    if (json != null && json.contains("鸡蛋")) {
+                        return List.of(java.util.Map.of("name", "鸡蛋", "quantity", java.math.BigDecimal.valueOf(2), "unit", "个"));
+                    }
+                    return List.of();
+                });
+        when(objectMapper.readTree(anyString())).thenReturn(null);
+
+        RecipeUpdateRequestDTO request = new RecipeUpdateRequestDTO();
+        request.setName("新菜谱名");
+        request.setDesc("新描述");
+        request.setCategory("lowcal");
+        request.setCoverUrl("https://new-cover.jpg");
+        request.setImageUrls(List.of("new.jpg"));
+        request.setDifficulty(2);
+        request.setCalories(200);
+        request.setCookTime("30");
+        request.setTips("新技巧");
+        request.setIngredients("[{\"name\":\"鸡蛋\",\"quantity\":2,\"unit\":\"个\"}]");
+        request.setSteps("[{\"order\":1,\"description\":\"打散\"}]");
+        request.setTags("[\"lowcal\"]");
+
+        RecipeDetailResponseDTO result = recipeService.updateRecipe(1L, request);
+
+        assertNotNull(result);
+        assertEquals("新菜谱名", result.getName());
+        assertEquals("新描述", result.getDesc());
+        assertEquals("lowcal", result.getCategory());
+        assertEquals("中等", result.getDifficulty());
+        assertEquals(Integer.valueOf(200), result.getCalories());
+        assertEquals("30", result.getCookTime());
+        verify(recipeMapper).updateById(any(Recipe.class));
+    }
+
+    @Test
+    @DisplayName("updateRecipe部分更新只改desc其他字段不变")
+    void testUpdateRecipe_PartialUpdate() throws Exception {
+        Recipe recipe = buildRecipe(1L);
+        String originalName = recipe.getName();
+        Integer originalDifficulty = recipe.getDifficulty();
+
+        when(recipeMapper.selectById(1L)).thenReturn(recipe);
+        when(recipeMapper.updateById(any(Recipe.class))).thenReturn(1);
+        when(userMapper.selectById(USER_ID)).thenReturn(buildUser());
+        when(objectMapper.readValue(anyString(), eq(String[].class))).thenReturn(new String[]{});
+        when(objectMapper.readValue(anyString(), any(com.fasterxml.jackson.core.type.TypeReference.class)))
+                .thenReturn(List.of());
+
+        RecipeUpdateRequestDTO request = new RecipeUpdateRequestDTO();
+        request.setDesc("新描述");
+
+        RecipeDetailResponseDTO result = recipeService.updateRecipe(1L, request);
+
+        assertEquals("新描述", result.getDesc());
+        assertEquals(originalName, result.getName());
+        assertEquals(originalDifficulty.toString(), convertDifficultyToString(result.getDifficulty()));
+    }
+
+    @Test
+    @DisplayName("updateRecipe空body静默成功返回原详情")
+    void testUpdateRecipe_EmptyBody() throws Exception {
+        Recipe recipe = buildRecipe(1L);
+
+        when(recipeMapper.selectById(1L)).thenReturn(recipe);
+        when(recipeMapper.updateById(any(Recipe.class))).thenReturn(1);
+        when(userMapper.selectById(USER_ID)).thenReturn(buildUser());
+        when(objectMapper.readValue(anyString(), eq(String[].class))).thenReturn(new String[]{});
+        when(objectMapper.readValue(anyString(), any(com.fasterxml.jackson.core.type.TypeReference.class)))
+                .thenReturn(List.of());
+
+        RecipeUpdateRequestDTO request = new RecipeUpdateRequestDTO();
+        RecipeDetailResponseDTO result = recipeService.updateRecipe(1L, request);
+
+        assertNotNull(result);
+        assertEquals(recipe.getName(), result.getName());
+    }
+
+    @Test
+    @DisplayName("updateRecipe清空图片imageUrls为空数组")
+    void testUpdateRecipe_ClearImages() throws Exception {
+        Recipe recipe = buildRecipe(1L);
+        recipe.setImages("[\"old.jpg\"]");
+
+        when(recipeMapper.selectById(1L)).thenReturn(recipe);
+        when(recipeMapper.updateById(any(Recipe.class))).thenReturn(1);
+        when(userMapper.selectById(USER_ID)).thenReturn(buildUser());
+        when(objectMapper.writeValueAsString(any())).thenReturn("[]");
+        when(objectMapper.readValue(eq("[]"), any(com.fasterxml.jackson.core.type.TypeReference.class)))
+                .thenReturn(List.of());
+        when(objectMapper.readValue(anyString(), eq(String[].class))).thenReturn(new String[]{});
+        when(objectMapper.readValue(anyString(), any(com.fasterxml.jackson.core.type.TypeReference.class)))
+                .thenReturn(List.of());
+
+        RecipeUpdateRequestDTO request = new RecipeUpdateRequestDTO();
+        request.setImageUrls(List.of());
+
+        RecipeDetailResponseDTO result = recipeService.updateRecipe(1L, request);
+
+        assertTrue(result.getImages().isEmpty());
+    }
+
+    @Test
+    @DisplayName("updateRecipe不可变字段未被覆盖")
+    void testUpdateRecipe_ImmutableFieldsPreserved() throws Exception {
+        Recipe recipe = buildRecipe(1L);
+        recipe.setSource(2);
+        recipe.setAuthorId(USER_ID);
+        recipe.setLikeCount(100);
+        recipe.setCollectionCount(50);
+        recipe.setCommentCount(10);
+        recipe.setViewCount(999);
+        LocalDateTime originalCreatedAt = recipe.getCreatedAt();
+
+        when(recipeMapper.selectById(1L)).thenReturn(recipe);
+        when(recipeMapper.updateById(any(Recipe.class))).thenReturn(1);
+        when(userMapper.selectById(USER_ID)).thenReturn(buildUser());
+        when(objectMapper.readValue(anyString(), eq(String[].class))).thenReturn(new String[]{});
+        when(objectMapper.readValue(anyString(), any(com.fasterxml.jackson.core.type.TypeReference.class)))
+                .thenReturn(List.of());
+
+        RecipeUpdateRequestDTO request = new RecipeUpdateRequestDTO();
+        request.setName("改名后的菜谱");
+
+        RecipeDetailResponseDTO result = recipeService.updateRecipe(1L, request);
+
+        assertEquals("改名后的菜谱", result.getName());
+        assertEquals(Integer.valueOf(100), result.getStats().getLikes());
+        assertEquals(Integer.valueOf(50), result.getStats().getCollections());
+        assertEquals(Integer.valueOf(10), result.getStats().getComments());
+        assertEquals(Integer.valueOf(999), result.getStats().getViews());
+    }
+
+    private String convertDifficultyToString(String difficulty) {
+        switch (difficulty) {
+            case "简单": return "1";
+            case "中等": return "2";
+            case "困难": return "3";
+            default: return "";
+        }
+    }
+
+    // ==================== deleteRecipe 测试 ====================
+
+    @Test
+    @DisplayName("deleteRecipe菜谱不存在抛异常")
+    void testDeleteRecipe_NotFound() {
+        when(recipeMapper.selectById(99L)).thenReturn(null);
+
+        assertThrows(flcr.backend.common.exception.BusinessException.class,
+                () -> recipeService.deleteRecipe(99L));
+    }
+
+    @Test
+    @DisplayName("deleteRecipe非作者无权删除")
+    void testDeleteRecipe_Forbidden() {
+        Recipe recipe = buildRecipe(1L);
+        recipe.setAuthorId(9999L);
+        when(recipeMapper.selectById(1L)).thenReturn(recipe);
+
+        assertThrows(flcr.backend.common.exception.BusinessException.class,
+                () -> recipeService.deleteRecipe(1L));
+    }
+
+    @Test
+    @DisplayName("deleteRecipe正常删除自己的菜谱")
+    void testDeleteRecipe_Success() {
+        Recipe recipe = buildRecipe(1L);
+        when(recipeMapper.selectById(1L)).thenReturn(recipe);
+        when(recipeMapper.deleteById(1L)).thenReturn(1);
+        when(likeMapper.delete(any(LambdaQueryWrapper.class))).thenReturn(3);
+        when(collectionMapper.delete(any(LambdaQueryWrapper.class))).thenReturn(2);
+        when(commentMapper.delete(any(LambdaQueryWrapper.class))).thenReturn(5);
+
+        assertDoesNotThrow(() -> recipeService.deleteRecipe(1L));
+        verify(recipeMapper).deleteById(1L);
+    }
+
+    @Test
+    @DisplayName("deleteRecipe级联清理like和collection和comment")
+    void testDeleteRecipe_CascadeCleanup() {
+        Recipe recipe = buildRecipe(1L);
+        when(recipeMapper.selectById(1L)).thenReturn(recipe);
+        when(recipeMapper.deleteById(1L)).thenReturn(1);
+        when(likeMapper.delete(any(LambdaQueryWrapper.class))).thenReturn(1);
+        when(collectionMapper.delete(any(LambdaQueryWrapper.class))).thenReturn(1);
+        when(commentMapper.delete(any(LambdaQueryWrapper.class))).thenReturn(1);
+
+        recipeService.deleteRecipe(1L);
+
+        verify(likeMapper).delete(any(LambdaQueryWrapper.class));
+        verify(collectionMapper).delete(any(LambdaQueryWrapper.class));
+        verify(commentMapper).delete(any(LambdaQueryWrapper.class));
     }
 
     // ==================== 辅助方法 ====================
@@ -451,7 +683,7 @@ class RecipeServiceImplTest {
         recipe.setName("测试菜谱");
         recipe.setCover("/uploads/test.jpg");
         recipe.setAuthorId(USER_ID);
-        recipe.setCategory("家常菜");
+        recipe.setCategory("home");
         recipe.setCookTime("15");
         recipe.setDifficulty(1);
         recipe.setCalories(300);

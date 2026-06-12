@@ -7,7 +7,7 @@
 ```
 recipe/
 ├── controller/     # RecipeController（4 个端点: publish/list/detail/apply）
-├── DTO/request/    # PublishRecipeRequestDTO, RecipeListRequestDTO 等
+├── DTO/request/    # CreateRecipeRequestDTO, RecipeListRequestDTO 等
 ├── DTO/response/   # RecipeDetailDTO, RecipeListItemDTO 等
 ├── entity/         # Recipe（含多个 JSON 字段: images, ingredients, steps, tags）
 ├── mapper/         # RecipeMapper
