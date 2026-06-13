@@ -65,7 +65,7 @@ public class RecipeMatchServiceImpl implements RecipeMatchService {
             // Calculate match degree
             Set<String> matchedNames = new HashSet<>(userIngredientNames);
             matchedNames.retainAll(recipeIngredientNames);
-            int matchDegree = matchedNames.size() * 100 / recipeIngredientNames.size();
+            int matchDegree = matchedNames.size() * 100 / userIngredientNames.size();
 
             // Preference filtering
             ApplyRecipeRequestDTO.Preferences prefs = request.getPreferences();
