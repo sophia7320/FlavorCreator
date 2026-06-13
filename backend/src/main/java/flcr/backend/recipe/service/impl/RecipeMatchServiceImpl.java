@@ -99,7 +99,11 @@ public class RecipeMatchServiceImpl implements RecipeMatchService {
                 : matchedRecipes;
 
         List<RecipeListItemResponseDTO> recipeDTOs = resultList.stream()
-                .map(m -> recipeDtoAssembler.convertToListItemDTO(m.recipe()))
+                .map(m -> {
+                    RecipeListItemResponseDTO dto = recipeDtoAssembler.convertToListItemDTO(m.recipe());
+                    dto.setMatchDegree(m.matchDegree());
+                    return dto;
+                })
                 .collect(Collectors.toList());
 
         return ApplyRecipeResponseDTO.builder()

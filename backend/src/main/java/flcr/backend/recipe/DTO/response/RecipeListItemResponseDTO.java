@@ -21,6 +21,7 @@ public class RecipeListItemResponseDTO {
     private String[] tags;
     private RecipeStats stats;
     private String createdAt;
+    private Integer matchDegree;
 
     @Data
     @Builder
