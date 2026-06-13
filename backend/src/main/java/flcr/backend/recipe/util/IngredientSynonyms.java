@@ -47,6 +47,7 @@ public final class IngredientSynonyms {
     );
 
     public static Set<String> getSynonyms(String name) {
+        if (name == null) return Set.of();
         return SYNONYMS.getOrDefault(name, Set.of());
     }
 
