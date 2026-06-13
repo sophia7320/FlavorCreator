@@ -3,6 +3,8 @@ package flcr.backend.recipe.service.impl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import flcr.backend.auth.entity.User;
+import flcr.backend.auth.mapper.UserMapper;
 import flcr.backend.common.context.UserContext;
 import flcr.backend.recipe.DTO.request.ApplyRecipeRequestDTO;
 import flcr.backend.recipe.DTO.response.ApplyRecipeResponseDTO;
@@ -28,6 +30,7 @@ public class RecipeMatchServiceImpl implements RecipeMatchService {
     private final RecipeMapper recipeMapper;
     private final RecipeDtoAssembler recipeDtoAssembler;
     private final ObjectMapper objectMapper;
+    private final UserMapper userMapper;
 
     @Override
     public ApplyRecipeResponseDTO apply(ApplyRecipeRequestDTO request) {
@@ -56,6 +59,8 @@ public class RecipeMatchServiceImpl implements RecipeMatchService {
                     .needAiGenerate(true)
                     .build();
         }
+
+        applyPreferencesFromUserProfile(request);
 
         // Get all recipes
         List<Recipe> allRecipes = recipeMapper.selectList(null);
@@ -118,6 +123,39 @@ public class RecipeMatchServiceImpl implements RecipeMatchService {
                 .recipes(recipeDTOs)
                 .needAiGenerate(needAiGenerate)
                 .build();
+    }
+
+    private void applyPreferencesFromUserProfile(ApplyRecipeRequestDTO request) {
+        ApplyRecipeRequestDTO.Preferences prefs = request.getPreferences();
+        boolean needTaste = prefs == null || prefs.getTaste() == null || prefs.getTaste().isEmpty();
+        boolean needDietary = prefs == null || prefs.getDietary() == null || prefs.getDietary().isEmpty();
+
+        if (!needTaste && !needDietary) return;
+
+        Long userId = UserContext.getUserId();
+        User user = userMapper.selectById(userId);
+        if (user == null || user.getPreferences() == null || user.getPreferences().isBlank()) return;
+
+        try {
+            @SuppressWarnings("unchecked")
+            Map<String, Object> savedPrefs = objectMapper.readValue(user.getPreferences(), Map.class);
+            if (prefs == null) {
+                prefs = new ApplyRecipeRequestDTO.Preferences();
+                request.setPreferences(prefs);
+            }
+            if (needTaste && savedPrefs.containsKey("taste")) {
+                @SuppressWarnings("unchecked")
+                List<String> taste = (List<String>) savedPrefs.get("taste");
+                if (taste != null && !taste.isEmpty()) prefs.setTaste(taste);
+            }
+            if (needDietary && savedPrefs.containsKey("dietary")) {
+                @SuppressWarnings("unchecked")
+                List<String> dietary = (List<String>) savedPrefs.get("dietary");
+                if (dietary != null && !dietary.isEmpty()) prefs.setDietary(dietary);
+            }
+        } catch (Exception e) {
+            log.warn("解析用户偏好失败", e);
+        }
     }
 
     private int applyPreferenceBoost(int baseMatch, Recipe recipe, ApplyRecipeRequestDTO.Preferences prefs) {
