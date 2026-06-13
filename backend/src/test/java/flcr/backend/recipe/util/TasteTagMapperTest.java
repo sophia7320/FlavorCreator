@@ -79,9 +79,11 @@ class TasteTagMapperTest {
         }
 
         @Test
-        @DisplayName("null → 抛出 NullPointerException（Map.ofEntries 不支持 null key）")
+        @DisplayName("null → 返回空集合")
         void testTagsForTaste_null() {
-            assertThrows(NullPointerException.class, () -> TasteTagMapper.tagsForTaste(null));
+            Set<String> result = TasteTagMapper.tagsForTaste(null);
+            assertNotNull(result);
+            assertTrue(result.isEmpty());
         }
     }
 
@@ -120,9 +122,9 @@ class TasteTagMapperTest {
         }
 
         @Test
-        @DisplayName("null → 抛出 NullPointerException（Map.of 不支持 null key）")
+        @DisplayName("null → 返回 null")
         void testCategoryForDietary_null() {
-            assertThrows(NullPointerException.class, () -> TasteTagMapper.categoryForDietary(null));
+            assertNull(TasteTagMapper.categoryForDietary(null));
         }
     }
 

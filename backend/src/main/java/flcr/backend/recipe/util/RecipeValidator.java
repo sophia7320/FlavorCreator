@@ -17,7 +17,7 @@ public class RecipeValidator {
     private static final Set<String> VALID_CATEGORIES = Set.of("fast", "lowcal", "home", "special", "health");
 
     public void validateCategory(String category) {
-        if (!VALID_CATEGORIES.contains(category)) {
+        if (category == null || !VALID_CATEGORIES.contains(category)) {
             throw new BusinessException(ResultCode.PARAM_ERROR, "无效的分类：" + category);
         }
     }

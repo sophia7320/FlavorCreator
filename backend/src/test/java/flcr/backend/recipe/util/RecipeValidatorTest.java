@@ -63,10 +63,12 @@ class RecipeValidatorTest {
     }
 
     @Test
-    @DisplayName("validateCategory(null) 抛出 NullPointerException（Set.of 不支持 null）")
+    @DisplayName("validateCategory(null) 抛出 BusinessException")
     void testValidateCategory_Null() {
-        assertThrows(NullPointerException.class,
+        BusinessException ex = assertThrows(BusinessException.class,
                 () -> validator.validateCategory(null));
+        assertEquals(ResultCode.PARAM_ERROR, ex.getCode());
+        assertTrue(ex.getMessage().contains("无效的分类"));
     }
 
     @Test

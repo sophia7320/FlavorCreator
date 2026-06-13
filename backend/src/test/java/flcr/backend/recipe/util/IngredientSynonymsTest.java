@@ -239,9 +239,11 @@ class IngredientSynonymsTest {
         }
 
         @Test
-        @DisplayName("null → 抛出 NullPointerException（Map.ofEntries 不支持 null key）")
+        @DisplayName("null → 返回空集合")
         void test_null() {
-            assertThrows(NullPointerException.class, () -> IngredientSynonyms.getSynonyms(null));
+            Set<String> result = IngredientSynonyms.getSynonyms(null);
+            assertNotNull(result);
+            assertTrue(result.isEmpty());
         }
     }
 

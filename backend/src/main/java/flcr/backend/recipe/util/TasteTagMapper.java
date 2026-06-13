@@ -27,10 +27,12 @@ public final class TasteTagMapper {
     );
 
     public static Set<String> tagsForTaste(String taste) {
+        if (taste == null) return Set.of();
         return TASTE_TO_TAGS.getOrDefault(taste, Set.of());
     }
 
     public static String categoryForDietary(String dietary) {
+        if (dietary == null) return null;
         return DIETARY_TO_CATEGORY.getOrDefault(dietary, null);
     }
 
