@@ -30,5 +30,7 @@ public class ApplyRecipeRequestDTO {
     public static class Preferences {
         private Integer cookTime;
         private Integer difficulty;
+        private List<String> taste;
+        private List<String> dietary;
     }
 }

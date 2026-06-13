@@ -12,6 +12,7 @@ import flcr.backend.recipe.mapper.RecipeMapper;
 import flcr.backend.recipe.service.RecipeMatchService;
 import flcr.backend.recipe.util.RecipeDtoAssembler;
 import flcr.backend.recipe.util.IngredientSynonyms;
+import flcr.backend.recipe.util.TasteTagMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -73,7 +74,6 @@ public class RecipeMatchServiceImpl implements RecipeMatchService {
             matchedNames.retainAll(recipeIngredientNames);
             int matchDegree = matchedNames.size() * 100 / userIngredientNames.size();
 
-            // Preference filtering
             ApplyRecipeRequestDTO.Preferences prefs = request.getPreferences();
             if (prefs != null) {
                 if (prefs.getCookTime() != null) {
@@ -83,6 +83,7 @@ public class RecipeMatchServiceImpl implements RecipeMatchService {
                 if (prefs.getDifficulty() != null && recipe.getDifficulty() != null) {
                     if (recipe.getDifficulty() > prefs.getDifficulty()) continue;
                 }
+                matchDegree = applyPreferenceBoost(matchDegree, recipe, prefs);
             }
 
             matchedRecipes.add(new MatchedRecipe(recipe, matchDegree));
@@ -117,6 +118,54 @@ public class RecipeMatchServiceImpl implements RecipeMatchService {
                 .recipes(recipeDTOs)
                 .needAiGenerate(needAiGenerate)
                 .build();
+    }
+
+    private int applyPreferenceBoost(int baseMatch, Recipe recipe, ApplyRecipeRequestDTO.Preferences prefs) {
+        int score = baseMatch;
+        boolean hasTasteBoost = false;
+
+        if (prefs.getTaste() != null && !prefs.getTaste().isEmpty()) {
+            Set<String> recipeTags = parseTags(recipe.getTags());
+            int tasteHits = 0;
+            for (String taste : prefs.getTaste()) {
+                Set<String> expectedTags = TasteTagMapper.tagsForTaste(taste);
+                for (String tag : recipeTags) {
+                    if (expectedTags.contains(tag)) {
+                        tasteHits++;
+                        break;
+                    }
+                }
+            }
+            if (tasteHits > 0) {
+                int tasteScore = tasteHits * 100 / prefs.getTaste().size();
+                score = baseMatch * 70 / 100 + tasteScore * 30 / 100;
+                hasTasteBoost = true;
+            }
+        }
+
+        if (prefs.getDietary() != null && !prefs.getDietary().isEmpty()) {
+            for (String dietary : prefs.getDietary()) {
+                String expectedCategory = TasteTagMapper.categoryForDietary(dietary);
+                if (expectedCategory != null && expectedCategory.equals(recipe.getCategory())) {
+                    if (!hasTasteBoost) {
+                        score = Math.min(100, baseMatch + 10);
+                    }
+                    break;
+                }
+            }
+        }
+
+        return Math.min(100, score);
+    }
+
+    private Set<String> parseTags(String tagsJson) {
+        if (tagsJson == null || tagsJson.isBlank()) return Set.of();
+        try {
+            String[] tags = objectMapper.readValue(tagsJson, String[].class);
+            return Set.of(tags);
+        } catch (Exception e) {
+            return Set.of();
+        }
     }
 
     // ==================== 匹配辅助方法 ====================
