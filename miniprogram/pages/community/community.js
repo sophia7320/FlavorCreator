@@ -2,6 +2,7 @@
 const { API_CONFIG } = require('../../config/api')
 const { request } = require('../../utils/request')
 const { formatPublishDate } = require('../../utils/util')
+const paginationBehavior = require('../../utils/pagination')
 
 // 标签名 → API category 参数映射
 const TAG_CATEGORY_MAP = {
@@ -13,6 +14,7 @@ const TAG_CATEGORY_MAP = {
 }
 
 Page({
+  behaviors: [paginationBehavior],
 
   /**
    * 页面的初始数据
@@ -25,23 +27,9 @@ Page({
 			{name: '养生频道', selected: false},
 			{name: '特色菜', selected: false},
 		],
-		leftList: [
-			{ id: 'ph_l0', authorId: '', userName: 'User Name', userImg: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/user.svg', recipeName: '', publishDate: '', recipeImage: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/image.svg', collectionCount: 0, isPlaceholder: true },
-			{ id: 'ph_l1', authorId: '', userName: 'User Name', userImg: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/user.svg', recipeName: '', publishDate: '', recipeImage: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/image.svg', collectionCount: 0, isPlaceholder: true },
-			{ id: 'ph_l2', authorId: '', userName: 'User Name', userImg: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/user.svg', recipeName: '', publishDate: '', recipeImage: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/image.svg', collectionCount: 0, isPlaceholder: true },
-			{ id: 'ph_l3', authorId: '', userName: 'User Name', userImg: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/user.svg', recipeName: '', publishDate: '', recipeImage: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/image.svg', collectionCount: 0, isPlaceholder: true },
-		],
-		rightList: [
-			{ id: 'ph_r0', authorId: '', userName: 'User Name', userImg: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/user.svg', recipeName: '', publishDate: '', recipeImage: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/image.svg', collectionCount: 0, isPlaceholder: true },
-			{ id: 'ph_r1', authorId: '', userName: 'User Name', userImg: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/user.svg', recipeName: '', publishDate: '', recipeImage: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/image.svg', collectionCount: 0, isPlaceholder: true },
-			{ id: 'ph_r2', authorId: '', userName: 'User Name', userImg: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/user.svg', recipeName: '', publishDate: '', recipeImage: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/image.svg', collectionCount: 0, isPlaceholder: true },
-			{ id: 'ph_r3', authorId: '', userName: 'User Name', userImg: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/user.svg', recipeName: '', publishDate: '', recipeImage: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/image.svg', collectionCount: 0, isPlaceholder: true },
-		],
-		page: 1,
-		pageSize: 10,
+		leftList: [],
+		rightList: [],
 		loadingStatus: '',
-		isRequesting: false,
-		hasMore: true,
 		currentShareCardId: null,
   },
 
@@ -49,6 +37,8 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad(options) {
+    // 初始化默认标签「快手菜」的分页状态
+    this.paginationInit('fast')
     this.loadData(true)
   },
 
@@ -75,64 +65,58 @@ Page({
   },
 
   onPullDownRefresh() {
-    this.loadData(true)
+    this.loadData(true).then(() => {
+      wx.stopPullDownRefresh()
+    })
   },
 
-  onReachBottom() {
-    this.loadData(false)
-  },
-
+  /**
+   * 加载社区卡片数据（委托给 pagination Behavior）
+   * @param {boolean} isRefresh
+   * @returns {Promise}
+   */
   loadData(isRefresh = false) {
-    if (this.data.isRequesting) {
-      return
-    }
-    if (!isRefresh && !this.data.hasMore) {
-      return
-    }
-
-    this.setData({ isRequesting: true, loadingStatus: 'loading' })
-
-    const page = isRefresh ? 1 : this.data.page
     const selectedTag = this.data.tags.find(t => t.selected)
     const category = selectedTag ? TAG_CATEGORY_MAP[selectedTag.name] : 'fast'
 
-    request(API_CONFIG.community.list, { page, size: this.data.pageSize, category }, { showLoading: false })
-      .then(res => {
-        const list = res.list || res.records || res.data || []
-        const hasMore = res.hasMore ?? (list.length >= this.data.pageSize)
-
-        this.appendCards(list, isRefresh)
-
-        this.setData({
-          page: isRefresh ? 2 : page + 1,
-          hasMore,
-          loadingStatus: hasMore ? '' : 'noMore',
-          isRequesting: false
-        })
-      })
-      .catch(() => {
-        this.setData({ loadingStatus: 'error', isRequesting: false })
-      })
+    return this.paginationLoad(isRefresh, category,
+      // ① 请求函数
+      (page, size) => request(API_CONFIG.community.list, { page, size, category }, { showLoading: false }),
+      // ② 数据转换函数
+      (item) => this.transformCardData(item)
+    ).then(cards => {
+      if (cards.length > 0) {
+        this.appendCardsToWaterfall(cards, isRefresh)
+      }
+    })
   },
 
-  appendCards(cards, isRefresh = false) {
+  /**
+   * 将后端单条数据转换为 recipe-card 所需格式
+   */
+  transformCardData(item, index = 0) {
+    const recipeId = item.recipeid || item.id || item._id
+    return {
+      id: recipeId || Date.now() + index,
+      isPlaceholder: !recipeId,
+      authorId: item.author?.id || item.authorId || '',
+      userName: item.author?.nickname || item.userName || item.user_name || '匿名用户',
+      userImg: item.author?.avatar || item.userImg || item.user_avatar || 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/user.svg',
+      recipeName: item.name || item.recipeName || item.title || '',
+      publishDate: formatPublishDate(item.createdAt),
+      recipeImage: item.cover || item.recipeImage || item.image || 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/image.svg',
+      collectionCount: item.collectionCount || 0
+    }
+  },
+
+  /**
+   * 将卡片追加到瀑布流布局（左/右分列 + 收藏状态同步）
+   */
+  appendCardsToWaterfall(cards, isRefresh = false) {
     let newLeftList = isRefresh ? [] : [...this.data.leftList]
     let newRightList = isRefresh ? [] : [...this.data.rightList]
 
-    cards.forEach((item, index) => {
-      const recipeId = item.recipeid || item.id || item._id
-      const card = {
-        id: recipeId || Date.now() + index,
-        isPlaceholder: !recipeId,
-        authorId: item.author?.id || item.authorId || '',
-        userName: item.author?.nickname || item.userName || item.user_name || '匿名用户',
-        userImg: item.author?.avatar || item.userImg || item.user_avatar || 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/user.svg',
-        recipeName: item.name || item.recipeName || item.title || '',
-        publishDate: formatPublishDate(item.createdAt),
-        recipeImage: item.cover || item.recipeImage || item.image || 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/image.svg',
-        collectionCount: item.collectionCount || 0
-      }
-
+    cards.forEach((card) => {
       const totalCount = newLeftList.length + newRightList.length
       if (totalCount % 2 === 0) {
         newLeftList.push(card)
@@ -178,12 +162,14 @@ Page({
       selected: i === index
     }))
 
+    // 重置新标签的分页状态
+    const newCategory = TAG_CATEGORY_MAP[tags[index].name]
+    this.paginationSwitchTag(newCategory)
+
     this.setData({
       tags,
-      page: 1,
       leftList: [],
-      rightList: [],
-      hasMore: true
+      rightList: []
     }, () => {
       this.loadData(true)
     })

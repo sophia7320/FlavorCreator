@@ -451,6 +451,10 @@ swiper {
 	background-color: rgba(252, 182, 182, 1);
 }
 
+.preference-item.selected .preference-text {
+	color: #fff;
+}
+
 .preference-item.selected .preference-icon {
 		width: 28rpx;
 		height: 28rpx;
