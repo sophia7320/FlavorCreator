@@ -11,6 +11,7 @@ import flcr.backend.recipe.entity.Recipe;
 import flcr.backend.recipe.mapper.RecipeMapper;
 import flcr.backend.recipe.service.RecipeMatchService;
 import flcr.backend.recipe.util.RecipeDtoAssembler;
+import flcr.backend.recipe.util.IngredientSynonyms;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -41,7 +42,12 @@ public class RecipeMatchServiceImpl implements RecipeMatchService {
             }
         }
 
-        // No ingredients → return empty
+        Set<String> expandedNames = new HashSet<>(userIngredientNames);
+        for (String name : userIngredientNames) {
+            expandedNames.addAll(IngredientSynonyms.getSynonyms(name));
+        }
+        userIngredientNames = expandedNames;
+
         if (userIngredientNames.isEmpty()) {
             return ApplyRecipeResponseDTO.builder()
                     .matchDegree(0)
