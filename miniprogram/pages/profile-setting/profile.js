@@ -45,7 +45,7 @@ Page({
       avatarUrl: data.avatar || data.avatarUrl || '',
       gender: genderMap[data.gender] || data.gender || '',
       age: data.age != null ? String(data.age) : '',
-      region: data.region || '',
+      region: data.address || '',
       background: data.background || ''
     }
   },
@@ -260,12 +260,15 @@ Page({
   // 公共提交方法
   submitFieldUpdate(field, newValue) {
     const updateData = {}
+    // 前端字段 → 后端字段映射
+    const fieldMapping = { 'region': 'address' }
+    const backendField = fieldMapping[field] || field
     // 性别后端期望数字：男=1，女=2，保密=0
     if (field === 'gender') {
       const genderMap = { '男': 1, '女': 2, '保密': 0 }
-      updateData[field] = genderMap[newValue] !== undefined ? genderMap[newValue] : newValue
+      updateData[backendField] = genderMap[newValue] !== undefined ? genderMap[newValue] : newValue
     } else {
-      updateData[field] = newValue
+      updateData[backendField] = newValue
     }
 
     const that = this
