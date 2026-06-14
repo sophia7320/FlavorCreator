@@ -15,8 +15,10 @@
   flex-direction: column;
   justify-content: space-between;
 
-  border: rgba(255, 225, 207, 1) 1rpx solid;
-  box-shadow: 0 4rpx 0 0 rgba(255, 225, 207, 1);
+  border: var(--bg-secondary) 1rpx solid;
+  box-shadow: 0 4rpx 0 0 var(--bg-secondary);
+
+  position: relative;
 }
 
 .card.first {
@@ -36,7 +38,7 @@
   width: 40rpx;
   height: 40rpx;
   border-radius: 50%;
-  background-color: rgba(255, 225, 207, 1);
+  background-color: var(--bg-secondary);
 
   display: flex;
   justify-content: center;
@@ -52,12 +54,12 @@
 .card .card-header .name-container .user-name {
   font-size: 20rpx;
   font-weight: 700;
-  color: rgba(87, 30, 0, 1);
+  color: var(--text-brand-dark);
 }
 
 .card .card-header .name-container .publish-date {
   font-size: 14rpx; 
-  color: rgba(122, 125, 132, 1);
+  color: var(--text-muted);
 }
 
 .card .card-image-contianer {
@@ -78,7 +80,7 @@
 }
 
 .recipe-name {
-	color: rgba(87, 30, 0, 1);
+	color: var(--text-brand-dark);
 	font-weight: 550;
 	font-size: 26rpx;
 }
@@ -115,5 +117,34 @@
 
 .card .collect-count {
 	font-size: 20rpx;
-	color: rgba(122, 125, 132, 1);
+	color: var(--text-muted);
+}
+
+/* 已收藏状态 */
+.card .tool-bar .collect.collected .collect-btn {
+	transform: scale(1.1);
+}
+.card .tool-bar .collect.collected .collect-count {
+	color: #E74C3C;
+}
+
+/* 删除按钮 */
+.delete-btn {
+	position: absolute;
+	top: 14rpx;
+	right: 14rpx;
+	width: 26rpx;
+	height: 26rpx;
+	border-radius: 50%;
+	background: var(--shadow-black);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	z-index: 2;
+}
+
+.delete-icon {
+	font-size: 20rpx;
+	color: #fff;
+	line-height: 1;
 }

@@ -21,7 +21,7 @@
 	<scroll-view class="main" scroll-y bindscrolltolower="onScrollToLower">
 		<view class="cards-container">
 			<view class="left-cards-list">
-				<block wx:for="{{leftList}}" wx:key="{{item.id}}">
+				<block wx:for="{{leftList}}" wx:key="id">
 					<recipe-card
 						cardData="{{item}}"
 						isFirst="{{index === 0}}"
@@ -35,7 +35,7 @@
 			</view>
 
 			<view class="right-cards-list">
-				<block wx:for="{{rightList}}" wx:key="{{item.id}}">
+				<block wx:for="{{rightList}}" wx:key="id">
 					<recipe-card
 						cardData="{{item}}"
 						isCollected="{{item.isCollected}}"

@@ -126,7 +126,7 @@
 	min-width: 32rpx;
 	height: 32rpx;
 	padding: 0 8rpx;
-	background-color: rgba(249, 90, 44, 1);
+	background-color: var(--color-badge);
 	border-radius: 16rpx;
 	font-size: 20rpx;
 	color: #fff;
@@ -216,7 +216,7 @@ swiper {
 	top: 67rpx;
 	left: 0;
 	right: 0;
-	background-color: #FFF9F0;
+	background-color: var(--bg-card-light);
 	border-radius: 20rpx;
 	box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.15);
 	padding: 10rpx 0;
@@ -301,7 +301,7 @@ swiper {
 }
 
 .default-mode-text.active {
-	color: rgba(185, 89, 33, 1);
+	color: var(--color-accent);
 }
 
 .main-container .create-process-container .default-mode .rectangle {
@@ -448,7 +448,7 @@ swiper {
 
 /* 选中状态 */
 .preference-item.selected {
-	background-color: rgba(252, 182, 182, 1);
+	background-color: var(--bg-pink-selected);
 }
 
 .preference-item.selected .preference-text {
@@ -547,8 +547,8 @@ swiper {
 	align-items: center;
 	justify-content: center;
 	border-radius: 50%;
-	background-color: rgba(253, 239, 237, 1);
-	box-shadow: 0 4rpx 4rpx 0 rgba(0, 0, 0, 0.25);
+	background-color: var(--bg-light-pink);
+	box-shadow: var(--shadow-sm);
 	position: absolute;
 	left: 50%;
 	transform: translateX(-50%);
@@ -568,8 +568,8 @@ swiper {
 	gap: 8rpx;
 	padding: 12rpx 18rpx;
 	border-radius: 50rpx;
-	background-color: rgba(253, 239, 237, 1);
-	box-shadow: 0 4rpx 4rpx 0 rgba(0, 0, 0, 0.25);
+	background-color: var(--bg-light-pink);
+	box-shadow: var(--shadow-sm);
 }
 
 .basket-panel-clear .clear-icon {

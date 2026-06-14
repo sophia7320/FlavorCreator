@@ -16,12 +16,16 @@
 	<view class="recipe-name">{{cardData.recipeName}}</view>
 
   <view class="tool-bar">
-    <view class="collect {{isCollected ? 'collected' : ''}}" catchtap="onCollectTap">
-      <image src="{{isCollected ? 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/red-heart.svg' : 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/like.svg'}}" mode="aspectFit" class="collect-btn"/>
-      <text class="collect-count">{{cardData.collectionCount || ''}}</text>
+    <view class="collect {{cardData.isCollected ? 'collected' : ''}}" catchtap="onCollectTap">
+      <image src="{{cardData.isCollected ? 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/red-heart.svg' : 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/like.svg'}}" mode="aspectFit" class="collect-btn"/>
+      <text wx:if="{{showCollectCount}}" class="collect-count">{{cardData.collectionCount}}</text>
     </view>
     <button class="share" open-type="share" catchtap="onShareTap">
       <image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/share.svg" mode="aspectFit" class="share-btn"/>
     </button>
+  </view>
+
+  <view wx:if="{{showDelete}}" class="delete-btn" catchtap="onDeleteTap">
+    <text class="delete-icon">×</text>
   </view>
 </view>

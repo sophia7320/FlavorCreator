@@ -105,7 +105,7 @@ Page({
       recipeName: item.name || item.recipeName || item.title || '',
       publishDate: formatPublishDate(item.createdAt),
       recipeImage: item.cover || item.recipeImage || item.image || 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/image.svg',
-      collectionCount: item.collectionCount || 0
+      collectionCount: item.stats?.collections ?? item.collectionCount ?? item.collectCount ?? 0
     }
   },
 
@@ -191,7 +191,7 @@ Page({
         // 同步本地存储
         let favorites = wx.getStorageSync('favorites') || []
         if (newCollected) {
-          const card = [...this.data.leftList, ...this.data.rightList].find(c => c.id === cardId)
+          const card = [...this.data.leftList, ...this.data.rightList].find(c => String(c.id) === String(cardId))
           if (card) {
             favorites = favorites.filter(f => String(f.id) !== String(cardId))
             favorites.unshift({
@@ -212,7 +212,7 @@ Page({
 
         // 以 API 响应为准更新 UI
         const updateCard = (list) => list.map(c =>
-          c.id === cardId ? { ...c, isCollected: newCollected, collectionCount: newCount } : c
+          String(c.id) === String(cardId) ? { ...c, isCollected: newCollected, collectionCount: newCount } : c
         )
 
         this.setData({
@@ -235,7 +235,7 @@ Page({
   onCardTap(e) {
     const { cardId } = e.detail
     if (!cardId) return
-    const card = [...this.data.leftList, ...this.data.rightList].find(c => c.id === cardId)
+    const card = [...this.data.leftList, ...this.data.rightList].find(c => String(c.id) === String(cardId))
     if (card && card.isPlaceholder) return
     wx.navigateTo({
       url: `/pages/recipe-detail/recipe-detail?recipeid=${cardId}`
@@ -255,7 +255,7 @@ Page({
    */
   onShareAppMessage() {
     const cardId = this.data.currentShareCardId
-    const card = [...this.data.leftList, ...this.data.rightList].find(c => c.id === cardId)
+    const card = [...this.data.leftList, ...this.data.rightList].find(c => String(c.id) === String(cardId))
 
     return {
       title: card ? card.recipeName : '看看这道菜谱',

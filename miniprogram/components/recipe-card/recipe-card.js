@@ -15,6 +15,14 @@ Component({
     isCollected: {
       type: Boolean,
       value: false
+    },
+    showDelete: {
+      type: Boolean,
+      value: false
+    },
+    showCollectCount: {
+      type: Boolean,
+      value: true
     }
   },
 
@@ -35,12 +43,16 @@ Component({
       if (this.data.cardData.isPlaceholder) return
       this.triggerEvent('collecttap', {
         cardId: this.data.cardData.id,
-        isCollected: this.data.isCollected
+        isCollected: this.data.cardData.isCollected
       })
     },
     onShareTap() {
       if (this.data.cardData.isPlaceholder) return
       this.triggerEvent('sharetap', { cardId: this.data.cardData.id })
+    },
+    onDeleteTap() {
+      if (this.data.cardData.isPlaceholder) return
+      this.triggerEvent('deletetap', { cardId: this.data.cardData.id })
     }
   }
 })

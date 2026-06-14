@@ -38,13 +38,16 @@
 			<view class="cards-grid">
 				<block wx:for="{{currentCards}}" wx:key="id">
 					<view class="card-wrapper">
-						<recipe-card
-							cardData="{{item}}"
-							isCollected="{{item.isCollected}}"
-							bind:cardtap="onCardTap"
-							bind:collecttap="onCollect"
-							bind:sharetap="onShare"
-						/>
+				<recipe-card
+					cardData="{{item}}"
+					isCollected="{{item.isCollected}}"
+					showDelete="{{tagIndex === 0}}"
+					showCollectCount="{{tagIndex !== 1}}"
+					bind:cardtap="onCardTap"
+					bind:collecttap="onCollect"
+					bind:sharetap="onShare"
+					bind:deletetap="onDelete"
+				/>
 					</view>
 				</block>
 			</view>

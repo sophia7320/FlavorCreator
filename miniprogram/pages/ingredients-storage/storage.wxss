@@ -25,7 +25,7 @@
 	border-radius: 30rpx;
 	display: flex;
 	align-items: center;
-	background-color: rgba(255, 250, 241, 1);
+	background-color: var(--bg-card-light);
 	padding: 16rpx 25rpx;
 	gap: 23rpx;
 }
@@ -47,20 +47,20 @@
 .tool-bar .sort-btn {
 	width: 62rpx;
 	height: 62rpx;
-	background-color: rgba(255, 225, 207, 1);
+	background-color: var(--bg-secondary);
 	border-radius: 20rpx;
 	display: flex;
 	justify-content: center;
 	align-items: center;
 	gap: 12rpx;
 	font-size: 22rpx;
-	color: rgba(87, 30, 0, 1);
+	color: var(--text-brand-dark);
 }
 
 .more-btn {
 	width: 62rpx;
 	height: 62rpx;
-	background-color: rgba(255, 225, 207, 1);
+	background-color: var(--bg-secondary);
 	border-radius: 20rpx;
 	position: relative;
 	display: flex;
@@ -107,7 +107,7 @@
 	align-items: center;
 	gap: 120rpx;
 	padding: 80rpx 0;
-	background-color: rgba(255, 250, 241, 1);
+	background-color: var(--bg-card-light);
 	border-radius: 0 50rpx 50rpx 0;
 	box-shadow: inset -4rpx -4rpx 4rpx 0 rgba(0, 0, 0, 0.25);
 	position: relative;
@@ -115,7 +115,7 @@
 
 .left-container .item {
 	font-size: 24rpx;
-	color: rgba(87, 30, 0, 1);
+	color: var(--text-brand-dark);
 	font-weight: 700;
 	position: relative;
 	z-index: 2;
@@ -133,7 +133,7 @@
 	height: 27rpx;
 	top: -30rpx;
 	right: -40rpx;
-	background-color: rgba(249, 90, 44, 1);
+	background-color: var(--color-badge);
 	border: 2rpx solid rgba(255, 255, 255, 1);
 }
 

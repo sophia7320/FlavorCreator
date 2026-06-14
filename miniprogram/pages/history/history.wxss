@@ -19,7 +19,7 @@ scroll-view {
 	align-items: center;
 	gap: 20rpx;
 	font-size: 36rpx;
-	color: rgba(185, 89, 33, 1);
+	color: var(--color-accent);
 	margin: 30rpx 0;
 }
 

@@ -4,6 +4,7 @@
 	--bg-white-transparent: rgba(255, 255, 255, 0.7);
 	--font-size-xs: 12rpx;
 	--color-primary: rgba(186, 91, 33, 1);
+	--color-accent: rgba(185, 89, 33, 1);
 	--create-anim-duration: 0.3s;
 	--create-anim-easing: ease-in-out;
 
@@ -125,7 +126,7 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	color: rgba(185, 89, 33, 1);
+	color: var(--color-accent);
 	font-weight: 700;
 	font-size: 30rpx;
 }

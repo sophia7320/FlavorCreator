@@ -63,7 +63,7 @@ Page({
       isAI: true,
       name: recipe.name || '',
       cover: recipe.cover || '',
-      desc: recipe.tips || '',
+      desc: recipe.desc || recipe.tips || '',
       author: recipe.author || null,
       ingredients: (recipe.ingredients || []).map(item => ({
         name: item.name,
@@ -95,7 +95,7 @@ Page({
         this.setData({
           name: res.name || '',
           cover: res.cover || '',
-          desc: res.tips || '',
+          desc: res.desc || res.tips || '',
           author: res.author || null,
           ingredients: (res.ingredients || []).map(item => ({
             name: item.name,
@@ -221,7 +221,7 @@ Page({
       content: '标记完成后将从你的食材仓库中同步扣除对应食材，确认已完成？',
       success: (res) => {
         if (res.confirm) {
-          // TODO: 调用后续后端接口同步扣除
+          // 由于单位不统一还在思考如何处理，暂且不修复
           wx.showToast({ title: '已完成！', icon: 'success' })
         }
       }

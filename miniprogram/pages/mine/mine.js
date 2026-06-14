@@ -327,7 +327,7 @@ Page({
       recipeName: item.name || item.recipeName || '',
       publishDate: formatPublishDate(item.createdAt || item.collectedAt),
       recipeImage: item.cover || item.recipeImage || 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/image.svg',
-      collectionCount: item.collectionCount || 0
+      collectionCount: item.stats?.collections ?? item.collectionCount ?? item.collectCount ?? 0
     }
   },
 
@@ -418,7 +418,7 @@ Page({
         // 同步本地存储
         const favs = wx.getStorageSync('favorites') || []
         if (newCollected) {
-          const card = [...this.data.sharedCards, ...this.data.collectionCards].find(c => c.id === cardId)
+          const card = [...this.data.sharedCards, ...this.data.collectionCards].find(c => String(c.id) === String(cardId))
           if (card && card.id && card.id !== '' && !String(card.id).startsWith('ph_')) {
             const idx = favs.findIndex(f => String(f.id) === String(cardId))
             if (idx > -1) favs.splice(idx, 1)
@@ -448,7 +448,7 @@ Page({
 
         // 不在收藏标签页，只更新单张卡片状态
         const updateCard = (list) => list.map(c =>
-          c.id === cardId ? { ...c, isCollected: newCollected, collectionCount: newCount } : c
+          String(c.id) === String(cardId) ? { ...c, isCollected: newCollected, collectionCount: newCount } : c
         )
 
         this.setData({
@@ -461,6 +461,40 @@ Page({
       .catch(() => {
         wx.showToast({ title: '操作失败', icon: 'none' })
       })
+  },
+
+  /**
+   * 删除已发布的菜谱
+   */
+  onDelete(e) {
+    const { cardId } = e.detail
+
+    wx.showModal({
+      title: '确认删除',
+      content: '删除后不可恢复，确认删除该菜谱？',
+      success: (res) => {
+        if (!res.confirm) return
+
+        wx.showLoading({ title: '删除中...' })
+
+        const apiConfig = { ...API_CONFIG.userCenter.deleteRecipe }
+        apiConfig.path = apiConfig.path.replace('{id}', cardId)
+
+        request(apiConfig, {}, { showLoading: false })
+          .then(() => {
+            wx.hideLoading()
+            wx.showToast({ title: '已删除', icon: 'success' })
+
+            // 从列表中移除
+            const sharedCards = this.data.sharedCards.filter(c => String(c.id) !== String(cardId))
+            this.setData({ sharedCards }, () => this.updateCurrentCards())
+          })
+          .catch(() => {
+            wx.hideLoading()
+            wx.showToast({ title: '删除失败', icon: 'none' })
+          })
+      }
+    })
   },
 
   // ========== 分享 ==========

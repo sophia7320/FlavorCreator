@@ -96,31 +96,10 @@ Page({
   onStartCook(e) {
     const { id } = e.currentTarget.dataset
     console.log('开始制作菜谱:', id)
-    
-    // 调用获取详情接口
-    const apiConfig = { ...API_CONFIG.recipe.getDetail }
-    apiConfig.path = apiConfig.path.replace('{id}', id)
-    
-    request(apiConfig)
-      .then(detail => {
-        console.log('菜谱详情:', detail)
-        
-        // 将详情数据存储到本地
-        wx.setStorageSync('recipeDetail', detail)
-        
-        // TODO: 跳转到制作页面
-        wx.showToast({
-          title: '开始制作',
-          icon: 'success'
-        })
-      })
-      .catch(err => {
-        console.error('获取菜谱详情失败:', err)
-        wx.showToast({
-          title: '获取详情失败',
-          icon: 'none'
-        })
-      })
+
+    wx.navigateTo({
+      url: `/pages/recipe-detail/recipe-detail?recipeid=${id}`
+    })
   },
 
   /**

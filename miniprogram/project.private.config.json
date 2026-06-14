@@ -24,7 +24,7 @@
 			"list": [
 				{
 					"name": "test",
-					"pathName": "pages/ingredients-storage/storage",
+					"pathName": "pages/mine/mine",
 					"query": "",
 					"scene": null,
 					"launchMode": "default"

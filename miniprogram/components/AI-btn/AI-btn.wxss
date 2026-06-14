@@ -1,17 +1,22 @@
 /* components/AI-btn/AI-btn.wxss */
-.AI-btn{
+.AI-btn {
   width: 80rpx;
   height:80rpx;
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	background-color: rgba(253, 239, 237, 1);
+	background-color: var(--bg-light-pink);
 	border-radius: 50%;
-	box-shadow: 0 4rpx 4rpx 0 rgba(0, 0, 0, 0.25);
+	box-shadow: var(--shadow-sm);
 	transition: all 0.3s ease;
 	padding: 23rpx;
 }
 
+.AI-btn image {
+	width: 100%;
+	height: 100%;
+}
+
 .AI-btn.selected {
-  background-color: rgba(252, 182, 182, 1);
+  background-color: var(--bg-pink-selected);
 }

@@ -1,7 +1,7 @@
 /* components/top-bar/top-bar.wxss */
 .top-mask {
   height: 201rpx;
-  background: rgba(255, 225, 207, 1);
+  background: var(--bg-secondary);
   border-radius: 0 0 60rpx 60rpx;
   z-index: 10;
   position: absolute;
@@ -23,5 +23,5 @@
 .nav-title {
   margin-left: 20rpx;
   font-size: 36rpx;
-  color: rgba(87, 30, 0, 1);
+  color: var(--text-brand-dark);
 }

@@ -44,7 +44,7 @@
   background: #E0E0E0;
   flex-shrink: 0;
   overflow: hidden;
-	border: 2rpx solid rgba(24, 25, 31, 1);
+	border: 2rpx solid var(--text-dark-solid);
 }
 
 .user-avatar-img {
@@ -60,7 +60,7 @@
 
 /* 内容区域 */
 .main {
-	background-color: rgba(255, 225, 207, 1);
+	background-color: var(--bg-secondary);
   display: flex;
 	flex: 1;
   flex-direction: column;
@@ -103,7 +103,7 @@
 	width: 163rpx;
 	height: 100%;
   font-size: 22rpx;
-  color: rgba(24, 25, 31, 1);
+  color: var(--text-dark-solid);
 	z-index: 1;
 	display: flex;
 	justify-content: center;
@@ -145,7 +145,7 @@
   text-align: center;
   padding-top: 30rpx;
   font-size: 28rpx;
-  color: rgba(122, 125, 132, 1);
+  color: var(--text-muted);
 }
 
 .mask {

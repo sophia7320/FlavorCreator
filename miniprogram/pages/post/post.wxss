@@ -28,7 +28,7 @@
 	align-items: center;
 	padding: 35rpx 45rpx 25rpx;
 	gap: 20rpx;
-	background-color: rgba(255, 225, 207, 1);
+	background-color: var(--bg-secondary);
 	border-radius: 40rpx;
 	box-shadow: 0 4rpx 4rpx 0 rgba(232, 167, 167, 1);
 	margin-bottom: 20rpx;
@@ -96,7 +96,7 @@
 .section-title {
 	font-size: 36rpx;
 	font-weight: 700;
-	color: rgba(108, 107, 107, 1);
+	color: var(--text-gray-dark);
 	margin-right: auto;
 	width: 100%;
 }
@@ -154,8 +154,8 @@
 	width: 50rpx;
 	height: 50rpx;
 	border-radius: 50%;
-	background-color: rgba(253, 239, 237, 1);
-	box-shadow: 0 4rpx 4rpx 0 rgba(0, 0, 0, 0.25);
+	background-color: var(--bg-light-pink);
+	box-shadow: var(--shadow-sm);
 	position: relative;
 	display: flex;
 	align-items: center;
@@ -345,7 +345,7 @@
 	justify-content: center;
 	align-items: center;
 	font-size: 24rpx;
-	color: rgba(108, 107, 107, 1);
+	color: var(--text-gray-dark);
 	transition: all 0.2s ease;
 }
 
@@ -357,7 +357,7 @@
 
 .category-container .divider-line {
 	margin-top: 42rpx;
-	background-color: rgba(24, 25, 31, 1);
+	background-color: var(--text-dark-solid);
 }
 
 /* ========== 发布按钮 ========== */
@@ -405,7 +405,7 @@
 .modal-title {
 	font-size: 34rpx;
 	font-weight: 700;
-	color: rgba(108, 107, 107, 1);
+	color: var(--text-gray-dark);
 	text-align: center;
 }
 
@@ -423,7 +423,7 @@
 
 .modal-label {
 	font-size: 28rpx;
-	color: rgba(108, 107, 107, 1);
+	color: var(--text-gray-dark);
 	flex-shrink: 0;
 	width: 130rpx;
 }
@@ -456,7 +456,7 @@
 
 .modal-btn-cancel {
 	background-color: rgba(233, 233, 233, 1);
-	color: rgba(108, 107, 107, 1);
+	color: var(--text-gray-dark);
 }
 
 .modal-btn-confirm {

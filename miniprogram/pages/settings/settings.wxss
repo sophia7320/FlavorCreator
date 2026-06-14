@@ -2,7 +2,7 @@
 .settings-page {
   width: 750rpx;
   height: 100vh;
-  background: rgba(255, 238, 209, 1);
+  background: var(--bg-primary);
   position: relative;
   display: flex;
   flex-direction: column;
@@ -32,7 +32,7 @@
 
 .item-card {
   width: 100%;
-  background: #FFF9F0;
+  background: var(--bg-card-light);
   border-radius: 40rpx;
   padding: 55rpx 52rpx 60rpx;
   box-sizing: border-box;
@@ -102,7 +102,7 @@
 .logout-btn {
   width: 596rpx;
   height: 89rpx;
-  background: rgba(254, 112, 88, 1);
+  background: var(--color-danger);
   border-radius: 40rpx;
 
   display: flex;

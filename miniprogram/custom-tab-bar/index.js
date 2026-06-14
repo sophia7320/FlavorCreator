@@ -287,9 +287,7 @@ Component({
 				return
 			}
 			tabBarCreateState.setShowCreate(value)
-			this.setData({ showCreate: value }, () => {
-				this._playCreateKeyframeAnimation()
-			})
+			this._playCreateKeyframeAnimation(value)
 		},
 
 		onCreateClick() {
@@ -320,25 +318,20 @@ Component({
 					'普通': 30,
 					'慢炖': 60
 				}
-				const timeToDifficulty = {
-					'快手菜': '简单',
-					'普通': '普通',
-					'慢炖': '困难'
-				}
 				const cookTimeValue = timeValueMap[defaultPrefs.time] || 30
-				const difficulty = timeToDifficulty[defaultPrefs.time] || '简单'
+				const mappedPortion = defaultPrefs.portion === '4人及以上' ? '4人以上' : (defaultPrefs.portion || null)
 
 				preferences = {
 					taste: (defaultPrefs.taste && defaultPrefs.taste.length > 0) ? defaultPrefs.taste : ['清淡'],
-					cookTime: cookTimeValue,
-					difficulty: difficulty
+					portion: mappedPortion,
+					cookTime: cookTimeValue
 				}
 			} else {
 				// 非默认模式，使用主页手动选择的偏好
 				preferences = {
 					taste: selectedPreferences.taste.length > 0 ? selectedPreferences.taste : ['清淡'],
-					cookTime: selectedPreferences.cookTime || 30,
-					difficulty: selectedPreferences.difficulty || '简单'
+					portion: selectedPreferences.portion || null,
+					cookTime: selectedPreferences.cookTime || 30
 				}
 			}
 
@@ -348,8 +341,8 @@ Component({
 					ingredients: selectedIngredients,
 					preferences: {
 						taste: preferences.taste,
-						cookTime: preferences.cookTime,
-						difficulty: preferences.difficulty
+						portion: preferences.portion,
+						cookTime: preferences.cookTime
 					}
 				}
 
@@ -375,13 +368,12 @@ Component({
 				return
 			}
 
-		const difficultyMap = { '简单': 1, '普通': 2, '困难': 3 }
-
 		const requestData = {
 			ingredients: selectedIngredients,
 			preferences: {
-				cookTime: preferences.cookTime,
-				difficulty: difficultyMap[preferences.difficulty] || 1
+				taste: preferences.taste,
+				portion: preferences.portion,
+				cookTime: preferences.cookTime
 			}
 		}
 

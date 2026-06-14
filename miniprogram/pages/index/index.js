@@ -67,7 +67,8 @@ Page({
 			selectedPreferences: {
 				taste: [],
 				cookTime: null,
-				difficulty: null
+				difficulty: null,
+				portion: null
 			},
 
 			// basket 相关
@@ -351,12 +352,14 @@ Page({
 		servingsOptions.forEach(item => item.selected = false)
 
 		// 如果当前项之前未选中，则选中它；否则保持全取消（即取消选择）
+		const selectedPortion = isCurrentlySelected ? null : servingsOptions[index].name
 		if (!isCurrentlySelected) {
 			servingsOptions[index].selected = true
 		}
 
 		this.setData({
-			servingsOptions: servingsOptions
+			servingsOptions: servingsOptions,
+			'selectedPreferences.portion': selectedPortion
 		})
 	},
 
@@ -667,6 +670,7 @@ Page({
 				selected: item.name === mappedPortion
 			}))
 			updates.servingsOptions = servingsOptions
+			updates['selectedPreferences.portion'] = mappedPortion
 		}
 
 		// 3. 应用时长（单选，按偏好页顺序映射到 cookTimeOptions 索引）
@@ -712,7 +716,8 @@ Page({
 			selectedPreferences: {
 				taste: [],
 				cookTime: null,
-				difficulty: null
+				difficulty: null,
+				portion: null
 			}
 		})
 	},
