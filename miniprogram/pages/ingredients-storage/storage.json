@@ -1,0 +1,7 @@
+{
+  "usingComponents": {
+    "top-bar": "/components/top-bar/top-bar",
+    "back-btn": "/components/back-btn/back-btn",
+    "ingredient-card": "/components/ingredient-card/ingredient-card"
+  }
+}

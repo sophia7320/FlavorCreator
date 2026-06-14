@@ -1,6 +1,7 @@
 // pages/mine/mine.js
 const { API_CONFIG } = require('../../config/api')
 const { request } = require('../../utils/request')
+const { formatPublishDate } = require('../../utils/util')
 
 Page({
 
@@ -16,16 +17,18 @@ Page({
     backgroundUrl: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/bg/mine-background.png',
     tagIndex: 0,
     sharedCards: [],
-    likeCards: [],
+    collectionCards: [],
     currentCards: [],
 
-    // 分页状态
+    // 分页状态（分 Tab 独立维护，避免互相污染）
     publishedPage: 1,
     collectionsPage: 1,
     pageSize: 10,
-    hasMore: false,
+    publishedHasMore: false,
+    collectionsHasMore: false,
     loadingStatus: '',
-    isRequesting: false
+    isRequesting: false,
+
   },
 
   /**
@@ -34,6 +37,8 @@ Page({
   onLoad(options) {
     const userInfo = this.normalizeUserInfo(wx.getStorageSync('userInfo'))
     this.setData({ userInfo, backgroundUrl: userInfo.backgroundUrl })
+    this.cleanDirtyFavorites()
+    this.cleanDirtyPublished()
     this.loadData(true)
   },
 
@@ -55,9 +60,44 @@ Page({
     }
     const userInfo = this.normalizeUserInfo(wx.getStorageSync('userInfo'))
     this.setData({ userInfo, backgroundUrl: userInfo.backgroundUrl })
-    // 同步收藏状态（从其他页面回来后更新 isLiked）
-    this.syncLikedStatus()
+    // 从后端刷新最新数据（其他页面可能修改了收藏状态）
+    this.loadData(true)
   },
+
+  /**
+   * 清理本地收藏中的历史无效数据
+   */
+  cleanDirtyFavorites() {
+    const favorites = wx.getStorageSync('favorites') || []
+    const valid = favorites.filter(c => {
+      const id = c.recipeid || c.id || c._id
+      if (id === null || id === undefined || id === '' || id === 0 || id === '0') return false
+      if (String(id).startsWith('ph_')) return false
+      return true
+    })
+    if (valid.length !== favorites.length) {
+      wx.setStorageSync('favorites', valid)
+      console.log(`[mine] 清理了 ${favorites.length - valid.length} 条无效收藏`)
+    }
+  },
+
+  /**
+   * 清理本地已发布中的历史无效数据
+   */
+  cleanDirtyPublished() {
+    const published = wx.getStorageSync('published') || []
+    const valid = published.filter(c => {
+      const id = c.recipeid || c.id || c._id
+      if (id === null || id === undefined || id === '' || id === 0 || id === '0') return false
+      if (String(id).startsWith('ph_')) return false
+      return true
+    })
+    if (valid.length !== published.length) {
+      wx.setStorageSync('published', valid)
+      console.log(`[mine] 清理了 ${published.length - valid.length} 条无效已发布`)
+    }
+  },
+
 
   /**
    * 生命周期函数--监听页面隐藏
@@ -83,9 +123,9 @@ Page({
   },
 
   /**
-   * 页面上拉触底事件的处理函数
+   * scroll-view 触底加载更多
    */
-  onReachBottom() {
+  onScrollToLower() {
     this.loadData(false)
   },
 
@@ -95,10 +135,12 @@ Page({
    * 统一加载入口，根据当前 tagIndex 路由到不同 API
    */
   loadData(isRefresh = false) {
-    if (this.data.isRequesting) return
-    if (!isRefresh && !this.data.hasMore) return
+    // 使用同步标志防竞态（不经过 setData，立即生效）
+    if (this._requesting) return
 
     const { tagIndex } = this.data
+    const hasMoreKey = tagIndex === 0 ? 'publishedHasMore' : 'collectionsHasMore'
+    if (!isRefresh && !this.data[hasMoreKey]) return
     if (tagIndex === 0) {
       return this.loadPublishedData(isRefresh)
     } else {
@@ -110,6 +152,7 @@ Page({
    * 加载已发布菜谱（从后端 API）
    */
   loadPublishedData(isRefresh) {
+    this._requesting = true
     this.setData({ isRequesting: true, loadingStatus: 'loading' })
 
     const page = isRefresh ? 1 : this.data.publishedPage
@@ -120,22 +163,35 @@ Page({
       { showLoading: false }
     )
       .then(res => {
-        const list = res.list || res.data || []
-        const transformed = list.map(item => this.transformCardData(item))
+        const list = res.list || res.records || res.data || []
+        const transformed = list.map(item => this.transformCardData(item)).filter(card => !card.isPlaceholder)
         const hasMore = list.length >= this.data.pageSize
-        const newCards = isRefresh ? transformed : [...this.data.sharedCards, ...transformed]
-        const cardsWithLiked = this.applyLikedStatus(newCards)
+
+        let newCards
+        if (isRefresh) {
+          newCards = transformed
+        } else {
+          // 去重：基于 id 过滤掉已存在的卡片
+          const existingIds = new Set(this.data.sharedCards.map(c => String(c.id)))
+          const uniqueNew = transformed.filter(c => !existingIds.has(String(c.id)))
+          newCards = [...this.data.sharedCards, ...uniqueNew]
+        }
+
+        const cardsWithCollected = this.applyCollectedStatus(newCards)
 
         this.setData({
-          sharedCards: cardsWithLiked,
+          sharedCards: cardsWithCollected,
           publishedPage: isRefresh ? 2 : page + 1,
-          hasMore,
+          publishedHasMore: hasMore,
           loadingStatus: hasMore ? '' : 'noMore',
           isRequesting: false
-        }, () => this.updateCurrentCards())
+        }, () => {
+          this._requesting = false
+          this.updateCurrentCards()
+        })
       })
       .catch(() => {
-        // 后端不可用时，降级到本地存储
+        this._requesting = false
         console.warn('已发布 API 暂不可用，使用本地数据')
         this.loadPublishedFromLocal(isRefresh)
       })
@@ -145,6 +201,7 @@ Page({
    * 加载收藏菜谱（优先后端 API，失败降级到本地存储）
    */
   loadCollectionsData(isRefresh) {
+    this._requesting = true
     this.setData({ isRequesting: true, loadingStatus: 'loading' })
 
     const page = isRefresh ? 1 : this.data.collectionsPage
@@ -155,22 +212,35 @@ Page({
       { showLoading: false }
     )
       .then(res => {
-        const list = res.list || res.data || []
-        const transformed = list.map(item => this.transformCardData(item))
+        const list = res.list || res.records || res.data || []
+        const transformed = list.map(item => this.transformCardData(item)).filter(card => !card.isPlaceholder)
         const hasMore = list.length >= this.data.pageSize
-        const newCards = isRefresh ? transformed : [...this.data.likeCards, ...transformed]
-        const cardsWithLiked = this.applyLikedStatus(newCards, true)
+
+        let newCards
+        if (isRefresh) {
+          newCards = transformed
+        } else {
+          // 去重：基于 id 过滤掉已存在的卡片
+          const existingIds = new Set(this.data.collectionCards.map(c => String(c.id)))
+          const uniqueNew = transformed.filter(c => !existingIds.has(String(c.id)))
+          newCards = [...this.data.collectionCards, ...uniqueNew]
+        }
+
+        const cardsWithCollected = this.applyCollectedStatus(newCards, true)
 
         this.setData({
-          likeCards: cardsWithLiked,
+          collectionCards: cardsWithCollected,
           collectionsPage: isRefresh ? 2 : page + 1,
-          hasMore,
+          collectionsHasMore: hasMore,
           loadingStatus: hasMore ? '' : 'noMore',
           isRequesting: false
-        }, () => this.updateCurrentCards())
+        }, () => {
+          this._requesting = false
+          this.updateCurrentCards()
+        })
       })
       .catch(() => {
-        // 后端不可用时，降级到本地存储
+        this._requesting = false
         console.warn('收藏 API 暂不可用，使用本地数据')
         this.loadCollectionsFromLocal(isRefresh)
       })
@@ -181,12 +251,19 @@ Page({
    */
   loadCollectionsFromLocal(isRefresh) {
     const favorites = wx.getStorageSync('favorites') || []
-    const transformed = favorites.map(c => this.transformCardData({ ...c, isLiked: true }))
+    // 过滤掉 ID 无效的本地数据
+    const valid = favorites.filter(c => {
+      const id = c.recipeid || c.id || c._id
+      if (id === null || id === undefined || id === '' || id === 0 || id === '0') return false
+      if (String(id).startsWith('ph_')) return false
+      return true
+    })
+    const transformed = valid.map(c => this.transformCardData({ ...c, isCollected: true }))
 
     this.setData({
-      likeCards: transformed,
+      collectionCards: transformed,
       collectionsPage: 1,
-      hasMore: false,
+      collectionsHasMore: false,
       loadingStatus: '',
       isRequesting: false
     }, () => this.updateCurrentCards())
@@ -195,13 +272,19 @@ Page({
   /**
    * 为卡片列表批量标记收藏状态
    */
-  applyLikedStatus(cards, forceLiked = false) {
-    if (forceLiked) {
-      return cards.map(c => ({ ...c, isLiked: true }))
+  applyCollectedStatus(cards, forceCollected = false) {
+    if (forceCollected) {
+      return cards.map(c => ({ ...c, isCollected: true }))
     }
     const favorites = wx.getStorageSync('favorites') || []
-    const likedIds = new Set(favorites.map(f => f.id))
-    return cards.map(c => ({ ...c, isLiked: likedIds.has(c.id) }))
+    const collectedIds = new Set(favorites.map(f => String(f.id)))
+    return cards.map(c => {
+      // 如果卡片本身已经有 isCollected 字段（来自后端），优先使用
+      if (c.isCollected !== undefined) {
+        return c
+      }
+      return { ...c, isCollected: collectedIds.has(String(c.id)) }
+    })
   },
 
   /**
@@ -223,18 +306,28 @@ Page({
 
   /**
    * 将后端卡片数据转换为 recipe-card 组件所需格式
-   * 后端: { name, cover, author: { nickname, avatar } }
+   * 社区列表: { name, cover, author: { nickname, avatar } }
+   * 收藏列表: { recipeId, recipeName, cover, authorName, ... }
+   * 已发布列表: { id, name, cover, ... }
    * 组件: { recipeName, recipeImage, userName, userImg }
    */
   transformCardData(item) {
+    // 统一使用 recipeid 作为菜谱唯一标识
+    const id = item.recipeid || item.recipeId || item.id || item._id
+    if (!id) {
+      console.warn('[mine] transformCardData: item missing valid id', item)
+    }
     return {
-      id: item.id || item._id,
+      id: id || '',
+      isPlaceholder: !id,
       authorId: item.author?.id || item.authorId || '',
-      userName: item.author?.nickname || item.userName || '匿名用户',
+      // 社区列表: author.nickname，收藏列表: authorName，已发布列表: userName
+      userName: item.author?.nickname || item.authorName || item.userName || '匿名用户',
       userImg: item.author?.avatar || item.userImg || 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/user.svg',
       recipeName: item.name || item.recipeName || '',
+      publishDate: formatPublishDate(item.createdAt || item.collectedAt),
       recipeImage: item.cover || item.recipeImage || 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/image.svg',
-      likeCount: item.likeCount || 0
+      collectionCount: item.stats?.collections ?? item.collectionCount ?? item.collectCount ?? 0
     }
   },
 
@@ -243,13 +336,13 @@ Page({
    */
   loadPublishedFromLocal(isRefresh) {
     const published = wx.getStorageSync('published') || []
-    const transformed = published.map(c => this.transformCardData(c))
-    const cardsWithLiked = this.applyLikedStatus(transformed)
+    const transformed = published.map(c => this.transformCardData(c)).filter(card => !card.isPlaceholder)
+    const cardsWithCollected = this.applyCollectedStatus(transformed)
 
     this.setData({
-      sharedCards: cardsWithLiked,
+      sharedCards: cardsWithCollected,
       publishedPage: 1,
-      hasMore: false,
+      publishedHasMore: false,
       loadingStatus: '',
       isRequesting: false
     }, () => this.updateCurrentCards())
@@ -258,12 +351,12 @@ Page({
   /**
    * 同步所有卡片列表的收藏状态（从其他页面回来后刷新）
    */
-  syncLikedStatus() {
+  syncCollectedStatus() {
     const favorites = wx.getStorageSync('favorites') || []
-    const likedIds = new Set(favorites.map(f => f.id))
+    const collectedIds = new Set(favorites.map(f => String(f.id)))
     this.setData({
-      sharedCards: this.data.sharedCards.map(c => ({ ...c, isLiked: likedIds.has(c.id) })),
-      likeCards: this.data.likeCards.map(c => ({ ...c, isLiked: likedIds.has(c.id) }))
+      sharedCards: this.data.sharedCards.map(c => ({ ...c, isCollected: collectedIds.has(String(c.id)) })),
+      collectionCards: this.data.collectionCards.map(c => ({ ...c, isCollected: collectedIds.has(String(c.id)) }))
     }, () => this.updateCurrentCards())
   },
 
@@ -271,9 +364,22 @@ Page({
    * 更新当前显示的卡片列表
    */
   updateCurrentCards() {
-    const { tagIndex, sharedCards, likeCards } = this.data
+    const { tagIndex, sharedCards, collectionCards } = this.data
     this.setData({
-      currentCards: tagIndex === 0 ? sharedCards : likeCards
+      currentCards: tagIndex === 0 ? sharedCards : collectionCards
+    })
+  },
+
+  // ========== 卡片点击 ==========
+
+  /**
+   * 点击卡片跳转到菜谱详情
+   */
+  onCardTap(e) {
+    const { cardId } = e.detail
+    if (!cardId || cardId === '' || String(cardId).startsWith('ph_')) return
+    wx.navigateTo({
+      url: `/pages/recipe-detail/recipe-detail?recipeid=${cardId}`
     })
   },
 
@@ -287,63 +393,108 @@ Page({
     if (index === this.data.tagIndex) return
 
     this.setData({ tagIndex: index }, () => {
-      this.updateCurrentCards()
-      // 切换标签时，如果目标列表为空则自动加载
-      const targetCards = index === 0 ? this.data.sharedCards : this.data.likeCards
-      if (targetCards.length === 0) {
-        this.loadData(true)
-      }
+      // 切换标签时始终从后端刷新最新数据
+      this.loadData(true)
     })
   },
 
   // ========== 收藏/取消收藏 ==========
 
   /**
-   * 收藏/取消收藏（调用后端 API + 同步本地存储）
+   * 收藏/取消收藏（以组件传递的 isCollected 为准，用 API 响应更新 UI）
    */
-  onLike(e) {
-    const { cardId } = e.detail
+  onCollect(e) {
+    const { cardId, isCollected } = e.detail
 
-    // 在所有列表中查找对应卡片
-    const card = [...this.data.sharedCards, ...this.data.likeCards].find(c => c.id === cardId)
-    if (!card) return
-
-    // 判断操作类型
-    const isCollecting = !card.isLiked
-    const apiConfig = isCollecting
-      ? { ...API_CONFIG.community.collect, path: API_CONFIG.community.collect.path.replace('{id}', cardId) }
-      : { ...API_CONFIG.community.uncollect, path: API_CONFIG.community.uncollect.path.replace('{id}', cardId) }
+    const apiConfig = isCollected
+      ? { ...API_CONFIG.community.uncollect, path: API_CONFIG.community.uncollect.path.replace('{id}', cardId) }
+      : { ...API_CONFIG.community.collect, path: API_CONFIG.community.collect.path.replace('{id}', cardId) }
 
     request(apiConfig, {}, { showLoading: false })
-      .then(() => {
-        // 同步本地存储
-        let favorites = wx.getStorageSync('favorites') || []
+      .then((res) => {
+        const newCollected = res.isCollected
+        const newCount = res.collectionCount
 
-        if (isCollecting) {
-          favorites.unshift({ ...card, isLiked: true, likedAt: Date.now() })
+        // 同步本地存储
+        const favs = wx.getStorageSync('favorites') || []
+        if (newCollected) {
+          const card = [...this.data.sharedCards, ...this.data.collectionCards].find(c => String(c.id) === String(cardId))
+          if (card && card.id && card.id !== '' && !String(card.id).startsWith('ph_')) {
+            const idx = favs.findIndex(f => String(f.id) === String(cardId))
+            if (idx > -1) favs.splice(idx, 1)
+            favs.unshift({
+              id: card.id,
+              recipeName: card.recipeName,
+              publishDate: card.publishDate,
+              recipeImage: card.recipeImage,
+              userName: card.userName,
+              userImg: card.userImg,
+              collectionCount: newCount,
+              collectedAt: Date.now()
+            })
+          }
         } else {
-          favorites = favorites.filter(f => f.id !== cardId)
+          const idx = favs.findIndex(f => String(f.id) === String(cardId))
+          if (idx > -1) favs.splice(idx, 1)
+        }
+        wx.setStorageSync('favorites', favs)
+
+        // 如果在收藏标签页，直接从后端刷新整个列表
+        if (this.data.tagIndex === 1) {
+          this.loadData(true)
+          wx.showToast({ title: newCollected ? '已收藏' : '已取消收藏', icon: 'none' })
+          return
         }
 
-        wx.setStorageSync('favorites', favorites)
-
-        // 更新所有列表中的 isLiked 状态
-        const likedIds = new Set(favorites.map(f => f.id))
-        const updateLiked = (list) => list.map(c => ({ ...c, isLiked: likedIds.has(c.id) }))
+        // 不在收藏标签页，只更新单张卡片状态
+        const updateCard = (list) => list.map(c =>
+          String(c.id) === String(cardId) ? { ...c, isCollected: newCollected, collectionCount: newCount } : c
+        )
 
         this.setData({
-          sharedCards: updateLiked(this.data.sharedCards),
-          likeCards: updateLiked(this.data.likeCards)
+          sharedCards: updateCard(this.data.sharedCards),
+          collectionCards: updateCard(this.data.collectionCards)
         }, () => this.updateCurrentCards())
 
-        wx.showToast({
-          title: isCollecting ? '已收藏' : '已取消收藏',
-          icon: isCollecting ? 'success' : 'none'
-        })
+        wx.showToast({ title: newCollected ? '已收藏' : '已取消收藏', icon: 'none' })
       })
       .catch(() => {
         wx.showToast({ title: '操作失败', icon: 'none' })
       })
+  },
+
+  /**
+   * 删除已发布的菜谱
+   */
+  onDelete(e) {
+    const { cardId } = e.detail
+
+    wx.showModal({
+      title: '确认删除',
+      content: '删除后不可恢复，确认删除该菜谱？',
+      success: (res) => {
+        if (!res.confirm) return
+
+        wx.showLoading({ title: '删除中...' })
+
+        const apiConfig = { ...API_CONFIG.userCenter.deleteRecipe }
+        apiConfig.path = apiConfig.path.replace('{id}', cardId)
+
+        request(apiConfig, {}, { showLoading: false })
+          .then(() => {
+            wx.hideLoading()
+            wx.showToast({ title: '已删除', icon: 'success' })
+
+            // 从列表中移除
+            const sharedCards = this.data.sharedCards.filter(c => String(c.id) !== String(cardId))
+            this.setData({ sharedCards }, () => this.updateCurrentCards())
+          })
+          .catch(() => {
+            wx.hideLoading()
+            wx.showToast({ title: '删除失败', icon: 'none' })
+          })
+      }
+    })
   },
 
   // ========== 分享 ==========

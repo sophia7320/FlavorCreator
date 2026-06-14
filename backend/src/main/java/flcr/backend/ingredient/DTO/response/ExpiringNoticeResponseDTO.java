@@ -13,19 +13,20 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ExpiringNoticeResponseDTO {
-    private List<ExpiringItem> expiring;
-    private List<ExpiringItem> expired;
+    private List<Item> items;
     private Summary summary;
 
     @Data
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class ExpiringItem {
+    public static class Item {
         private Long id;
+        private Long userId;
         private String name;
         private LocalDate expireDate;
         private Long daysLeft;
+        private Integer status;
     }
 
     @Data
@@ -33,7 +34,6 @@ public class ExpiringNoticeResponseDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Summary {
-        private Integer expiringCount;
-        private Integer expiredCount;
+        private Boolean hasnUnread;
     }
 }

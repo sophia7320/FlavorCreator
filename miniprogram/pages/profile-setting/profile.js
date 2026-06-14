@@ -1,6 +1,7 @@
 // pages/profile-setting/profile.js
 const { API_CONFIG, REQUEST_CONFIG } = require('../../config/api')
 const { request } = require('../../utils/request')
+const { getUseCallContainer } = require('../../utils/globalState')
 
 Page({
 
@@ -44,7 +45,7 @@ Page({
       avatarUrl: data.avatar || data.avatarUrl || '',
       gender: genderMap[data.gender] || data.gender || '',
       age: data.age != null ? String(data.age) : '',
-      region: data.region || '',
+      region: data.address || '',
       background: data.background || ''
     }
   },
@@ -96,10 +97,82 @@ Page({
     }
   },
 
-  // 上传图片文件，返回图片 URL
-  uploadImageFile(filePath, scene = '') {
-    const uploadConfig = this.buildUploadUrl(API_CONFIG.image.upload)
+  // 通用文件上传到 multipart/form-data 接口（含 401 重试）
+  _uploadFileDirect(apiConfig, filePath, formData) {
     const that = this
+    const uploadConfig = this.buildUploadUrl(apiConfig)
+    return new Promise((resolve, reject) => {
+      wx.uploadFile({
+        url: uploadConfig.url,
+        filePath: filePath,
+        name: 'file',
+        formData: formData || {},
+        header: uploadConfig.header,
+        success(res) {
+          try {
+            const data = JSON.parse(res.data)
+            if (data.code === 0 || data.code === 200) {
+              resolve(data.data || data)
+            } else if (data.code === 401) {
+              const app = getApp()
+              app.refreshAccessToken()
+                .then(success => {
+                  if (success) {
+                    that._uploadFileDirect(apiConfig, filePath, formData).then(resolve).catch(reject)
+                  } else {
+                    reject({ code: 401, message: '登录已过期' })
+                  }
+                })
+                .catch(() => reject({ code: 401, message: '登录已过期' }))
+            } else {
+              reject(data.message || '上传失败')
+            }
+          } catch (e) {
+            reject('解析上传结果失败')
+          }
+        },
+        fail(err) { reject(err) }
+      })
+    })
+  },
+
+  // 上传图片文件，返回图片 URL（自动根据 useCallContainer 选择云/本地模式）
+  uploadImageFile(filePath, scene = '') {
+    const that = this
+    const useCloud = getUseCallContainer()
+
+    if (useCloud) {
+      // ========== 云模式：上传到云存储 → 获取临时 URL ==========
+      const ext = filePath.split('.').pop() || 'jpg'
+      const timestamp = Date.now()
+      const random = Math.random().toString(36).substring(2, 8)
+      const cloudPath = `images/${scene || 'general'}/${timestamp}_${random}.${ext}`
+
+      return wx.cloud.uploadFile({
+        cloudPath: cloudPath,
+        filePath: filePath
+      }).then(res => {
+        return wx.cloud.getTempFileURL({
+          fileList: [res.fileID]
+        })
+      }).then(res => {
+        return res.fileList[0].tempFileURL
+      }).catch(err => {
+        if (err && err.code === 401) {
+          const app = getApp()
+          return app.refreshAccessToken().then(success => {
+            if (success) {
+              return that.uploadImageFile(filePath, scene)
+            }
+            throw { code: 401, message: '登录已过期' }
+          })
+        }
+        throw err
+      })
+    }
+
+    // ========== 本地模式：直连上传（原有逻辑） ==========
+    const uploadConfig = this.buildUploadUrl(API_CONFIG.image.upload)
     return new Promise((resolve, reject) => {
       wx.uploadFile({
         url: uploadConfig.url,
@@ -114,12 +187,10 @@ Page({
               const imageUrl = (data.data && data.data.url) || data.url || data.data
               resolve(imageUrl)
             } else if (data.code === 401) {
-              // token 过期，触发刷新后重试
               const app = getApp()
               app.refreshAccessToken()
                 .then((success) => {
                   if (success) {
-                    // 刷新成功，重试上传
                     that.uploadImageFile(filePath, scene).then(resolve).catch(reject)
                   } else {
                     reject({ code: 401, message: '登录已过期' })
@@ -144,6 +215,8 @@ Page({
   onChooseAvatar() {
     const that = this
     this._updating = true
+    const useCloud = getUseCallContainer()
+
     wx.chooseMedia({
       count: 1,
       mediaType: ['image'],
@@ -151,13 +224,18 @@ Page({
       success(res) {
         const tempFilePath = res.tempFiles[0].tempFilePath
 
-        that.uploadImageFile(tempFilePath, 'avatar')
-          .then(imageUrl => {
-            return request(API_CONFIG.user.update, { avatar: imageUrl }, { showLoading: true })
-          })
-          .then(() => {
-            return that.fetchUserInfo()
-          })
+        let uploadPromise
+        if (useCloud) {
+          // 云模式：上传云存储 → callContainer 更新用户信息
+          uploadPromise = that.uploadImageFile(tempFilePath, 'avatar')
+            .then(imageUrl => request(API_CONFIG.user.update, { avatar: imageUrl }, { showLoading: true }))
+        } else {
+          // 本地直连：使用专用头像上传接口 POST /api/user/avatar
+          uploadPromise = that._uploadFileDirect(API_CONFIG.user.uploadAvatar, tempFilePath)
+        }
+
+        uploadPromise
+          .then(() => that.fetchUserInfo())
           .then(() => {
             wx.showToast({ title: '头像更新成功', icon: 'success' })
           })
@@ -182,12 +260,15 @@ Page({
   // 公共提交方法
   submitFieldUpdate(field, newValue) {
     const updateData = {}
+    // 前端字段 → 后端字段映射
+    const fieldMapping = { 'region': 'address' }
+    const backendField = fieldMapping[field] || field
     // 性别后端期望数字：男=1，女=2，保密=0
     if (field === 'gender') {
       const genderMap = { '男': 1, '女': 2, '保密': 0 }
-      updateData[field] = genderMap[newValue] !== undefined ? genderMap[newValue] : newValue
+      updateData[backendField] = genderMap[newValue] !== undefined ? genderMap[newValue] : newValue
     } else {
-      updateData[field] = newValue
+      updateData[backendField] = newValue
     }
 
     const that = this
@@ -314,6 +395,8 @@ Page({
   onChooseBackground() {
     const that = this
     this._updating = true
+    const useCloud = getUseCallContainer()
+
     wx.chooseMedia({
       count: 1,
       mediaType: ['image'],
@@ -321,13 +404,18 @@ Page({
       success(res) {
         const tempFilePath = res.tempFiles[0].tempFilePath
 
-        that.uploadImageFile(tempFilePath, 'background')
-          .then(imageUrl => {
-            return request(API_CONFIG.user.update, { background: imageUrl }, { showLoading: true })
-          })
-          .then(() => {
-            return that.fetchUserInfo()
-          })
+        let uploadPromise
+        if (useCloud) {
+          // 云模式：上传云存储 → callContainer 更新用户信息
+          uploadPromise = that.uploadImageFile(tempFilePath, 'background')
+            .then(imageUrl => request(API_CONFIG.user.update, { background: imageUrl }, { showLoading: true }))
+        } else {
+          // 本地直连：使用专用背景图上传接口 POST /api/user/background
+          uploadPromise = that._uploadFileDirect(API_CONFIG.user.uploadBackground, tempFilePath)
+        }
+
+        uploadPromise
+          .then(() => that.fetchUserInfo())
           .then(() => {
             wx.showToast({ title: '背景图更新成功', icon: 'success' })
           })

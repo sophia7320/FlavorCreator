@@ -25,7 +25,7 @@
 			<form bindsubmit="" class="login-form-container">
 
 				<view class="wrong-format" wx:if="{{ wrongFormat }}">
-					<text>手机号格式错误，请重新输入</text>
+					<text>{{ wrongFormatText }}</text>
 				</view>
 
 				<view class="telephone-number-container">

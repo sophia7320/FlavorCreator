@@ -5,7 +5,7 @@
 
 		<view class="user-info-container">
 			<view class="user-avatar-container">
-				<image src="{{userInfo.avatarUrl}}" mode="aspectFit" class="user-avatar-img"/>
+				<image src="{{userInfo.avatarUrl}}" mode="aspectFill" class="user-avatar-img"/>
 			</view>
 			<view class="user-name">{{userInfo.nickName === '默认用户' ? 'Bill Rizer' : userInfo.nickName}}</view>
 		</view>
@@ -30,22 +30,28 @@
 		</view>
 
 		<view class="divider-line"></view>
+		<view wx:if="{{currentCards.length === 0}}" class="empty-tip">
+			暂无内容
+		</view>
 
-		<scroll-view class="cards-container" scroll-y>
-			<block wx:for="{{currentCards}}" wx:key="id">
-				<view class="card-wrapper">
-					<recipe-card
-						cardData="{{item}}"
-						isLiked="{{tagIndex === 1}}"
-						bind:liketap="onLike"
-						bind:sharetap="onShare"
-					/>
-				</view>
-			</block>
-
-			<view wx:if="{{currentCards.length === 0}}" class="empty-tip">
-				暂无内容
+		<scroll-view class="cards-container" scroll-y enhanced show-scrollbar="{{false}}" bindscrolltolower="onScrollToLower" style="height: 830rpx;">
+			<view class="cards-grid">
+				<block wx:for="{{currentCards}}" wx:key="id">
+					<view class="card-wrapper">
+				<recipe-card
+					cardData="{{item}}"
+					isCollected="{{item.isCollected}}"
+					showDelete="{{tagIndex === 0}}"
+					showCollectCount="{{tagIndex !== 1}}"
+					bind:cardtap="onCardTap"
+					bind:collecttap="onCollect"
+					bind:sharetap="onShare"
+					bind:deletetap="onDelete"
+				/>
+					</view>
+				</block>
 			</view>
+
 		</scroll-view>
 	</view>
 </view>

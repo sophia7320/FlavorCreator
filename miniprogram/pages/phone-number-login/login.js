@@ -15,6 +15,7 @@ Page({
         timer: null,
 
         wrongFormat: false,
+        wrongFormatText: '手机号格式错误，请重新输入',
         verifyCode: '',
         showToast: false,
 
@@ -41,7 +42,8 @@ Page({
 			const phoneNumber = this.data.phone;
 			if(phoneNumber.length > 0 && !reg.test(phoneNumber)) {
 				this.setData({
-					wrongFormat: true
+					wrongFormat: true,
+					wrongFormatText: '手机号格式错误，请重新输入'
 				})
 				return
 			} else {
@@ -53,8 +55,16 @@ Page({
 
     //点击登录按钮事件
     handleLogin() {
-
-		if(this.data.wrongFormat || this.data.phone === '') return
+		if(this.data.wrongFormat || this.data.phone === '') {
+			this.setData({
+				wrongFormat: true,
+				wrongFormatText: '请先输入手机号'
+			})
+			setTimeout(() => {
+				this.setData({ wrongFormat: false })
+			}, 1400)
+			return
+		}
 
 		//暂定一个确定的验证码
 		if(this.data.verifyCode !== '2077') {
@@ -107,7 +117,22 @@ Page({
     //验证码按钮事件
     sendMsg() {
         //若已经开始倒计时则不执行
-        if (this.data.isDisable || this.data.wrongFormat || this.data.phone === '') return
+        if (this.data.isDisable) return
+
+        // 手机号为空时提示
+        if (this.data.phone === '') {
+            this.setData({
+                wrongFormat: true,
+                wrongFormatText: '请先输入手机号'
+            })
+            setTimeout(() => {
+                this.setData({ wrongFormat: false })
+            }, 1400)
+            return
+        }
+
+        // 格式错误时不执行
+        if (this.data.wrongFormat) return
 
         // 先清空旧残留定时器，防止多个定时器同时跑
         clearInterval(this.data.timer)
@@ -136,7 +161,8 @@ Page({
                 clearInterval(timer)
                 this.setData({
                     time: 'OK',
-                    isDisable: false
+                    isDisable: false,
+                    isMsgTagActive: false
                 })
             }
         }, 1000)

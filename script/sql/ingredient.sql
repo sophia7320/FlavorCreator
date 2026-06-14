@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS `ingredient` (
     `category`          VARCHAR(32)   NOT NULL  DEFAULT ''    COMMENT '分类',
     `storage_condition`  VARCHAR(32)            DEFAULT ''    COMMENT '存储条件',
     `expire_date`       DATE                    DEFAULT NULL  COMMENT '保质期',
+    `readed`            TINYINT(1)   NOT NULL  DEFAULT 0     COMMENT '用户是否已确认临期提醒 0=未确认 1=已确认',
     `created_at`        DATETIME      NOT NULL  DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `updated_at`        DATETIME      NOT NULL  DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (`id`),
@@ -95,3 +96,14 @@ INSERT INTO `common_ingredient` (`category`, `name`, `default_unit`) VALUES
 ('其他', '蜂蜜', '克'),
 ('其他', '枸杞', '克'),
 ('其他', '红枣', '颗');
+
+-- 用户订阅表（微信订阅消息授权记录）
+CREATE TABLE IF NOT EXISTS `ingredient_subscription` (
+    `id`            BIGINT      NOT NULL AUTO_INCREMENT COMMENT '主键',
+    `user_id`       BIGINT      NOT NULL                COMMENT '用户ID',
+    `subscribed`    TINYINT(1)  NOT NULL DEFAULT 0      COMMENT '是否开启提醒 0=关闭 1=开启',
+    `created_at`    DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at`    DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_user_id` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='食材提醒订阅表';

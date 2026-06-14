@@ -1,0 +1,127 @@
+/* components/ingredient-card/ingredient-card.wxss */
+.ingredient-card {
+  width: 224rpx;
+  height: 305rpx;
+  background-color: var(--bg-white);
+  border-radius: 25rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 22rpx;
+  padding: 16rpx;
+  position: relative;
+  box-shadow: var(--shadow-sm);
+}
+
+.food-cover {
+  width: 100%;
+  height: 170rpx;
+  border-radius: 25rpx;
+}
+
+.info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.status-light {
+	width: 19rpx;
+	height: 19rpx;
+	border-radius: 50%;
+	background-color: aqua;
+}
+
+.status-light.red {
+	background-color: rgba(232, 54, 54, 1);
+	box-shadow: 0 4rpx 1rpx 0 rgba(232, 54, 54, 1);
+}
+
+.status-light.yellow {
+	background-color: rgba(253, 198, 11, 1);
+	box-shadow: 0 4rpx 1rpx 0 rgba(253, 198, 11, 1);
+}
+
+.status-light.green {
+	background-color: rgba(144, 223, 22, 1);
+	box-shadow: 0 4rpx 1rpx 0 rgba(144, 223, 22, 1);
+}
+
+.info .title {
+  color: var(--text-black);
+  font-size: 18rpx;
+  font-weight: 600;
+}
+
+.amount-container {
+  height: 30rpx;
+  display: flex;
+  align-items: center;
+  gap: 5rpx;
+}
+
+.amount-container .status-label {
+	width: 70rpx;
+	font-size: 16rpx;
+	font-weight: 600;
+	color: #333;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	background-color: rgba(0, 0, 0, 0.05);
+	border-radius: 14rpx;
+}
+
+.amount-container .action-container {
+  display: flex;
+  align-items: center;
+  border-radius: 12rpx;
+  border: 1.5rpx solid #000;
+	margin-left: auto;
+}
+
+.amount-container .action-container .amount {
+  width: 62rpx;
+  height: 100%;
+  text-align: center;
+  background-color: rgba(0, 0, 0, 0.05);
+  font-size: 17rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.amount-container .unit {
+  font-size: 16rpx;
+}
+
+.delete-btn {
+  position: absolute;
+  top: -6rpx;
+  right: -12rpx;
+  width: 24rpx;
+  height: 24rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  border: 2rpx solid #000;
+}
+
+/* 叉号的两条线 */
+.delete-btn::before,
+.delete-btn::after {
+  content: '';
+  position: absolute;
+  width: 10rpx;
+  height: 2rpx;
+  border-radius: 1rpx;
+  background-color: #333;
+}
+
+.delete-btn::before {
+  transform: rotate(45deg);
+}
+
+.delete-btn::after {
+  transform: rotate(-45deg);
+}

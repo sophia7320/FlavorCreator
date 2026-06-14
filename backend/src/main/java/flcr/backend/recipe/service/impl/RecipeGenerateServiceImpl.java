@@ -74,11 +74,13 @@ public class RecipeGenerateServiceImpl implements RecipeGenerateService {
                 "正确做法：整个回复就是一个裸 JSON，如 {\"recipe\":{...}}\n\n" +
                 "返回的 JSON 必须严格符合以下结构及类型：\n" +
                 "{\"recipe\": {\"name\": \"菜谱名\", " +
+                "\"desc\": \"一句话简介\", " +
                 "\"ingredients\": [{\"name\": \"食材名\", \"quantity\": 3, \"unit\": \"个\"}], " +
                 "\"steps\": [{\"order\": 1, \"description\": \"步骤描述\"}], " +
                 "\"cookTime\": 30, \"difficulty\": \"简单\", " +
                 "\"calories\": 280, \"tags\": [\"快手菜\"]}}\n\n" +
                 "【字段类型约束——违反将导致解析失败】\n" +
+                "- desc: 一句话简介，不超过50字\n" +
                 "- cookTime: 纯数字，表示分钟数，不要带\"分钟\"等任何单位。正确: 30  错误: \"30分钟\"\n" +
                 "- calories: 纯数字，不要带\"大卡\"、\"kcal\"等单位。正确: 280  错误: \"280大卡\"\n" +
                 "- quantity: 纯数字，不要带单位。正确: 3  错误: \"3个\"\n" +

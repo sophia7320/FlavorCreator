@@ -14,6 +14,14 @@ const formatNumber = n => {
   return n[1] ? n : `0${n}`
 }
 
+const formatPublishDate = dateStr => {
+  if (!dateStr) return ''
+  const d = new Date(dateStr)
+  if (isNaN(d.getTime())) return ''
+  return `${d.getMonth() + 1}月${d.getDate()}日`
+}
+
 module.exports = {
-  formatTime
+  formatTime,
+  formatPublishDate
 }

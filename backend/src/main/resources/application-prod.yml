@@ -15,6 +15,21 @@ spring:
       host: ${REDIS_HOST}
       port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD:}
+  storage:
+    type: cos
+    cos:
+      secret-id: ${COS_SECRET_ID}
+      secret-key: ${COS_SECRET_KEY}
+      region: ${COS_REGION:ap-shanghai}
+      bucket: ${COS_BUCKET}
+  moderation:
+    enabled: false
+    allowed-types: jpg, jpeg, png, gif, webp, bmp
+    max-size:
+      avatar: 2097152
+      background: 5242880
+      recipe-cover: 5242880
+      recipe-image: 5242880
 
 wx:
   app-id: ${WX_APP_ID}

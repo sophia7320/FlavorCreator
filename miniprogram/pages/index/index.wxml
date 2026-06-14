@@ -1,7 +1,7 @@
 <!--index.wxml-->
 <view class="index-page">
 
-	<view class="top-recommand-container">
+	<view class="top-recommand-container" style="background-image: url({{recommendCover}});">
 		<view class="top-title">每日推荐</view>
 		<view class="name-date-container">
 			<view class="dish-name">{{ dishName }}</view>
@@ -17,12 +17,13 @@
 	<view class="tool-bar-container">
 		<setting-button bind:settingtap="onSettingTap"></setting-button>
 		<view class="title">Cooking!</view>
-		<view class="ingredients-storage">
+		<view class="ingredients-storage" bind:tap="onIngredientsStorageTap">
 			<image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/storage-icon.svg" mode="aspectFit" class="ingredients-storage-icon"/>
+			<view class="storage-badge" wx:if="{{storageBadgeCount > 0}}">{{storageBadgeCount > 99 ? '99+' : storageBadgeCount}}</view>
 		</view>
 	</view>
 
-	<scroll-view class="main-container" scroll-y="true" enhanced="true" show-scrollbar="false">
+	<scroll-view class="main-container"  enhanced="true" show-scrollbar="false">
 		<view class="search-container">
 			<view class="listener">
 				<image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/linstener.png" mode="aspectFit" class="listener-icon"/>
@@ -35,7 +36,6 @@
 				<view class="autocomplete-dropdown" wx:if="{{showDropdown && autocompleteList.length > 0}}">
 					<view class="autocomplete-item" wx:for="{{autocompleteList}}" wx:key="id" bindtap="onSelectAutocomplete" data-item="{{item}}">
 						<view class="item-name">{{item.name}}</view>
-						<view class="item-unit">{{item.unit}}</view>
 					</view>
 				</view>
 			</view>
@@ -143,8 +143,9 @@
 			<view class="basket {{showBasketAnimation ? 'animate' : ''}}" bindtap="onBasketTap">
 				<image src="https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/basket.png" mode="aspectFit" class="basket-icon"/>
 			</view>
-			<view class="basket-tip" wx:if="{{showBasketTip}}">{{basketTipText}}</view>
+			<AI-btn bind:aitap="onAITap"></AI-btn>
 		</view>
+		
 	</scroll-view>
 
 	<!-- 自定义遮罩层和弹窗 -->

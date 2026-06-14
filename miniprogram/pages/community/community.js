@@ -1,6 +1,8 @@
 // pages/community/community.js
 const { API_CONFIG } = require('../../config/api')
 const { request } = require('../../utils/request')
+const { formatPublishDate } = require('../../utils/util')
+const paginationBehavior = require('../../utils/pagination')
 
 // 标签名 → API category 参数映射
 const TAG_CATEGORY_MAP = {
@@ -12,6 +14,7 @@ const TAG_CATEGORY_MAP = {
 }
 
 Page({
+  behaviors: [paginationBehavior],
 
   /**
    * 页面的初始数据
@@ -24,23 +27,9 @@ Page({
 			{name: '养生频道', selected: false},
 			{name: '特色菜', selected: false},
 		],
-		leftList: [
-			{ id: 'ph_l0', authorId: '', userName: 'User Name', userImg: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/user.svg', recipeName: 'Addtional info goes here', recipeImage: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/image.svg', likeCount: 0, isPlaceholder: true },
-			{ id: 'ph_l1', authorId: '', userName: 'User Name', userImg: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/user.svg', recipeName: 'Addtional info goes here', recipeImage: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/image.svg', likeCount: 0, isPlaceholder: true },
-			{ id: 'ph_l2', authorId: '', userName: 'User Name', userImg: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/user.svg', recipeName: 'Addtional info goes here', recipeImage: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/image.svg', likeCount: 0, isPlaceholder: true },
-			{ id: 'ph_l3', authorId: '', userName: 'User Name', userImg: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/user.svg', recipeName: 'Addtional info goes here', recipeImage: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/image.svg', likeCount: 0, isPlaceholder: true },
-		],
-		rightList: [
-			{ id: 'ph_r0', authorId: '', userName: 'User Name', userImg: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/user.svg', recipeName: 'Addtional info goes here', recipeImage: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/image.svg', likeCount: 0, isPlaceholder: true },
-			{ id: 'ph_r1', authorId: '', userName: 'User Name', userImg: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/user.svg', recipeName: 'Addtional info goes here', recipeImage: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/image.svg', likeCount: 0, isPlaceholder: true },
-			{ id: 'ph_r2', authorId: '', userName: 'User Name', userImg: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/user.svg', recipeName: 'Addtional info goes here', recipeImage: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/image.svg', likeCount: 0, isPlaceholder: true },
-			{ id: 'ph_r3', authorId: '', userName: 'User Name', userImg: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/user.svg', recipeName: 'Addtional info goes here', recipeImage: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/image.svg', likeCount: 0, isPlaceholder: true },
-		],
-		page: 1,
-		pageSize: 10,
+		leftList: [],
+		rightList: [],
 		loadingStatus: '',
-		isRequesting: false,
-		hasMore: true,
 		currentShareCardId: null,
   },
 
@@ -48,6 +37,8 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad(options) {
+    // 初始化默认标签「快手菜」的分页状态
+    this.paginationInit('fast')
     this.loadData(true)
   },
 
@@ -62,7 +53,7 @@ Page({
       this.getTabBar().onTabPageShow()
     }
     // 同步收藏状态
-    this.syncLikedStatus()
+    this.syncCollectedStatus()
   },
 
   onHide() {
@@ -74,61 +65,58 @@ Page({
   },
 
   onPullDownRefresh() {
-    this.loadData(true)
+    this.loadData(true).then(() => {
+      wx.stopPullDownRefresh()
+    })
   },
 
-  onReachBottom() {
-    this.loadData(false)
-  },
-
+  /**
+   * 加载社区卡片数据（委托给 pagination Behavior）
+   * @param {boolean} isRefresh
+   * @returns {Promise}
+   */
   loadData(isRefresh = false) {
-    if (this.data.isRequesting) {
-      return
-    }
-    if (!isRefresh && !this.data.hasMore) {
-      return
-    }
-
-    this.setData({ isRequesting: true, loadingStatus: 'loading' })
-
-    const page = isRefresh ? 1 : this.data.page
     const selectedTag = this.data.tags.find(t => t.selected)
     const category = selectedTag ? TAG_CATEGORY_MAP[selectedTag.name] : 'fast'
 
-    request(API_CONFIG.community.list, { page, size: this.data.pageSize, category }, { showLoading: false })
-      .then(res => {
-        const list = res.list || res.data || []
-        const hasMore = res.hasMore ?? (list.length >= this.data.pageSize)
-
-        this.appendCards(list, isRefresh)
-
-        this.setData({
-          page: isRefresh ? 2 : page + 1,
-          hasMore,
-          loadingStatus: hasMore ? '' : 'noMore',
-          isRequesting: false
-        })
-      })
-      .catch(() => {
-        this.setData({ loadingStatus: 'error', isRequesting: false })
-      })
+    return this.paginationLoad(isRefresh, category,
+      // ① 请求函数
+      (page, size) => request(API_CONFIG.community.list, { page, size, category }, { showLoading: false }),
+      // ② 数据转换函数
+      (item) => this.transformCardData(item)
+    ).then(cards => {
+      if (cards.length > 0) {
+        this.appendCardsToWaterfall(cards, isRefresh)
+      }
+    })
   },
 
-  appendCards(cards, isRefresh = false) {
+  /**
+   * 将后端单条数据转换为 recipe-card 所需格式
+   */
+  transformCardData(item, index = 0) {
+    const recipeId = item.recipeid || item.id || item._id
+    return {
+      id: recipeId || Date.now() + index,
+      isPlaceholder: !recipeId,
+      authorId: item.author?.id || item.authorId || '',
+      userName: item.author?.nickname || item.userName || item.user_name || '匿名用户',
+      userImg: item.author?.avatar || item.userImg || item.user_avatar || 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/user.svg',
+      recipeName: item.name || item.recipeName || item.title || '',
+      publishDate: formatPublishDate(item.createdAt),
+      recipeImage: item.cover || item.recipeImage || item.image || 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/image.svg',
+      collectionCount: item.stats?.collections ?? item.collectionCount ?? item.collectCount ?? 0
+    }
+  },
+
+  /**
+   * 将卡片追加到瀑布流布局（左/右分列 + 收藏状态同步）
+   */
+  appendCardsToWaterfall(cards, isRefresh = false) {
     let newLeftList = isRefresh ? [] : [...this.data.leftList]
     let newRightList = isRefresh ? [] : [...this.data.rightList]
 
-    cards.forEach((item, index) => {
-      const card = {
-        id: item.id || item._id || Date.now() + index,
-        authorId: item.author?.id || item.authorId || '',
-        userName: item.author?.nickname || item.userName || item.user_name || '匿名用户',
-        userImg: item.author?.avatar || item.userImg || item.user_avatar || 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/user.svg',
-        recipeName: item.name || item.recipeName || item.title || '',
-        recipeImage: item.cover || item.recipeImage || item.image || 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/image.svg',
-        likeCount: item.likeCount || 0
-      }
-
+    cards.forEach((card) => {
       const totalCount = newLeftList.length + newRightList.length
       if (totalCount % 2 === 0) {
         newLeftList.push(card)
@@ -139,9 +127,9 @@ Page({
 
     // 同步收藏状态
     const favorites = wx.getStorageSync('favorites') || []
-    const likedIds = new Set(favorites.map(f => f.id))
-    newLeftList = newLeftList.map(c => ({ ...c, isLiked: likedIds.has(c.id) }))
-    newRightList = newRightList.map(c => ({ ...c, isLiked: likedIds.has(c.id) }))
+    const collectedIds = new Set(favorites.map(f => String(f.id)))
+    newLeftList = newLeftList.map(c => ({ ...c, isCollected: collectedIds.has(String(c.id)) }))
+    newRightList = newRightList.map(c => ({ ...c, isCollected: collectedIds.has(String(c.id)) }))
 
     this.setData({ leftList: newLeftList, rightList: newRightList })
   },
@@ -149,12 +137,12 @@ Page({
   /**
    * 同步所有卡片的收藏状态
    */
-  syncLikedStatus() {
+  syncCollectedStatus() {
     const favorites = wx.getStorageSync('favorites') || []
-    const likedIds = new Set(favorites.map(f => f.id))
+    const collectedIds = new Set(favorites.map(f => String(f.id)))
     this.setData({
-      leftList: this.data.leftList.map(c => ({ ...c, isLiked: likedIds.has(c.id) })),
-      rightList: this.data.rightList.map(c => ({ ...c, isLiked: likedIds.has(c.id) }))
+      leftList: this.data.leftList.map(c => ({ ...c, isCollected: collectedIds.has(String(c.id)) })),
+      rightList: this.data.rightList.map(c => ({ ...c, isCollected: collectedIds.has(String(c.id)) }))
     })
   },
 
@@ -174,59 +162,65 @@ Page({
       selected: i === index
     }))
 
+    // 重置新标签的分页状态
+    const newCategory = TAG_CATEGORY_MAP[tags[index].name]
+    this.paginationSwitchTag(newCategory)
+
     this.setData({
       tags,
-      page: 1,
       leftList: [],
-      rightList: [],
-      hasMore: true
+      rightList: []
     }, () => {
       this.loadData(true)
     })
   },
 
-  onLike(e) {
-    const { cardId } = e.detail
+  onCollect(e) {
+    const { cardId, isCollected } = e.detail
 
-    // 先判断当前收藏状态，决定调用收藏还是取消收藏 API
-    let favorites = wx.getStorageSync('favorites') || []
-    const index = favorites.findIndex(f => f.id === cardId)
-    const isCurrentlyFavorited = index > -1
-
-    const apiConfig = isCurrentlyFavorited
+    const apiConfig = isCollected
       ? API_CONFIG.community.uncollect
       : API_CONFIG.community.collect
     const api = { ...apiConfig, path: apiConfig.path.replace('{id}', cardId) }
 
     request(api, {}, { showLoading: false })
-      .then(() => {
-        // 重新读取本地收藏列表（防止并发问题）
-        favorites = wx.getStorageSync('favorites') || []
-        const idx = favorites.findIndex(f => f.id === cardId)
+      .then((res) => {
+        const newCollected = res.isCollected
+        const newCount = res.collectionCount
 
-        if (idx > -1) {
-          // 已收藏 → 取消收藏
-          favorites.splice(idx, 1)
-          wx.showToast({ title: '已取消收藏', icon: 'none' })
+        // 同步本地存储
+        let favorites = wx.getStorageSync('favorites') || []
+        if (newCollected) {
+          const card = [...this.data.leftList, ...this.data.rightList].find(c => String(c.id) === String(cardId))
+          if (card) {
+            favorites = favorites.filter(f => String(f.id) !== String(cardId))
+            favorites.unshift({
+              id: card.id,
+              recipeName: card.recipeName,
+              publishDate: card.publishDate,
+              recipeImage: card.recipeImage,
+              userName: card.userName,
+              userImg: card.userImg,
+              collectionCount: newCount,
+              collectedAt: Date.now()
+            })
+          }
         } else {
-          // 未收藏 → 添加收藏
-          const card = [...this.data.leftList, ...this.data.rightList].find(c => c.id === cardId)
-          if (!card) return
-          favorites.unshift({ ...card, collectedAt: Date.now() })
-          wx.showToast({ title: '已收藏', icon: 'success' })
+          favorites = favorites.filter(f => String(f.id) !== String(cardId))
         }
-
-        // 保存到本地
         wx.setStorageSync('favorites', favorites)
 
-        // 更新列表中对应卡片的收藏状态
-        const cardIdSet = new Set(favorites.map(f => f.id))
-        const updateLiked = (list) => list.map(c => ({ ...c, isLiked: cardIdSet.has(c.id) }))
+        // 以 API 响应为准更新 UI
+        const updateCard = (list) => list.map(c =>
+          String(c.id) === String(cardId) ? { ...c, isCollected: newCollected, collectionCount: newCount } : c
+        )
 
         this.setData({
-          leftList: updateLiked(this.data.leftList),
-          rightList: updateLiked(this.data.rightList)
+          leftList: updateCard(this.data.leftList),
+          rightList: updateCard(this.data.rightList)
         })
+
+        wx.showToast({ title: newCollected ? '已收藏' : '已取消收藏', icon: 'none' })
       })
       .catch(() => {
         wx.showToast({ title: '操作失败', icon: 'none' })
@@ -240,8 +234,11 @@ Page({
 
   onCardTap(e) {
     const { cardId } = e.detail
+    if (!cardId) return
+    const card = [...this.data.leftList, ...this.data.rightList].find(c => String(c.id) === String(cardId))
+    if (card && card.isPlaceholder) return
     wx.navigateTo({
-      url: `/pages/detail/detail?id=${cardId}`
+      url: `/pages/recipe-detail/recipe-detail?recipeid=${cardId}`
     })
   },
 
@@ -258,11 +255,11 @@ Page({
    */
   onShareAppMessage() {
     const cardId = this.data.currentShareCardId
-    const card = [...this.data.leftList, ...this.data.rightList].find(c => c.id === cardId)
+    const card = [...this.data.leftList, ...this.data.rightList].find(c => String(c.id) === String(cardId))
 
     return {
       title: card ? card.recipeName : '看看这道菜谱',
-      path: `/pages/detail/detail?id=${cardId || ''}`,
+      path: `/pages/recipe-detail/recipe-detail?recipeid=${cardId || ''}`,
       imageUrl: card ? card.recipeImage : ''
     }
   }

@@ -1,8 +1,16 @@
 /* pages/choose-recipes/choose-recipes.wxss */
 .choose-recipes-page {
   width: 750rpx;
-  min-height: 100vh;
-  background-color: rgba(255, 238, 209, 1);
+  height: 100vh;
+  background-color: var(--bg-primary);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+	padding-top: 201rpx;
+}
+
+.content-scroll {
+  flex: 1;
   padding-bottom: 40rpx;
 }
 
@@ -16,7 +24,7 @@
 .recipe-card {
   width: 100%;
 	height: 224rpx;
-  background-color: rgba(255, 250, 241, 1);
+  background-color: var(--bg-card-light);
   border-radius: 60rpx;
   padding: 30rpx;
   margin-bottom: 30rpx;
@@ -60,7 +68,7 @@
 .recipe-name {
   font-size: 38rpx;
   font-weight: 700;
-  color: rgba(87, 30, 0, 1);
+  color: var(--text-brand-dark);
 }
 
 .meta-item {

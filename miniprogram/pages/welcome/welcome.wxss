@@ -12,6 +12,7 @@
 	flex-direction: column;
 	padding-top: 384rpx;
 	align-items: center;
+	overflow: hidden;
 
 	background-size: 100% 100%;
   background-image: url(https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/bg.png);

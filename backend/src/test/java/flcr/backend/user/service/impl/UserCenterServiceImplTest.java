@@ -197,6 +197,81 @@ class UserCenterServiceImplTest {
         assertEquals(0, result.getRecords().get(0).getTags().length);
     }
 
+    // ==================== 已删除菜谱/作者边界测试 ====================
+
+    @Test
+    @DisplayName("getMyCollections 菜谱已被删除 → recipeName/authorName 为 null")
+    void testGetMyCollections_DeletedRecipe() {
+        Collection coll = new Collection();
+        coll.setId(1L);
+        coll.setUserId(USER_ID);
+        coll.setRecipeId(10L);
+        coll.setCreatedAt(LocalDateTime.now());
+
+        Page<Collection> pageResult = new Page<>(1, 20, 1);
+        pageResult.setRecords(List.of(coll));
+
+        when(collectionMapper.selectPage(any(Page.class), any(LambdaQueryWrapper.class)))
+                .thenReturn(pageResult);
+        when(recipeMapper.selectBatchIds(any())).thenReturn(List.of()); // recipe 已删除
+
+        Page<MyCollectionResponseDTO> result = userCenterService.getMyCollections(1, 20);
+        assertEquals(1, result.getRecords().size());
+        assertNull(result.getRecords().get(0).getRecipeName());
+        assertNull(result.getRecords().get(0).getAuthorName());
+    }
+
+    @Test
+    @DisplayName("getMyCollections 作者已删除 → authorName 为 null")
+    void testGetMyCollections_DeletedAuthor() {
+        Collection coll = new Collection();
+        coll.setId(1L);
+        coll.setUserId(USER_ID);
+        coll.setRecipeId(10L);
+        coll.setCreatedAt(LocalDateTime.now());
+
+        Page<Collection> pageResult = new Page<>(1, 20, 1);
+        pageResult.setRecords(List.of(coll));
+
+        when(collectionMapper.selectPage(any(Page.class), any(LambdaQueryWrapper.class)))
+                .thenReturn(pageResult);
+
+        Recipe recipe = new Recipe();
+        recipe.setId(10L);
+        recipe.setName("存在的菜谱");
+        recipe.setAuthorId(999L);
+        when(recipeMapper.selectBatchIds(any())).thenReturn(List.of(recipe));
+        when(userMapper.selectBatchIds(any())).thenReturn(List.of()); // author 已删除
+
+        Page<MyCollectionResponseDTO> result = userCenterService.getMyCollections(1, 20);
+        assertEquals(1, result.getRecords().size());
+        assertEquals("存在的菜谱", result.getRecords().get(0).getRecipeName());
+        assertNull(result.getRecords().get(0).getAuthorName());
+    }
+
+    @Test
+    @DisplayName("getMyLikes 菜谱已被删除 → recipeName 为 null")
+    void testGetMyLikes_DeletedRecipe() {
+        Like like = new Like();
+        like.setId(1L);
+        like.setUserId(USER_ID);
+        like.setTargetId(10L);
+        like.setTargetType(1);
+        like.setCreatedAt(LocalDateTime.now());
+
+        Page<Like> pageResult = new Page<>(1, 20, 1);
+        pageResult.setRecords(List.of(like));
+
+        when(likeMapper.selectPage(any(Page.class), any(LambdaQueryWrapper.class)))
+                .thenReturn(pageResult);
+        when(recipeMapper.selectBatchIds(any())).thenReturn(List.of()); // recipe 已删除
+
+        Page<MyLikeResponseDTO> result = userCenterService.getMyLikes(1, 20);
+        assertEquals(1, result.getRecords().size());
+        assertNull(result.getRecords().get(0).getRecipeName());
+        assertNull(result.getRecords().get(0).getAuthorName());
+    }
+
     private User buildUser(Long id) {
         User user = new User();
         user.setId(id);

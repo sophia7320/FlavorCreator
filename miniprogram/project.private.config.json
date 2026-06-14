@@ -23,15 +23,15 @@
 		"miniprogram": {
 			"list": [
 				{
-					"name": "new-page",
-					"pathName": "pages/feedback/feedback",
+					"name": "test",
+					"pathName": "pages/mine/mine",
 					"query": "",
 					"scene": null,
 					"launchMode": "default"
 				},
 				{
-					"name": "test",
-					"pathName": "pages/choose-recipes/choose-recipes",
+					"name": "new-page",
+					"pathName": "pages/add-ingredients/add",
 					"query": "",
 					"launchMode": "default",
 					"scene": null

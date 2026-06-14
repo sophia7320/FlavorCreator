@@ -14,12 +14,14 @@ public class RecipeListItemResponseDTO {
     private String name;
     private String cover;
     private AuthorInfo author;
+    private String desc;
     private String cookTime;
     private String difficulty;
     private Integer calories;
     private String[] tags;
     private RecipeStats stats;
     private String createdAt;
+    private Integer matchDegree;
 
     @Data
     @Builder

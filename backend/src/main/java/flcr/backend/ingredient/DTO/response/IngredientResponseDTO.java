@@ -22,6 +22,7 @@ public class IngredientResponseDTO {
     private String storageCondition;
     private LocalDate expireDate;
     private Long daysLeft;
-    private String status;
+    private Integer status;
+    private Boolean readed;
     private LocalDateTime createdAt;
 }

@@ -15,6 +15,14 @@ Component({
 		showCreate: false,
 		noTransition: true,
 		createAnimate: false,
+		isOnCommunity: false,
+		showPostOverlay: false,
+		postBgAnimate: false,
+		postIconUrl: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/release.svg',
+		isOnMine: false,
+		showMineOverlay: false,
+		mineBgAnimate: false,
+		mineIconUrl: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/selected-mine.svg',
 		list: [
 			{
 				pagePath: '/pages/index/index',
@@ -116,6 +124,43 @@ Component({
 		 */
 		onTabPageShow() {
 			const currentTab = this.getCurrentTabKey()
+			this.setData({
+				isOnCommunity: currentTab === 'community',
+				isOnMine: currentTab === 'mine'
+			})
+
+			// 进入社区页时触发背景胶囊动画（每次进入都触发）
+			if (currentTab === 'community') {
+				if (this._postBgTimer) {
+					clearTimeout(this._postBgTimer)
+					this._postBgTimer = null
+				}
+				this.setData({ showPostOverlay: false, postBgAnimate: false })
+				wx.nextTick(() => {
+					this.setData({ showPostOverlay: true, postBgAnimate: true })
+					this._postBgTimer = setTimeout(() => {
+						this._postBgTimer = null
+						this.setData({ postBgAnimate: false })
+					}, 400)
+				})
+			}
+
+			// 进入我的页时触发背景胶囊动画（每次进入都触发）
+			if (currentTab === 'mine') {
+				if (this._mineBgTimer) {
+					clearTimeout(this._mineBgTimer)
+					this._mineBgTimer = null
+				}
+				this.setData({ showMineOverlay: false, mineBgAnimate: false })
+				wx.nextTick(() => {
+					this.setData({ showMineOverlay: true, mineBgAnimate: true })
+					this._mineBgTimer = setTimeout(() => {
+						this._mineBgTimer = null
+						this.setData({ mineBgAnimate: false })
+					}, 400)
+				})
+			}
+
 			if (!currentTab) {
 				return
 			}
@@ -229,15 +274,22 @@ Component({
 			this.navigateTab(url)
 		},
 
+		onCommunityTap() {
+			if (this.data.isOnCommunity) {
+				this.setData({ isOnCommunity: false })
+				wx.navigateTo({ url: '/pages/post/post' })
+			} else {
+				this.navigateTab('/pages/community/community')
+			}
+		},
+
 		updateCreateVisibility(show) {
 			const value = !!show
 			if (value === this.data.showCreate) {
 				return
 			}
 			tabBarCreateState.setShowCreate(value)
-			this.setData({ showCreate: value }, () => {
-				this._playCreateKeyframeAnimation()
-			})
+			this._playCreateKeyframeAnimation(value)
 		},
 
 		onCreateClick() {
@@ -257,7 +309,7 @@ Component({
 				return
 			}
 
-			const { selectedIngredients, selectedPreferences, isDefaultMode } = currentPage.data
+			const { selectedIngredients, selectedPreferences, isDefaultMode, aiMode } = currentPage.data
 
 			// 默认模式开启时，使用保存的默认偏好
 			let preferences
@@ -268,35 +320,62 @@ Component({
 					'普通': 30,
 					'慢炖': 60
 				}
-				const timeToDifficulty = {
-					'快手菜': '简单',
-					'普通': '普通',
-					'慢炖': '困难'
-				}
 				const cookTimeValue = timeValueMap[defaultPrefs.time] || 30
-				const difficulty = timeToDifficulty[defaultPrefs.time] || '简单'
+				const mappedPortion = defaultPrefs.portion === '4人及以上' ? '4人以上' : (defaultPrefs.portion || null)
 
 				preferences = {
 					taste: (defaultPrefs.taste && defaultPrefs.taste.length > 0) ? defaultPrefs.taste : ['清淡'],
-					cookTime: cookTimeValue,
-					difficulty: difficulty
+					portion: mappedPortion,
+					cookTime: cookTimeValue
 				}
 			} else {
 				// 非默认模式，使用主页手动选择的偏好
 				preferences = {
 					taste: selectedPreferences.taste.length > 0 ? selectedPreferences.taste : ['清淡'],
-					cookTime: selectedPreferences.cookTime || 30,
-					difficulty: selectedPreferences.difficulty || '简单'
+					portion: selectedPreferences.portion || null,
+					cookTime: selectedPreferences.cookTime || 30
 				}
 			}
 
-		const difficultyMap = { '简单': 1, '普通': 2, '困难': 3 }
+			// ======== AI 模式：调用 AI 生成接口 ========
+			if (aiMode) {
+				const requestData = {
+					ingredients: selectedIngredients,
+					preferences: {
+						taste: preferences.taste,
+						portion: preferences.portion,
+						cookTime: preferences.cookTime
+					}
+				}
+
+				wx.showLoading({ title: 'AI 生成中...' })
+
+				request(API_CONFIG.recipe.aiGenerate, requestData)
+					.then(res => {
+						wx.hideLoading()
+						const recipe = res.recipe || res
+						wx.setStorageSync('aiRecipeResult', recipe)
+						wx.navigateTo({
+							url: '/pages/recipe-detail/recipe-detail?ai=true'
+						})
+					})
+					.catch(err => {
+						wx.hideLoading()
+						console.error('AI 生成失败:', err)
+						wx.showToast({
+							title: 'AI 生成失败，请重试',
+							icon: 'none'
+						})
+					})
+				return
+			}
 
 		const requestData = {
 			ingredients: selectedIngredients,
 			preferences: {
-				cookTime: preferences.cookTime,
-				difficulty: difficultyMap[preferences.difficulty] || 1
+				taste: preferences.taste,
+				portion: preferences.portion,
+				cookTime: preferences.cookTime
 			}
 		}
 

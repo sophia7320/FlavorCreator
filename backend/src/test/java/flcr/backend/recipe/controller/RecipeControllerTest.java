@@ -2,8 +2,9 @@ package flcr.backend.recipe.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import flcr.backend.common.response.Response;
-import flcr.backend.recipe.DTO.request.PublishRecipeRequestDTO;
+import flcr.backend.recipe.DTO.request.CreateRecipeRequestDTO;
 import flcr.backend.recipe.DTO.request.RecipeListRequestDTO;
+import flcr.backend.recipe.DTO.request.RecipeUpdateRequestDTO;
 import flcr.backend.recipe.DTO.response.RecipeDetailResponseDTO;
 import flcr.backend.recipe.DTO.response.RecipeListItemResponseDTO;
 import flcr.backend.recipe.service.RecipeService;
@@ -32,7 +33,7 @@ class RecipeControllerTest {
     @Test
     @DisplayName("发布菜谱成功返回id")
     void testPublishRecipe_ReturnsId() {
-        PublishRecipeRequestDTO dto = new PublishRecipeRequestDTO();
+        CreateRecipeRequestDTO dto = new CreateRecipeRequestDTO();
         dto.setCoverUrl("https://example.com/cover.jpg");
         dto.setImageUrls(List.of("https://example.com/img1.jpg"));
         when(recipeService.publishRecipe(any())).thenReturn(1L);
@@ -43,7 +44,7 @@ class RecipeControllerTest {
     @Test
     @DisplayName("发布菜谱无图片")
     void testPublishRecipe_NoImages() {
-        PublishRecipeRequestDTO dto = new PublishRecipeRequestDTO();
+        CreateRecipeRequestDTO dto = new CreateRecipeRequestDTO();
         when(recipeService.publishRecipe(any())).thenReturn(2L);
 
         assertEquals(2L, controller.publishRecipe(dto).getData());
@@ -95,5 +96,28 @@ class RecipeControllerTest {
         Response<RecipeRecommendResponseDTO> response = controller.recommend();
         assertEquals(200, response.getCode());
         assertEquals(1, response.getData().getRecipes().size());
+    }
+
+    @Test
+    @DisplayName("PUT更新菜谱返回详情")
+    void testUpdateRecipe_ReturnsDetail() {
+        RecipeDetailResponseDTO detail = RecipeDetailResponseDTO.builder().id(1L).name("改名后").build();
+        when(recipeService.updateRecipe(eq(1L), any())).thenReturn(detail);
+
+        Response<RecipeDetailResponseDTO> response = controller.updateRecipe(1L, new RecipeUpdateRequestDTO());
+
+        assertEquals(200, response.getCode());
+        assertEquals("改名后", response.getData().getName());
+    }
+
+    @Test
+    @DisplayName("DELETE删除菜谱返回200")
+    void testDeleteRecipe_ReturnsOk() {
+        doNothing().when(recipeService).deleteRecipe(1L);
+
+        Response<Void> response = controller.deleteRecipe(1L);
+
+        assertEquals(200, response.getCode());
+        verify(recipeService).deleteRecipe(1L);
     }
 }

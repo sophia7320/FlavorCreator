@@ -5,6 +5,9 @@ import flcr.backend.common.constants.ResultCode;
 import flcr.backend.common.context.UserContext;
 import flcr.backend.common.exception.BusinessException;
 import flcr.backend.ingredient.DTO.request.IngredientAddRequestDTO;
+import flcr.backend.ingredient.cache.CachedIngredient;
+import flcr.backend.ingredient.cache.IngredientHeapCache;
+import flcr.backend.ingredient.constants.IngredientStatus;
 import flcr.backend.ingredient.DTO.request.IngredientBatchAddRequestDTO;
 import flcr.backend.ingredient.DTO.request.IngredientListRequestDTO;
 import flcr.backend.ingredient.DTO.request.IngredientUpdateRequestDTO;
@@ -36,6 +39,7 @@ public class IngredientServiceImpl implements IngredientService {
 
     private final IngredientMapper ingredientMapper;
     private final CommonIngredientMapper commonIngredientMapper;
+    private final IngredientHeapCache heapCache;
 
     @Override
     public IngredientListResponseDTO list(IngredientListRequestDTO query) {
@@ -63,9 +67,9 @@ public class IngredientServiceImpl implements IngredientService {
 
         List<Ingredient> ingredients = ingredientMapper.selectList(wrapper);
 
-        if (query.getStatus() != null && !query.getStatus().isEmpty() && !"all".equals(query.getStatus())) {
+        if (query.getStatus() != null) {
             ingredients = ingredients.stream()
-                    .filter(i -> query.getStatus().equals(computeStatus(i.getExpireDate())))
+                    .filter(i -> query.getStatus().equals(IngredientStatus.compute(i.getExpireDate()).getCode()))
                     .collect(Collectors.toList());
         }
 
@@ -73,19 +77,27 @@ public class IngredientServiceImpl implements IngredientService {
                 .map(this::toResponseDTO)
                 .collect(Collectors.toList());
 
-        long expiringCount = ingredients.stream()
-                .filter(i -> "expiring".equals(computeStatus(i.getExpireDate())))
+        int expiredCount = (int) ingredients.stream()
+                .filter(i -> IngredientStatus.compute(i.getExpireDate()).isExpired())
                 .count();
-        long expiredCount = ingredients.stream()
-                .filter(i -> "expired".equals(computeStatus(i.getExpireDate())))
+        int urgentCount = (int) ingredients.stream()
+                .filter(i -> IngredientStatus.compute(i.getExpireDate()).isUrgent())
+                .count();
+        int warningCount = (int) ingredients.stream()
+                .filter(i -> IngredientStatus.compute(i.getExpireDate()).isWarning())
+                .count();
+        int normalCount = (int) ingredients.stream()
+                .filter(i -> IngredientStatus.compute(i.getExpireDate()).isNormal())
                 .count();
 
         return IngredientListResponseDTO.builder()
                 .ingredients(dtoList)
                 .summary(IngredientListResponseDTO.Summary.builder()
                         .totalCount(dtoList.size())
-                        .expiringCount((int) expiringCount)
-                        .expiredCount((int) expiredCount)
+                        .expiredCount(expiredCount)
+                        .urgentCount(urgentCount)
+                        .warningCount(warningCount)
+                        .normalCount(normalCount)
                         .build())
                 .build();
     }
@@ -106,6 +118,14 @@ public class IngredientServiceImpl implements IngredientService {
         ingredient.setUpdatedAt(LocalDateTime.now());
 
         ingredientMapper.insert(ingredient);
+
+        if (ingredient.getExpireDate() != null) {
+            IngredientStatus status = IngredientStatus.compute(ingredient.getExpireDate());
+            if (!status.isNormal()) {
+                heapCache.push(CachedIngredient.from(ingredient, status.getCode()));
+            }
+        }
+
         return ingredient.getId();
     }
 
@@ -135,6 +155,7 @@ public class IngredientServiceImpl implements IngredientService {
         }
         if (request.getExpireDate() != null) {
             ingredient.setExpireDate(request.getExpireDate());
+            ingredient.setReaded(false);
         }
         if (request.getStorageCondition() != null) {
             ingredient.setStorageCondition(request.getStorageCondition());
@@ -142,6 +163,14 @@ public class IngredientServiceImpl implements IngredientService {
         ingredient.setUpdatedAt(LocalDateTime.now());
 
         ingredientMapper.updateById(ingredient);
+
+        if (request.getExpireDate() != null) {
+            heapCache.remove(id, userId);
+            IngredientStatus newStatus = IngredientStatus.compute(ingredient.getExpireDate());
+            if (!newStatus.isNormal()) {
+                heapCache.push(CachedIngredient.from(ingredient, newStatus.getCode()));
+            }
+        }
     }
 
     @Override
@@ -157,6 +186,43 @@ public class IngredientServiceImpl implements IngredientService {
         }
 
         ingredientMapper.deleteById(id);
+        heapCache.remove(id, userId);
+    }
+
+    @Override
+    @Transactional
+    public void markRead(Long id) {
+        Long userId = UserContext.getUserId();
+        Ingredient ingredient = ingredientMapper.selectById(id);
+        if (ingredient == null) {
+            throw new BusinessException(ResultCode.RESOURCE_NOT_EXIST, "食材不存在");
+        }
+        if (!ingredient.getUserId().equals(userId)) {
+            throw new BusinessException(ResultCode.PERMISSION_ERROR, "无权修改该食材");
+        }
+        ingredient.setReaded(true);
+        ingredient.setUpdatedAt(LocalDateTime.now());
+        ingredientMapper.updateById(ingredient);
+        heapCache.markRead(id, userId, true);
+    }
+
+    @Override
+    @Transactional
+    public void markBatchRead(List<Long> ids) {
+        Long userId = UserContext.getUserId();
+        for (Long id : ids) {
+            Ingredient ingredient = ingredientMapper.selectById(id);
+            if (ingredient == null) {
+                throw new BusinessException(ResultCode.RESOURCE_NOT_EXIST, "食材不存在: " + id);
+            }
+            if (!ingredient.getUserId().equals(userId)) {
+                throw new BusinessException(ResultCode.PERMISSION_ERROR, "无权修改该食材: " + id);
+            }
+            ingredient.setReaded(true);
+            ingredient.setUpdatedAt(LocalDateTime.now());
+            ingredientMapper.updateById(ingredient);
+            heapCache.markRead(id, userId, true);
+        }
     }
 
     @Override
@@ -186,40 +252,72 @@ public class IngredientServiceImpl implements IngredientService {
     @Override
     public ExpiringNoticeResponseDTO expiringNotice() {
         Long userId = UserContext.getUserId();
-        LambdaQueryWrapper<Ingredient> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(Ingredient::getUserId, userId)
-                .isNotNull(Ingredient::getExpireDate);
-
-        List<Ingredient> ingredients = ingredientMapper.selectList(wrapper);
         LocalDate today = LocalDate.now();
 
-        List<ExpiringNoticeResponseDTO.ExpiringItem> expiring = new ArrayList<>();
-        List<ExpiringNoticeResponseDTO.ExpiringItem> expired = new ArrayList<>();
+        List<ExpiringNoticeResponseDTO.Item> items = new ArrayList<>();
+        boolean hasUnread = false;
 
-        for (Ingredient ingredient : ingredients) {
-            String status = computeStatus(ingredient.getExpireDate());
+        List<CachedIngredient> expired = heapCache.peekExpired(Integer.MAX_VALUE);
+        for (CachedIngredient ingredient : expired) {
+            if (!ingredient.getUserId().equals(userId)) {
+                continue;
+            }
             long daysLeft = ChronoUnit.DAYS.between(today, ingredient.getExpireDate());
-
-            ExpiringNoticeResponseDTO.ExpiringItem item = ExpiringNoticeResponseDTO.ExpiringItem.builder()
+            items.add(ExpiringNoticeResponseDTO.Item.builder()
                     .id(ingredient.getId())
+                    .userId(ingredient.getUserId())
                     .name(ingredient.getName())
                     .expireDate(ingredient.getExpireDate())
                     .daysLeft(daysLeft)
-                    .build();
+                    .status(IngredientStatus.EXPIRED.getCode())
+                    .build());
+            if (ingredient.getReaded() == null || !ingredient.getReaded()) {
+                hasUnread = true;
+            }
+        }
 
-            if ("expired".equals(status)) {
-                expired.add(item);
-            } else if ("expiring".equals(status)) {
-                expiring.add(item);
+        List<CachedIngredient> urgent = heapCache.peekUrgent(Integer.MAX_VALUE);
+        for (CachedIngredient ingredient : urgent) {
+            if (!ingredient.getUserId().equals(userId)) {
+                continue;
+            }
+            long daysLeft = ChronoUnit.DAYS.between(today, ingredient.getExpireDate());
+            items.add(ExpiringNoticeResponseDTO.Item.builder()
+                    .id(ingredient.getId())
+                    .userId(ingredient.getUserId())
+                    .name(ingredient.getName())
+                    .expireDate(ingredient.getExpireDate())
+                    .daysLeft(daysLeft)
+                    .status(IngredientStatus.URGENT.getCode())
+                    .build());
+            if (ingredient.getReaded() == null || !ingredient.getReaded()) {
+                hasUnread = true;
+            }
+        }
+
+        List<CachedIngredient> warning = heapCache.peekWarning(Integer.MAX_VALUE);
+        for (CachedIngredient ingredient : warning) {
+            if (!ingredient.getUserId().equals(userId)) {
+                continue;
+            }
+            long daysLeft = ChronoUnit.DAYS.between(today, ingredient.getExpireDate());
+            items.add(ExpiringNoticeResponseDTO.Item.builder()
+                    .id(ingredient.getId())
+                    .userId(ingredient.getUserId())
+                    .name(ingredient.getName())
+                    .expireDate(ingredient.getExpireDate())
+                    .daysLeft(daysLeft)
+                    .status(IngredientStatus.WARNING.getCode())
+                    .build());
+            if (ingredient.getReaded() == null || !ingredient.getReaded()) {
+                hasUnread = true;
             }
         }
 
         return ExpiringNoticeResponseDTO.builder()
-                .expiring(expiring)
-                .expired(expired)
+                .items(items)
                 .summary(ExpiringNoticeResponseDTO.Summary.builder()
-                        .expiringCount(expiring.size())
-                        .expiredCount(expired.size())
+                        .hasnUnread(hasUnread)
                         .build())
                 .build();
     }
@@ -239,9 +337,9 @@ public class IngredientServiceImpl implements IngredientService {
 
         List<CommonIngredientResponseDTO.CategoryGroup> categories = grouped.entrySet().stream()
                 .map(entry -> CommonIngredientResponseDTO.CategoryGroup.builder()
-                        .name(entry.getKey())
-                        .items(entry.getValue())
-                        .build())
+                .name(entry.getKey())
+                .items(entry.getValue())
+                .build())
                 .collect(Collectors.toList());
 
         return CommonIngredientResponseDTO.builder()
@@ -250,7 +348,7 @@ public class IngredientServiceImpl implements IngredientService {
     }
 
     private IngredientResponseDTO toResponseDTO(Ingredient ingredient) {
-        String status = computeStatus(ingredient.getExpireDate());
+        Integer status = IngredientStatus.compute(ingredient.getExpireDate()).getCode();
         Long daysLeft = null;
         if (ingredient.getExpireDate() != null) {
             daysLeft = ChronoUnit.DAYS.between(LocalDate.now(), ingredient.getExpireDate());
@@ -266,21 +364,8 @@ public class IngredientServiceImpl implements IngredientService {
                 .expireDate(ingredient.getExpireDate())
                 .daysLeft(daysLeft)
                 .status(status)
+                .readed(ingredient.getReaded())
                 .createdAt(ingredient.getCreatedAt())
                 .build();
-    }
-
-    private String computeStatus(LocalDate expireDate) {
-        if (expireDate == null) {
-            return "normal";
-        }
-        long daysLeft = ChronoUnit.DAYS.between(LocalDate.now(), expireDate);
-        if (daysLeft < 0) {
-            return "expired";
-        }
-        if (daysLeft <= 3) {
-            return "expiring";
-        }
-        return "normal";
     }
 }

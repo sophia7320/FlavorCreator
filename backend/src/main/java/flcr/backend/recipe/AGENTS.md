@@ -6,14 +6,21 @@
 
 ```
 recipe/
-├── controller/     # RecipeController（4 个端点: publish/list/detail/apply）
-├── DTO/request/    # PublishRecipeRequestDTO, RecipeListRequestDTO 等
+├── controller/     # RecipeController（8 个端点: publish/list/detail/apply/generate/recommend/update/delete）
+├── DTO/request/    # CreateRecipeRequestDTO, RecipeListRequestDTO, RecipeUpdateRequestDTO 等
 ├── DTO/response/   # RecipeDetailDTO, RecipeListItemDTO 等
-├── entity/         # Recipe（含多个 JSON 字段: images, ingredients, steps, tags）
-├── mapper/         # RecipeMapper
+├── entity/         # Recipe（images 用 JacksonTypeHandler，ingredients/steps/tags 仍为 JSON String）
+├── mapper/         # RecipeMapper（extends BaseMapper）
+├── client/         # LlmClient（LLM API 调用，RestTemplate 超时 5s/30s）
+├── util/           # DifficultyUtil（难度转换）、RecipeValidator（校验）、RecipeDtoAssembler（DTO 组装）
 └── service/
-    ├── RecipeService（接口）
-    └── impl/RecipeServiceImpl
+    ├── RecipeService（外观接口，7 方法）
+    ├── RecipeWriteService（发布/更新/删除）
+    ├── RecipeQueryService（列表/详情）
+    ├── RecipeMatchService（食材匹配推荐）
+    ├── RecipeRecommendService（LLM 推荐）
+    ├── RecipeGenerateService（AI 生成）
+    └── impl/RecipeServiceImpl（外观实现，委托给 4 子 Service）
 ```
 
 ## WHERE TO LOOK

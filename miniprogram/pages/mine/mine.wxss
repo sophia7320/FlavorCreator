@@ -44,7 +44,7 @@
   background: #E0E0E0;
   flex-shrink: 0;
   overflow: hidden;
-	border: 2rpx solid rgba(24, 25, 31, 1);
+	border: 2rpx solid var(--text-dark-solid);
 }
 
 .user-avatar-img {
@@ -60,7 +60,7 @@
 
 /* 内容区域 */
 .main {
-	background-color: rgba(255, 225, 207, 1);
+	background-color: var(--bg-secondary);
   display: flex;
 	flex: 1;
   flex-direction: column;
@@ -103,7 +103,7 @@
 	width: 163rpx;
 	height: 100%;
   font-size: 22rpx;
-  color: rgba(24, 25, 31, 1);
+  color: var(--text-dark-solid);
 	z-index: 1;
 	display: flex;
 	justify-content: center;
@@ -124,21 +124,28 @@
 
 /* 卡片列表 */
 .cards-container {
-  flex: 1;
+  /* flex: 1 在 scroll-view 上不可靠，改用 JS 计算高度 */
   margin-top: 24rpx;
+}
+
+.cards-grid {
+  display: grid;
+	height: 100%;
+  grid-template-columns: 1fr 1fr;
+  gap: 20rpx;
 }
 
 .card-wrapper {
   width: 100%;
-  margin-bottom: 24rpx;
+	height: 100%;
 }
 
 .empty-tip {
   width: 100%;
   text-align: center;
-  padding: 80rpx 0;
+  padding-top: 30rpx;
   font-size: 28rpx;
-  color: rgba(122, 125, 132, 1);
+  color: var(--text-muted);
 }
 
 .mask {
@@ -146,7 +153,7 @@
 	height: 300rpx;
 	position: fixed;
 	top: 210rpx;
-	background-image: linear-gradient(to top, rgba(255, 238, 209, 1), rgba(225,225,225,.1));
+	background-image: linear-gradient(to top, rgba(255, 238, 209, 1), transparent);
 	z-index: 5;
 }
 

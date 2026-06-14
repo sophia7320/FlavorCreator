@@ -55,25 +55,29 @@ Page({
         const list = res.list || res.data || []
         const hasMore = list.length >= this.data.pageSize
 
-        const cards = list.map((item, index) => ({
-          id: item.id || item._id || Date.now() + index,
-          authorId: item.author?.id || item.authorId || '',
-          userName: item.author?.nickname || item.userName || '',
-          userImg: item.author?.avatar || item.userImg || '',
-          recipeName: item.name || item.recipeName || item.title || '',
-          recipeImage: item.cover || item.recipeImage || item.image || '',
-          likeCount: item.likeCount || 0
-        }))
+        const cards = list.map((item, index) => {
+          const hasRealId = !!(item.id || item._id)
+          return {
+            id: hasRealId ? (item.id || item._id) : '',
+            isPlaceholder: !hasRealId,
+            authorId: item.author?.id || item.authorId || '',
+            userName: item.author?.nickname || item.userName || '',
+            userImg: item.author?.avatar || item.userImg || '',
+            recipeName: item.name || item.recipeName || item.title || '',
+            recipeImage: item.cover || item.recipeImage || item.image || '',
+            collectionCount: item.collectionCount || 0
+          }
+        })
 
         const newRecipes = isRefresh ? cards : [...this.data.recipes, ...cards]
 
         // 同步收藏状态
         const favorites = wx.getStorageSync('favorites') || []
-        const likedIds = new Set(favorites.map(f => f.id))
-        const cardsWithLiked = newRecipes.map(c => ({ ...c, isLiked: likedIds.has(c.id) }))
+        const collectedIds = new Set(favorites.map(f => f.id))
+        const cardsWithCollected = newRecipes.map(c => ({ ...c, isCollected: collectedIds.has(c.id) }))
 
         this.setData({
-          recipes: cardsWithLiked,
+          recipes: cardsWithCollected,
           page: isRefresh ? 2 : page + 1,
           hasMore,
           loading: false,
@@ -106,20 +110,24 @@ Page({
 
   onCardTap(e) {
     const { cardId } = e.detail
+    if (!cardId || cardId === '' || String(cardId).startsWith('ph_')) return
     wx.navigateTo({
-      url: `/pages/detail/detail?id=${cardId}`
+      url: `/pages/recipe-detail/recipe-detail?id=${cardId}`
     })
   },
 
-  onLike(e) {
+  onCollect(e) {
     const { cardId } = e.detail
-    const likeApi = { ...API_CONFIG.community.like, path: API_CONFIG.community.like.path.replace('{id}', cardId) }
+    const card = this.data.recipes.find(c => c.id === cardId)
+    if (!card) return
 
-    request(likeApi, {}, { showLoading: false })
+    // 根据当前收藏状态决定调用收藏还是取消收藏
+    const isCollecting = !card.isCollected
+    const apiConfig = isCollecting ? API_CONFIG.community.collect : API_CONFIG.community.uncollect
+    const api = { ...apiConfig, path: apiConfig.path.replace('{id}', cardId) }
+
+    request(api, {}, { showLoading: false })
       .then(() => {
-        const card = this.data.recipes.find(c => c.id === cardId)
-        if (!card) return
-
         let favorites = wx.getStorageSync('favorites') || []
         const index = favorites.findIndex(f => f.id === cardId)
 
@@ -127,15 +135,20 @@ Page({
           favorites.splice(index, 1)
           wx.showToast({ title: '已取消收藏', icon: 'none' })
         } else {
-          favorites.unshift({ ...card, likedAt: Date.now() })
+          // 拒绝对无真实 ID 的卡片执行收藏写入
+          if (!card.id || card.id === '' || String(card.id).startsWith('ph_')) {
+            wx.showToast({ title: '该菜谱暂无法收藏', icon: 'none' })
+            return
+          }
+          favorites.unshift({ ...card, collectedAt: Date.now() })
           wx.showToast({ title: '已收藏', icon: 'success' })
         }
 
         wx.setStorageSync('favorites', favorites)
 
-        const likedIds = new Set(favorites.map(f => f.id))
+        const collectedIds = new Set(favorites.map(f => f.id))
         this.setData({
-          recipes: this.data.recipes.map(c => ({ ...c, isLiked: likedIds.has(c.id) }))
+          recipes: this.data.recipes.map(c => ({ ...c, isCollected: collectedIds.has(c.id) }))
         })
       })
       .catch(() => {

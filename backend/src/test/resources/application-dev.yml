@@ -1,0 +1,47 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:flcr;MODE=MySQL;DB_CLOSE_DELAY=-1;DATABASE_TO_LOWER=TRUE
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:test-schema.sql
+      data-locations: classpath:test-data.sql
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      timeout: 3000ms
+      connect-timeout: 3000ms
+
+flcr:
+  storage:
+    type: local
+    local-path: ./uploads
+  token:
+    store: memory
+  cache:
+    type: memory
+  notification:
+    enabled: false
+  moderation:
+    enabled: false
+
+llm:
+  api:
+    url: "http://localhost:9999"
+    model: "test-model"
+    key: "test-key"
+
+jwt:
+  secret: test-secret-key
+
+wx:
+  app-id: test-app-id
+  secret: test-secret
+
+logging:
+  level:
+    org.springframework.jdbc.datasource.init: DEBUG

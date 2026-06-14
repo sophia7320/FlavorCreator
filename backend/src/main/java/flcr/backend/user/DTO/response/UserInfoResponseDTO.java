@@ -18,6 +18,8 @@ public class UserInfoResponseDTO {
     private String background;
     private String signature;
     private Integer gender;
+    private String address;
+    private Integer age;
     private PreferencesInfo preferences;
     private StatsInfo stats;
 

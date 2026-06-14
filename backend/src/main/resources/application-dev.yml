@@ -34,7 +34,7 @@ logging:
 
 flcr:
   storage:
-    type: local
+    type: cos
     base-url: ${FLCR_BASE_URL:http://localhost:8080}
     cos:
       secret-id: AKIDZ1ECvPeeQ1PYXKyPcaNxSq5MUqIjCoS6
@@ -53,5 +53,5 @@ flcr:
 llm:
   api:
     url: "https://api.siliconflow.cn/v1/chat/completions"
-    model: "Pro/zai-org/GLM-4.7"
-    key: "sk-pwtinglhtvzmzvbgempceozorwujlepqtxarjfslbzsvmrnx"
+    model: deepseek-ai/DeepSeek-V3
+    key: "sk-amjtbkioiescaqxtbkersgkugvmtgqiwqjfffnkmqhvcpwdp"

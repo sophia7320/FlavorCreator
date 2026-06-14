@@ -12,13 +12,17 @@
     "pages/community/community",
     "pages/mine/mine",
     "pages/settings/settings",
-    "pages/detail/detail",
+    "pages/recipe-detail/recipe-detail",
     "pages/user/user",
     "pages/profile-setting/profile",
     "pages/preference-setting/preference",
     "pages/help-center/help",
-    "components/AI-btn/AI-btn",
-    "pages/feedback/feedback"
+    "pages/feedback/feedback",
+    "pages/post/post",
+    "pages/account-management/account",
+    "pages/history/history",
+    "pages/ingredients-storage/storage",
+    "pages/add-ingredients/add"
   ],
   "tabBar": {
     "custom": true,
@@ -43,8 +47,7 @@
     "navigationBarTitleText": "Weixin",
     "navigationStyle": "custom",
     "navigationBarBackgroundColor": "#ffffff",
-    "enablePullDownRefresh": false,
-    "disableScroll": true
+    "enablePullDownRefresh": false
   },
   "usingComponents": {},
   "sitemapLocation": "sitemap.json",

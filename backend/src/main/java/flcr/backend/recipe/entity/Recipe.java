@@ -1,11 +1,14 @@
 package flcr.backend.recipe.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 菜谱实体类
@@ -29,7 +32,8 @@ public class Recipe {
     /**
      * 图片列表（JSON）
      */
-    private String images;
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private List<String> images;
 
     /**
      * 作者ID
@@ -45,6 +49,12 @@ public class Recipe {
      * 步骤列表（JSON）
      */
     private String steps;
+
+    /**
+     * 简单描述
+     */
+    @TableField("`desc`")
+    private String desc;
 
     /**
      * 小贴士

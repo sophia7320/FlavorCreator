@@ -3,9 +3,10 @@
 	<!-- 顶部导航栏 -->
 	<top-bar title="匹配结果"/>
 	
+	<scroll-view class="content-scroll" scroll-y>
 	<!-- 菜谱列表 -->
 	<view class="recipes-container" wx:if="{{!loading && recipes.length > 0}}">
-		<view class="recipe-card" wx:for="{{recipes}}" wx:key="id" data-id="{{item.id}}" bindtap="onRecipeTap">
+		<view class="recipe-card" wx:for="{{recipes}}" wx:key="id" data-id="{{item.recipeid}}" bindtap="onRecipeTap">
 			<view class="recipe-cover-box">
 				<image src="{{item.cover || 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/image.svg'}}" mode="aspectFill" class="recipe-cover {{!item.cover ? 'recipe-cover--default' : ''}}"></image>
 			</view>
@@ -22,7 +23,7 @@
 					<view class="match-degree">
 						<text class="match-text">匹配度 {{item.matchDegree}}%</text>
 					</view>
-					<view class="start-btn" catchtap="onStartCook" data-id="{{item.id}}">
+					<view class="start-btn" catchtap="onStartCook" data-id="{{item.recipeid}}">
 						<text class="start-text">开始制作</text>
 					</view>
 				</view>
@@ -44,4 +45,5 @@
 	<view class="loading-section" wx:if="{{loading}}">
 		<view class="loading-text">加载中...</view>
 	</view>
+	</scroll-view>
 </view>

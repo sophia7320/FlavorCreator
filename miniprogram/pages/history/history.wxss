@@ -1,0 +1,36 @@
+/* pages/history/history.wxss */
+.history-page {
+  background-color: var(--bg-primary);
+	width: 750rpx;
+	height: 100vh;
+	display: flex;
+	flex-direction: column;
+	padding: 201rpx 28rpx 0;
+	overflow: hidden;
+}
+
+scroll-view {
+	margin-top: 50rpx;
+	height: 1300rpx;
+}
+
+.title-container {
+	display: flex;
+	align-items: center;
+	gap: 20rpx;
+	font-size: 36rpx;
+	color: var(--color-accent);
+	margin: 30rpx 0;
+}
+
+.recipe-cards-container {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	gap: 20rpx;
+	margin-bottom: 58rpx;
+}
+
+image {
+	width: 42rpx;
+	height: 42rpx;
+}
