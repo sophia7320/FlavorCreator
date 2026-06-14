@@ -16,9 +16,11 @@ Component({
 		noTransition: true,
 		createAnimate: false,
 		isOnCommunity: false,
+		showPostOverlay: false,
 		postBgAnimate: false,
 		postIconUrl: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community/release.svg',
 		isOnMine: false,
+		showMineOverlay: false,
 		mineBgAnimate: false,
 		mineIconUrl: 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/selected-mine.svg',
 		list: [
@@ -133,9 +135,9 @@ Component({
 					clearTimeout(this._postBgTimer)
 					this._postBgTimer = null
 				}
-				this.setData({ postBgAnimate: false })
+				this.setData({ showPostOverlay: false, postBgAnimate: false })
 				wx.nextTick(() => {
-					this.setData({ postBgAnimate: true })
+					this.setData({ showPostOverlay: true, postBgAnimate: true })
 					this._postBgTimer = setTimeout(() => {
 						this._postBgTimer = null
 						this.setData({ postBgAnimate: false })
@@ -149,9 +151,9 @@ Component({
 					clearTimeout(this._mineBgTimer)
 					this._mineBgTimer = null
 				}
-				this.setData({ mineBgAnimate: false })
+				this.setData({ showMineOverlay: false, mineBgAnimate: false })
 				wx.nextTick(() => {
-					this.setData({ mineBgAnimate: true })
+					this.setData({ showMineOverlay: true, mineBgAnimate: true })
 					this._mineBgTimer = setTimeout(() => {
 						this._mineBgTimer = null
 						this.setData({ mineBgAnimate: false })

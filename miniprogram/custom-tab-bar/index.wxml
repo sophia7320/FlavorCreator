@@ -3,7 +3,7 @@
 	<view class="container">
 		<view class="community {{isOnCommunity ? 'post-mode' : ''}}" bindtap="onCommunityTap">
 			<!-- 社区页：暖黄色胶囊背景板（绝对定位叠加层，不占布局空间） -->
-			<view wx:if="{{isOnCommunity}}" class="post-bg-overlay {{postBgAnimate ? 'animate' : ''}}"></view>
+			<view wx:if="{{showPostOverlay}}" class="post-bg-overlay {{postBgAnimate ? 'animate' : ''}}"></view>
 			<!-- 图标和文字始终在文档流中，保持布局不变 -->
 			<image src="{{isOnCommunity ? postIconUrl : 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/community.png'}}" mode="aspectFit" class="community-icon"/>
 			<text class="description">{{isOnCommunity ? '发布' : '社区'}}</text>
@@ -13,7 +13,7 @@
 			<view class="create-text {{showCreate ? 'show' : 'hide'}} {{noTransition ? 'no-transition' : ''}} {{createAnimate ? 'animate' : ''}}">Create</view>
 		</view>
 		<view class="ME {{isOnMine ? 'mine-selected' : ''}}" data-path="/pages/mine/mine" bindtap="switchTab">
-			<view wx:if="{{isOnMine}}" class="mine-bg-overlay {{mineBgAnimate ? 'animate' : ''}}"></view>
+			<view wx:if="{{showMineOverlay}}" class="mine-bg-overlay {{mineBgAnimate ? 'animate' : ''}}"></view>
 			<image src="{{isOnMine ? mineIconUrl : 'https://miniprogram-img-1422554268.cos.ap-guangzhou.myqcloud.com/icon/mine.svg'}}" mode="aspectFit" class="ME-icon"/>
 			<text class="description">我的</text>
 		</view>
