@@ -46,6 +46,9 @@ public class RecipeMatchServiceImpl implements RecipeMatchService {
             }
         }
 
+        // 保存原始食材数作为分母（同义词扩展仅用于匹配，不改变分母）
+        int originalIngredientCount = userIngredientNames.size();
+
         Set<String> expandedNames = new HashSet<>(userIngredientNames);
         for (String name : userIngredientNames) {
             expandedNames.addAll(IngredientSynonyms.getSynonyms(name));
@@ -77,7 +80,7 @@ public class RecipeMatchServiceImpl implements RecipeMatchService {
             // Calculate match degree
             Set<String> matchedNames = new HashSet<>(userIngredientNames);
             matchedNames.retainAll(recipeIngredientNames);
-            int matchDegree = matchedNames.size() * 100 / userIngredientNames.size();
+            int matchDegree = matchedNames.size() * 100 / originalIngredientCount;
 
             ApplyRecipeRequestDTO.Preferences prefs = request.getPreferences();
             if (prefs != null) {

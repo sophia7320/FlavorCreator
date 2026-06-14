@@ -227,11 +227,10 @@ class RecipeMatchServiceImplTest {
     // ==================== 同义词匹配 ====================
 
     @Test
-    @DisplayName("同义词扩展后用户食材与菜谱食材匹配成功")
+    @DisplayName("同义词扩展后用户食材与菜谱食材匹配成功，分母用原始输入数")
     void testApply_SynonymMatch_DetectedViaIngredientSynonyms() throws Exception {
-        // 用户有 "土豆"，扩展为 {土豆, 马铃薯, 洋芋}（大小=3）
-        // 食谱有 "马铃薯" → 交集 = {马铃薯}（大小=1）
-        // matchDegree = 1 * 100 / 3 = 33
+        // 用户有 "土豆"，原始输入 size=1。扩展为 {土豆, 马铃薯, 洋芋} 用于匹配
+        // 食谱有 "马铃薯" → 交集 = {马铃薯}，匹配度 = 1 * 100 / 1 = 100
         ApplyRecipeRequestDTO request = createRequest(List.of("土豆"));
         Recipe r = recipe(1L, 2001L, ingredientsJson("马铃薯"), "15", 1, null, null);
 
@@ -242,8 +241,7 @@ class RecipeMatchServiceImplTest {
 
         ApplyRecipeResponseDTO response = recipeMatchService.apply(request);
 
-        assertTrue(response.getMatchDegree() > 0);
-        assertEquals(33, response.getMatchDegree());
+        assertEquals(100, response.getMatchDegree());
     }
 
     // ==================== 偏好过滤 ====================
