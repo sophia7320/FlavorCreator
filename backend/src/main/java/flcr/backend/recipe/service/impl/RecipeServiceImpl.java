@@ -33,7 +33,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -542,24 +541,21 @@ public class RecipeServiceImpl implements RecipeService {
     }
 
     private Integer convertDifficulty(String difficulty) {
-        switch (difficulty) {
-            case "simple":
-            case "简单": return 1;
-            case "medium":
-            case "中等": return 2;
-            case "hard":
-            case "困难": return 3;
-            default: return null;
-        }
+        return switch (difficulty) {
+            case "simple", "简单" -> 1;
+            case "medium", "中等" -> 2;
+            case "hard", "困难" -> 3;
+            default -> null;
+        };
     }
 
     private String convertDifficultyToString(Integer difficulty) {
         if (difficulty == null) return "";
-        switch (difficulty) {
-            case 1: return "简单";
-            case 2: return "中等";
-            case 3: return "困难";
-            default: return "未知";
-        }
+        return switch (difficulty) {
+            case 1 -> "简单";
+            case 2 -> "中等";
+            case 3 -> "困难";
+            default -> "未知";
+        };
     }
 }
